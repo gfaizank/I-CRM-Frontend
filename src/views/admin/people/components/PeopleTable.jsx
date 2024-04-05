@@ -1,11 +1,37 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MdDelete } from "react-icons/md";
 import Pagination from "./Pagination";
+
 
 const PeopleTable = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  const [peopleData, setPeopleData] = useState([]);
+  const [deleted, setDeleted] = useState(false);
+
+  useEffect(() => {
+    fetch('https://i-crm-backend-6fqp.onrender.com/people/')
+      .then(response => response.json())
+      .then(data => setPeopleData(data))
+      .catch(error => console.error('Error fetching data:', error));
+  }, [deleted]);
+
+  const handleDeleteRow = (id) => {
+    
+    fetch(`https://i-crm-backend-6fqp.onrender.com/people/${id}`, {
+      method: 'DELETE'
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Failed to delete row');
+      }
+      setPeopleData(prevData => prevData.filter(row => row.id !== id));
+      setDeleted(prevDeleted => !prevDeleted);
+    })
+    .catch(error => console.error('Error deleting row:', error));
+  };
 
   const handleDrawerToggle = () => {
     setIsDrawerOpen(!isDrawerOpen);
@@ -537,39 +563,42 @@ const PeopleTable = () => {
             </tr>
           </thead>
           <tbody>
-            {filteredData.map((row) => (
-              <tr
-                key={row.id}
-                className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600"
-              >
-                <td className="w-4 p-4">
-                  <input
-                    type="checkbox"
-                    className="h-4 w-4 rounded border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:focus:ring-blue-600 dark:focus:ring-offset-gray-800"
-                  />
-                </td>
-                <th
-                  scope="row"
-                  className="whitespace-nowrap px-6 py-4 font-medium text-gray-900 dark:text-white"
+          {peopleData.map((row) => (
+          <tr
+            key={row.id}
+            className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600"
+          >
+            <td className="w-4 p-4">
+              <input
+                type="checkbox"
+                className="h-4 w-4 rounded border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:focus:ring-blue-600 dark:focus:ring-offset-gray-800"
+              />
+            </td>
+            <th
+              scope="row"
+              className="whitespace-nowrap px-6 py-4 font-medium text-gray-900 dark:text-white"
+            >
+              {/* {row.firstname+" "+row.lastname} */}{row.displayName}
+            </th>
+            <td className="px-6 py-4">{row.department}</td>
+            <td className="px-6 py-4">{row.mobile}</td>
+            <td className="px-6 py-4">{row.workEmail}</td>
+            <td className="px-6 py-4">
+              <div className="flex flex-row items-center gap-3">
+                <a
+                  href="#"
+                  className="font-medium text-blue-600 hover:underline dark:text-blue-500"
                 >
-                  {row.name}
-                </th>
-                <td className="px-6 py-4">{row.company}</td>
-                <td className="px-6 py-4">{row.phone}</td>
-                <td className="px-6 py-4">{row.email}</td>
-                <td className="px-6 py-4">
-                  <div className="flex flex-row items-center gap-3 ">
-                    <a
-                      href="#"
-                      className="font-medium text-blue-600 hover:underline dark:text-blue-500"
-                    >
-                      Edit
-                    </a>
-                    <MdDelete className="text-lg text-red-500 hover:text-red-300" />
-                  </div>
-                </td>
-              </tr>
-            ))}
+                  Edit
+                </a>
+                <MdDelete 
+                 className="text-lg text-red-500 hover:text-red-300"
+                 onClick={() => handleDeleteRow(row._id)}
+                 />
+              </div>
+            </td>
+          </tr>
+        ))}
           </tbody>
         </table>
       </div>
