@@ -7,7 +7,7 @@ import { useLogin } from "hooks/useLogin";
 export default function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  // const { login, error, isLoading } = useLogin();
+  const { login, error, isLoading } = useLogin();
 
   const formData = {
     email: email,
@@ -19,7 +19,7 @@ export default function SignIn() {
 
     console.log(formData);
 
-    // await login(email, password);
+    await login(email, password);
   };
 
   return (
@@ -87,12 +87,12 @@ export default function SignIn() {
           <button
             className="linear mt-2 w-full rounded-xl bg-brand-500 py-[12px] text-base font-medium text-white transition duration-200 hover:bg-brand-600 active:bg-brand-700 dark:bg-brand-400 dark:text-white dark:hover:bg-brand-300 dark:active:bg-brand-200"
             type="button"
-            // disabled={isLoading}
+            disabled={isLoading}
             onClick={handleSubmit}
           >
             Sign In
           </button>
-          {/* {error && <div className="error">{error}</div>} */}
+          {error && <div className="error">{error}</div>}
         </form>
         <div className="mt-4">
           <span className=" text-sm font-medium text-navy-700 dark:text-gray-600">

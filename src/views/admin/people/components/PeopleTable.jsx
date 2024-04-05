@@ -328,6 +328,36 @@ const PeopleTable = () => {
 
                   <div className="mb-6">
                     <label
+                      htmlFor="nature"
+                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                    >
+                      Nature
+                    </label>
+                    <input
+                      type="text"
+                      id="nature"
+                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                      placeholder="Nature of the role"
+                    />
+                  </div>
+
+                  <div className="mb-6">
+                    <label
+                      htmlFor="eI"
+                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                    >
+                      External ID
+                    </label>
+                    <input
+                      type="text"
+                      id="eID"
+                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                      placeholder="Optional for Referral Partner"
+                    />
+                  </div>
+
+                  <div className="mb-6">
+                    <label
                       htmlFor="department"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
@@ -338,7 +368,6 @@ const PeopleTable = () => {
                       id="department"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                       placeholder="Engineering, Sales or Outside Inzint..."
-                      required
                     />
                   </div>
 
@@ -351,10 +380,114 @@ const PeopleTable = () => {
                     </label>
                     <input
                       type="number"
-                      id="rate"
+                      id="hourly-rate"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                       placeholder="Your hourly rate"
-                      required
+                    />
+                  </div>
+
+                  <div className="mb-6">
+                    <label
+                      htmlFor="tds rate"
+                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                    >
+                      TDS Rate
+                    </label>
+                    <input
+                      type="text"
+                      id="tds-rate"
+                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                      placeholder="Your TDS Rate"
+                    />
+                  </div>
+
+                  <div className="mb-6">
+                    <label
+                      htmlFor="gst rate"
+                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                    >
+                      Gst Rate
+                    </label>
+                    <input
+                      type="text"
+                      id="gst-rate"
+                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                      placeholder="Your Gst Rate"
+                    />
+                  </div>
+
+                  <div className="mb-6">
+                    <label
+                      htmlFor="pan"
+                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                    >
+                      PAN Number
+                    </label>
+                    <input
+                      type="text"
+                      id="pan"
+                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                      placeholder="Your Pan Card no."
+                    />
+                  </div>
+
+                  <div className="mb-6">
+                    <label
+                      htmlFor="a/c"
+                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                    >
+                      Bank Account Number
+                    </label>
+                    <input
+                      type=""
+                      id="a/c"
+                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                      placeholder="Your Bank Account Number"
+                    />
+                  </div>
+
+                  <div className="mb-6">
+                    <label
+                      htmlFor="ifsc"
+                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                    >
+                      IFSC Code
+                    </label>
+                    <input
+                      type="text"
+                      id="ifsc"
+                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                      placeholder="Your Bank's IFSC code"
+                    />
+                  </div>
+
+                  <div className="mb-6">
+                    <label
+                      htmlFor="payment-channel"
+                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                    >
+                      Payment Channel
+                    </label>
+                    <input
+                      type="text"
+                      id="payment-channel"
+                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                      placeholder="Your Preferred Channel Partner"
+                    />
+                  </div>
+
+                  <div className="mb-6">
+                    <label
+                      htmlFor="payment-mode"
+                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                    >
+                      Payment Mode
+                    </label>
+                    <input
+                      type="text"
+                      id="payment-mode"
+                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                      placeholder="Your Preferred Payment Mode"
                     />
                   </div>
 
