@@ -4,11 +4,13 @@ import Checkbox from "components/checkbox";
 import { useState } from "react";
 import { useLogin } from "hooks/useLogin";
 
+
 export default function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { login, error, isLoading } = useLogin();
 
+  
   const formData = {
     email: email,
     password: password,
@@ -20,6 +22,7 @@ export default function SignIn() {
     console.log(formData);
 
     await login(email, password);
+
   };
 
   return (

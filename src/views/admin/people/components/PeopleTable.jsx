@@ -1,22 +1,77 @@
 import { useEffect, useState } from "react";
 import { MdDelete } from "react-icons/md";
 import Pagination from "./Pagination";
+import { useAuthContext } from 'hooks/useAuthContext';
 
 
 const PeopleTable = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const { user }=useAuthContext()
 
   const [peopleData, setPeopleData] = useState([]);
   const [deleted, setDeleted] = useState(false);
+  const [submitted, setSubmitted]=useState(false);
+
+  const [formData, setFormData] = useState({
+    nature: '',
+    workEmail: '',
+    mobile: '',
+    displayName: '',
+    department: '',
+    employeeId: '',
+    hourlyRate: '',
+    tdsRate: '',
+    gstRate: '',
+    pan: '',
+    bankAccountNumber: '',
+    ifscCode: '',
+    paymentChannel: '',
+    paymentMode: ''
+  });
+
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    console.log(formData)
+
+    // Send data to the API endpoint
+    fetch('https://i-crm-backend-6fqp.onrender.com/people/create', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${user.token}`
+      },
+      body: JSON.stringify(formData)
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('Success:', data);
+      setSubmitted(prevSubmitted => !prevSubmitted);
+      // Optionally, you can show a success message or redirect the user to another page
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      // Optionally, you can show an error message to the user
+    });
+  };
 
   useEffect(() => {
     fetch('https://i-crm-backend-6fqp.onrender.com/people/')
       .then(response => response.json())
       .then(data => setPeopleData(data))
       .catch(error => console.error('Error fetching data:', error));
-  }, [deleted]);
+  }, [deleted, submitted]);
 
   const handleDeleteRow = (id) => {
     
@@ -39,37 +94,7 @@ const PeopleTable = () => {
 
   const handleDropdownToggle = () => setShowDropdown(!showDropdown);
 
-  const tableData = [
-    {
-      id: 1,
-      name: "Jai",
-      company: "Inzint",
-      phone: "9876543210",
-      email: "jai@inzint.com",
-    },
-    {
-      id: 2,
-      name: "Akash Kumar",
-      company: "Inzint",
-      phone: "9876543210",
-      email: "akash@inzint.com",
-    },
-    {
-      id: 3,
-      name: "Faizan",
-      company: "Inzint",
-      phone: "8765483471",
-      email: "faizan@inzint.com",
-    },
-  ];
-
-  const filteredData = searchQuery
-    ? tableData.filter(
-        (row) =>
-          row.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          row.email.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    : tableData;
+  
 
   return (
     <div className="min-h-screen bg-white">
@@ -291,31 +316,37 @@ const PeopleTable = () => {
                 <form className="mb-6">
                   <div className="mb-6">
                     <label
-                      htmlFor="name"
+                      htmlFor="displayName"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
                       <span className="text-lg text-red-500">*</span>Full Name
                     </label>
                     <input
                       type="text"
-                      id="name"
+                      id="displayName"
+                      name="displayName"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                       placeholder="Your Name"
+                      value={formData.displayName}
+                      onChange={(handleInputChange)}
                       required
                     />
                   </div>
                   <div className="mb-6">
                     <label
-                      htmlFor="company"
+                      htmlFor="department"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      <span className="text-lg text-red-500">*</span>Company
+                      <span className="text-lg text-red-500">*</span>Department
                     </label>
                     <input
                       type="text"
-                      id="company"
+                      id="department"
+                      name="department"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Your Company"
+                      placeholder="Your Department"
+                      value={formData.department}
+                      onChange={handleInputChange}
                       required
                     />
                   </div>
@@ -330,8 +361,11 @@ const PeopleTable = () => {
                     <input
                       type="phone"
                       id="phone"
+                      name="mobile"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                       placeholder="Your phone number"
+                      value={formData.mobile}
+                      onChange={handleInputChange}
                       required
                     />
                   </div>
@@ -346,8 +380,11 @@ const PeopleTable = () => {
                     <input
                       type="email"
                       id="email"
+                      name="workEmail"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                       placeholder="Your email"
+                      value={formData.workEmail}
+                      onChange={handleInputChange}
                       required
                     />
                   </div>
@@ -362,27 +399,33 @@ const PeopleTable = () => {
                     <input
                       type="text"
                       id="nature"
+                      name="nature"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                       placeholder="Nature of the role"
+                      value={formData.nature}
+                      onChange={handleInputChange}
                     />
                   </div>
 
                   <div className="mb-6">
                     <label
-                      htmlFor="eI"
+                      htmlFor="employeeId"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
                       External ID
                     </label>
                     <input
                       type="text"
-                      id="eID"
+                      id="employeeId"
+                      name="employeeId"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                       placeholder="Optional for Referral Partner"
+                      value={formData.employeeId}
+                      onChange={handleInputChange}
                     />
                   </div>
 
-                  <div className="mb-6">
+                  {/* <div className="mb-6">
                     <label
                       htmlFor="department"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
@@ -395,7 +438,7 @@ const PeopleTable = () => {
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                       placeholder="Engineering, Sales or Outside Inzint..."
                     />
-                  </div>
+                  </div> */}
 
                   <div className="mb-6">
                     <label
@@ -407,8 +450,11 @@ const PeopleTable = () => {
                     <input
                       type="number"
                       id="hourly-rate"
+                      name="hourlyRate"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                       placeholder="Your hourly rate"
+                      value={formData.hourlyRate}
+                      onChange={handleInputChange}
                     />
                   </div>
 
@@ -422,8 +468,11 @@ const PeopleTable = () => {
                     <input
                       type="text"
                       id="tds-rate"
+                      name="tdsRate"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                       placeholder="Your TDS Rate"
+                      value={formData.tdsRate}
+                      onChange={handleInputChange}
                     />
                   </div>
 
@@ -437,8 +486,11 @@ const PeopleTable = () => {
                     <input
                       type="text"
                       id="gst-rate"
+                      name="gstRate"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                       placeholder="Your Gst Rate"
+                      value={formData.gstRate}
+                      onChange={handleInputChange}
                     />
                   </div>
 
@@ -452,8 +504,11 @@ const PeopleTable = () => {
                     <input
                       type="text"
                       id="pan"
+                      name="pan"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                       placeholder="Your Pan Card no."
+                      value={formData.pan}
+                      onChange={handleInputChange}
                     />
                   </div>
 
@@ -467,8 +522,11 @@ const PeopleTable = () => {
                     <input
                       type=""
                       id="a/c"
+                      name="bankAccountNumber"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                       placeholder="Your Bank Account Number"
+                      value={formData.bankAccountNumber}
+                      onChange={handleInputChange}
                     />
                   </div>
 
@@ -482,8 +540,11 @@ const PeopleTable = () => {
                     <input
                       type="text"
                       id="ifsc"
+                      name="ifscCode"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                       placeholder="Your Bank's IFSC code"
+                      value={formData.ifscCode}
+                      onChange={handleInputChange}
                     />
                   </div>
 
@@ -497,8 +558,11 @@ const PeopleTable = () => {
                     <input
                       type="text"
                       id="payment-channel"
+                      name="paymentChannel"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                       placeholder="Your Preferred Channel Partner"
+                      value={formData.paymentChannel}
+                      onChange={handleInputChange}
                     />
                   </div>
 
@@ -512,13 +576,17 @@ const PeopleTable = () => {
                     <input
                       type="text"
                       id="payment-mode"
+                      name="paymentMode"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                       placeholder="Your Preferred Payment Mode"
+                      value={formData.paymentMode}
+                      onChange={handleInputChange}
                     />
                   </div>
 
                   <button
                     type="submit"
+                    onClick={handleSubmit}
                     className="mb-2 block w-full rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                   >
                     Send message
