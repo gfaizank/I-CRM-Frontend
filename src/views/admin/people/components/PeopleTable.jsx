@@ -1,34 +1,54 @@
 import { useEffect, useState } from "react";
 import { MdDelete } from "react-icons/md";
 import Pagination from "./Pagination";
-import { useAuthContext } from 'hooks/useAuthContext';
-
+import { useAuthContext } from "hooks/useAuthContext";
+import DeletePeopleConfirm from "./DeletePeopleConfirm";
 
 const PeopleTable = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const { user }=useAuthContext()
+  const { user } = useAuthContext();
 
   const [peopleData, setPeopleData] = useState([]);
   const [deleted, setDeleted] = useState(false);
-  const [submitted, setSubmitted]=useState(false);
+  const [submitted, setSubmitted] = useState(false);
+
+  const [showModal, setShowModal] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
+
+  const handleDeleteClick = (event, id) => {
+    event.preventDefault();
+    setDeleteId(id);
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+  };
+
+  const handleConfirmDelete = () => {
+    if (!deleteId) return;
+    handleDeleteRow(deleteId);
+    setShowModal(false);
+    setDeleteId(null);
+  };
 
   const [formData, setFormData] = useState({
-    nature: '',
-    workEmail: '',
-    mobile: '',
-    displayName: '',
-    department: '',
-    employeeId: '',
-    hourlyRate: '',
-    tdsRate: '',
-    gstRate: '',
-    pan: '',
-    bankAccountNumber: '',
-    ifscCode: '',
-    paymentChannel: '',
-    paymentMode: ''
+    nature: "",
+    workEmail: "",
+    mobile: "",
+    displayName: "",
+    department: "",
+    employeeId: "",
+    hourlyRate: "",
+    tdsRate: "",
+    gstRate: "",
+    pan: "",
+    bankAccountNumber: "",
+    ifscCode: "",
+    paymentChannel: "",
+    paymentMode: "",
   });
 
   const handleInputChange = (event) => {
@@ -38,54 +58,53 @@ const PeopleTable = () => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    console.log(formData)
+    console.log(formData);
 
     // Send data to the API endpoint
-    fetch('https://i-crm-backend-6fqp.onrender.com/people/create', {
-      method: 'POST',
+    fetch("https://i-crm-backend-6fqp.onrender.com/people/create", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${user.token}`
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${user.token}`,
       },
-      body: JSON.stringify(formData)
+      body: JSON.stringify(formData),
     })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      return response.json();
-    })
-    .then(data => {
-      console.log('Success:', data);
-      setSubmitted(prevSubmitted => !prevSubmitted);
-      // Optionally, you can show a success message or redirect the user to another page
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      // Optionally, you can show an error message to the user
-    });
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log("Success:", data);
+        setSubmitted((prevSubmitted) => !prevSubmitted);
+        // Optionally, you can show a success message or redirect the user to another page
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        // Optionally, you can show an error message to the user
+      });
   };
 
   useEffect(() => {
-    fetch('https://i-crm-backend-6fqp.onrender.com/people/')
-      .then(response => response.json())
-      .then(data => setPeopleData(data))
-      .catch(error => console.error('Error fetching data:', error));
+    fetch("https://i-crm-backend-6fqp.onrender.com/people/")
+      .then((response) => response.json())
+      .then((data) => setPeopleData(data))
+      .catch((error) => console.error("Error fetching data:", error));
   }, [deleted, submitted]);
 
   const handleDeleteRow = (id) => {
-    
     fetch(`https://i-crm-backend-6fqp.onrender.com/people/${id}`, {
-      method: 'DELETE'
+      method: "DELETE",
     })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Failed to delete row');
-      }
-      setPeopleData(prevData => prevData.filter(row => row.id !== id));
-      setDeleted(prevDeleted => !prevDeleted);
-    })
-    .catch(error => console.error('Error deleting row:', error));
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to delete row");
+        }
+        setPeopleData((prevData) => prevData.filter((row) => row.id !== id));
+        setDeleted((prevDeleted) => !prevDeleted);
+      })
+      .catch((error) => console.error("Error deleting row:", error));
   };
 
   const handleDrawerToggle = () => {
@@ -94,10 +113,8 @@ const PeopleTable = () => {
 
   const handleDropdownToggle = () => setShowDropdown(!showDropdown);
 
-  
-
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-fit bg-white">
       <div className="relative m-4 overflow-x-auto p-8 shadow-md sm:rounded-lg">
         <div className="flex-column flex flex-wrap items-center justify-between space-y-4 pb-4 sm:flex-row sm:space-y-0">
           <div>
@@ -328,7 +345,7 @@ const PeopleTable = () => {
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                       placeholder="Your Name"
                       value={formData.displayName}
-                      onChange={(handleInputChange)}
+                      onChange={handleInputChange}
                       required
                     />
                   </div>
@@ -598,6 +615,17 @@ const PeopleTable = () => {
           </div>
           {/* Add New Person */}
         </div>
+        {showModal && (
+          <div className="fixed top-0 left-0 flex h-full w-full items-center justify-center">
+            <div className="absolute top-0 h-full w-full bg-gray-900 opacity-50"></div>
+            <div className="z-50 rounded-lg bg-white p-6 shadow-lg dark:bg-gray-800">
+              <DeletePeopleConfirm
+                onClose={handleCloseModal}
+                onConfirm={handleConfirmDelete}
+              />
+            </div>
+          </div>
+        )}
         <table className="w-full text-left text-sm text-gray-500 dark:text-gray-400">
           <thead class="bg-gray-100 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400">
             <tr>
@@ -631,48 +659,49 @@ const PeopleTable = () => {
             </tr>
           </thead>
           <tbody>
-          {peopleData.map((row) => (
-          <tr
-            key={row.id}
-            className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600"
-          >
-            <td className="w-4 p-4">
-              <input
-                type="checkbox"
-                className="h-4 w-4 rounded border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:focus:ring-blue-600 dark:focus:ring-offset-gray-800"
-              />
-            </td>
-            <th
-              scope="row"
-              className="whitespace-nowrap px-6 py-4 font-medium text-gray-900 dark:text-white"
-            >
-              {/* {row.firstname+" "+row.lastname} */}{row.displayName}
-            </th>
-            <td className="px-6 py-4">{row.department}</td>
-            <td className="px-6 py-4">{row.mobile}</td>
-            <td className="px-6 py-4">{row.workEmail}</td>
-            <td className="px-6 py-4">
-              <div className="flex flex-row items-center gap-3">
-                <a
-                  href="#"
-                  className="font-medium text-blue-600 hover:underline dark:text-blue-500"
+            {peopleData.map((row) => (
+              <tr
+                key={row.id}
+                className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600"
+              >
+                <td className="w-4 p-4">
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4 rounded border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:focus:ring-blue-600 dark:focus:ring-offset-gray-800"
+                  />
+                </td>
+                <th
+                  scope="row"
+                  className="whitespace-nowrap px-6 py-4 font-medium text-gray-900 dark:text-white"
                 >
-                  Edit
-                </a>
-                <MdDelete 
-                 className="text-lg text-red-500 hover:text-red-300"
-                 onClick={() => handleDeleteRow(row._id)}
-                 />
-              </div>
-            </td>
-          </tr>
-        ))}
+                  {/* {row.firstname+" "+row.lastname} */}
+                  {row.displayName}
+                </th>
+                <td className="px-6 py-4">{row.department}</td>
+                <td className="px-6 py-4">{row.mobile}</td>
+                <td className="px-6 py-4">{row.workEmail}</td>
+                <td className="px-6 py-4">
+                  <div className="flex flex-row items-center gap-3">
+                    <a
+                      href="#"
+                      className="font-medium text-blue-600 hover:underline dark:text-blue-500"
+                    >
+                      Edit
+                    </a>
+                    <MdDelete
+                      className="text-lg text-red-500 hover:text-red-300"
+                      onClick={(event) => handleDeleteClick(event, row._id)}
+                    />
+                  </div>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
 
       {/* Pagination */}
-      <div className="flex justify-end mr-6">
+      <div className="mr-6 mb-4 flex justify-end">
         <Pagination />
       </div>
     </div>

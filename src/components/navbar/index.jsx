@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Dropdown from "components/dropdown";
 import { FiAlignJustify } from "react-icons/fi";
 import { Link } from "react-router-dom";
@@ -12,19 +12,36 @@ import {
 } from "react-icons/io";
 import avatar from "assets/img/avatars/avatar4.png";
 import { useLogout } from "hooks/useLogout";
-import { useAuthContext } from 'hooks/useAuthContext';
+import { useAuthContext } from "hooks/useAuthContext";
+import DeleteConfirmationModal from "./components/DeleteConfirmationModal";
 
 const Navbar = (props) => {
   const { onOpenSidenav, brandText } = props;
   const [darkmode, setDarkmode] = React.useState(false);
 
-  const { logout }=useLogout()
+  const { logout } = useLogout();
 
-  const { user }=useAuthContext()
+  const { user } = useAuthContext();
 
-  const handleLogOut = () => {
-    logout()
-  }
+  const [showModal, setShowModal] = useState(false);
+
+  const handleDeleteClick = (event) => {
+    event.preventDefault();
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+  };
+
+  const handleConfirmDelete = () => {
+    setShowModal(false);
+    logout();
+  };
+
+  // const handleLogOut = () => {
+  //   logout();
+  // };
 
   return (
     <nav className="sticky top-4 z-40 flex flex-row flex-wrap items-center justify-between rounded-xl bg-white/10 p-2 backdrop-blur-xl dark:bg-[#0b14374d]">
@@ -220,16 +237,28 @@ const Navbar = (props) => {
                 </a>
                 <a
                   href=" "
-                  className="mt-3 text-sm font-medium text-red-500 hover:text-red-500 transition duration-150 ease-out hover:ease-in"
-                  onClick={handleLogOut}
+                  className="mt-3 text-sm font-medium text-red-500 transition duration-150 ease-out hover:text-red-500 hover:ease-in"
+                  onClick={handleDeleteClick}
                 >
-                  {user ? 'Log Out' : 'Log In'}
+                  {user ? "Log Out" : "Log In"}
                 </a>
+                
               </div>
             </div>
           }
           classNames={"py-2 top-8 -left-[180px] w-max"}
         />
+        {showModal && user && (
+          <div className="fixed top-0 left-0 flex h-full w-full items-center justify-center">
+          <div className="absolute top-0 h-[700px] w-full bg-gray-900 opacity-50"></div>
+          <div className="z-50 rounded-lg bg-white p-6 shadow-lg dark:bg-gray-800">
+            <DeleteConfirmationModal
+              onClose={handleCloseModal}
+              onConfirm={handleConfirmDelete}
+            />
+          </div>
+        </div>
+        )}
       </div>
     </nav>
   );

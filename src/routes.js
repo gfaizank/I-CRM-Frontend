@@ -54,7 +54,7 @@ const routes = [
     component: <DataTables />,
   },
   {
-    name: "Sign in",
+    name: "Invoice",
     layout: "/auth",
     path: "sign-in",
     icon: <MdAssignment className="h-6 w-6" />,
