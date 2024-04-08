@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MdDelete } from "react-icons/md";
 import Pagination from "./Pagination";
 import { useAuthContext } from "hooks/useAuthContext";
@@ -41,9 +41,9 @@ const PeopleTable = () => {
     displayName: "",
     department: "",
     employeeId: "",
-    hourlyRate: "",
-    tdsRate: "",
-    gstRate: "",
+    hourlyRate: 0,
+    tdsRate: 0,
+    gstRate: 0,
     pan: "",
     bankAccountNumber: "",
     ifscCode: "",
@@ -53,7 +53,9 @@ const PeopleTable = () => {
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
-    setFormData({ ...formData, [name]: value });
+    const parsedValue = !isNaN(value) ? parseFloat(value) : value;
+    setFormData({ ...formData, [name]: parsedValue });
+    // setFormData({ ...formData, [name]: value });
   };
 
   const handleSubmit = (event) => {
@@ -77,6 +79,7 @@ const PeopleTable = () => {
       })
       .then((data) => {
         console.log("Success:", data);
+        setIsDrawerOpen(false);
         setSubmitted((prevSubmitted) => !prevSubmitted);
         // Optionally, you can show a success message or redirect the user to another page
       })
@@ -107,9 +110,26 @@ const PeopleTable = () => {
       .catch((error) => console.error("Error deleting row:", error));
   };
 
+  const drawerRef = useRef(null);
+  
   const handleDrawerToggle = () => {
     setIsDrawerOpen(!isDrawerOpen);
   };
+
+  const handleClickOutside = (event) => {
+    if (drawerRef.current && !drawerRef.current.contains(event.target)) {
+      setIsDrawerOpen(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isDrawerOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isDrawerOpen]);
 
   const handleDropdownToggle = () => setShowDropdown(!showDropdown);
 
@@ -291,6 +311,7 @@ const PeopleTable = () => {
             {/* Drawer starts */}
             {isDrawerOpen && (
               <div
+                ref={drawerRef}
                 id="drawer-contact"
                 className="fixed top-0 right-0 z-40 h-screen w-80 -translate-x-0 overflow-y-auto bg-gray-100 p-4 transition-transform dark:bg-gray-800"
                 tabIndex="-1"
@@ -565,14 +586,31 @@ const PeopleTable = () => {
                     />
                   </div>
 
-                  <div className="mb-6">
+                  <div className="mx-auto mb-6">
                     <label
                       htmlFor="payment-channel"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      Payment Channel
+                      <span className="text-lg text-red-500">*</span>Payment
+                      Channel
                     </label>
-                    <input
+                    <select
+                      id="countries"
+                      class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                      value={formData.paymentChannel}
+                      onChange={handleInputChange}
+                      name="paymentChannel"
+                    >
+                      <option selected>Choose a channel</option>
+                      <option value="Domestic Bank Transfer">
+                        Domestic Bank Transfer
+                      </option>
+                      <option value="International Bank Transfer">
+                        International Bank Transfer
+                      </option>
+                      <option value="Via Third Party">Via Third Party</option>
+                    </select>
+                    {/* <input
                       type="text"
                       id="payment-channel"
                       name="paymentChannel"
@@ -580,25 +618,33 @@ const PeopleTable = () => {
                       placeholder="Your Preferred Channel Partner"
                       value={formData.paymentChannel}
                       onChange={handleInputChange}
-                    />
+                    /> */}
                   </div>
 
-                  <div className="mb-6">
+                  <div className="mx-auto mb-6">
                     <label
                       htmlFor="payment-mode"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      Payment Mode
+                      <span className="text-lg text-red-500">*</span>Payment
+                      Mode
                     </label>
-                    <input
-                      type="text"
-                      id="payment-mode"
-                      name="paymentMode"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Your Preferred Payment Mode"
+                    <select
+                      id="countries"
+                      class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                       value={formData.paymentMode}
                       onChange={handleInputChange}
-                    />
+                      name="paymentMode"
+                    >
+                      <option selected>Choose a mode</option>
+                      <option value="International Wire">
+                        International Wire
+                      </option>
+                      <option value="Wise">Wise</option>
+                      <option value="NEFT">NEFT</option>
+                      <option value="Cheque">Cheque</option>
+                      <option value="Cash">Cash</option>
+                    </select>
                   </div>
 
                   <button
