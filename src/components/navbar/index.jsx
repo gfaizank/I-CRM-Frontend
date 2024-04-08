@@ -12,12 +12,15 @@ import {
 } from "react-icons/io";
 import avatar from "assets/img/avatars/avatar4.png";
 import { useLogout } from "hooks/useLogout";
+import { useAuthContext } from 'hooks/useAuthContext';
 
 const Navbar = (props) => {
   const { onOpenSidenav, brandText } = props;
   const [darkmode, setDarkmode] = React.useState(false);
 
   const { logout }=useLogout()
+
+  const { user }=useAuthContext()
 
   const handleLogOut = () => {
     logout()
@@ -220,7 +223,7 @@ const Navbar = (props) => {
                   className="mt-3 text-sm font-medium text-red-500 hover:text-red-500 transition duration-150 ease-out hover:ease-in"
                   onClick={handleLogOut}
                 >
-                  Log Out
+                  {user ? 'Log Out' : 'Log In'}
                 </a>
               </div>
             </div>

@@ -31,7 +31,7 @@ export const useLogin = () => {
       // update the auth context
       dispatch({type: 'LOGIN', payload: json})
 
-      navigate("/admin/people");
+      navigate("/admin/default");
 
       // update loading state
       setIsLoading(false)
