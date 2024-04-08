@@ -482,23 +482,30 @@ const PeopleTable = () => {
                       required
                     />
                   </div>
-                  <div className="mb-6">
+                  <div className="mx-auto mb-6">
                     <label
                       htmlFor="department"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
                       <span className="text-lg text-red-500">*</span>Department
                     </label>
-                    <input
-                      type="text"
+                    <select
                       id="department"
                       name="department"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Your Department"
+                      class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                       value={formData.department}
                       onChange={handleInputChange}
                       required
-                    />
+                    >
+                      <option selected>Choose a department</option>
+                      <option value="Engineering">
+                        Engineering
+                      </option>
+                      {/* <option value="Wise">Wise</option>
+                      <option value="NEFT">NEFT</option>
+                      <option value="Cheque">Cheque</option>
+                      <option value="Cash">Cash</option> */}
+                    </select>
                   </div>
 
                   <div className="mb-6">
@@ -539,22 +546,30 @@ const PeopleTable = () => {
                     />
                   </div>
 
-                  <div className="mb-6">
+                  <div className="mx-auto mb-6">
                     <label
                       htmlFor="nature"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      Nature
+                      <span className="text-lg text-red-500">*</span>Nature
                     </label>
-                    <input
-                      type="text"
+                    <select
                       id="nature"
                       name="nature"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Nature of the role"
+                      class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                       value={formData.nature}
                       onChange={handleInputChange}
-                    />
+                      required
+                    >
+                      <option selected>Choose a nature</option>
+                      <option value="REFERRAL_PARTNER">
+                        REFERRAL_PARTNER
+                      </option>
+                      {/* <option value="Wise">Wise</option>
+                      <option value="NEFT">NEFT</option>
+                      <option value="Cheque">Cheque</option>
+                      <option value="Cash">Cash</option> */}
+                    </select>
                   </div>
 
                   <div className="mb-6">
@@ -832,23 +847,29 @@ const PeopleTable = () => {
                       required
                     />
                   </div>
-                  <div className="mb-6">
+                  <div className="mx-auto mb-6">
                     <label
                       htmlFor="department"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
                       <span className="text-lg text-red-500">*</span>Department
                     </label>
-                    <input
-                      type="text"
+                    <select
                       id="department"
                       name="department"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Your Department"
+                      class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                       value={idData.department}
                       onChange={handleUpdateChange}
-                      required
-                    />
+                    >
+                      <option selected>Choose a department</option>
+                      <option value="Engineering">
+                        Engineering
+                      </option>
+                      {/* <option value="Wise">Wise</option>
+                      <option value="NEFT">NEFT</option>
+                      <option value="Cheque">Cheque</option>
+                      <option value="Cash">Cash</option> */}
+                    </select>
                   </div>
 
                   <div className="mb-6">
@@ -889,22 +910,29 @@ const PeopleTable = () => {
                     />
                   </div>
 
-                  <div className="mb-6">
+                  <div className="mx-auto mb-6">
                     <label
                       htmlFor="nature"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      Nature
+                      <span className="text-lg text-red-500">*</span>Nature
                     </label>
-                    <input
-                      type="text"
+                    <select
                       id="nature"
                       name="nature"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Nature of the role"
+                      class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                       value={idData.nature}
                       onChange={handleUpdateChange}
-                    />
+                    >
+                      <option selected>Choose a nature</option>
+                      <option value="REFERRAL_PARTNER">
+                        REFERRAL_PARTNER
+                      </option>
+                      {/* <option value="Wise">Wise</option>
+                      <option value="NEFT">NEFT</option>
+                      <option value="Cheque">Cheque</option>
+                      <option value="Cash">Cash</option> */}
+                    </select>
                   </div>
 
                   <div className="mb-6">
