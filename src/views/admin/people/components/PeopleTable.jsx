@@ -15,6 +15,8 @@ const PeopleTable = () => {
   const [deleted, setDeleted] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [updated, setUpdated] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(5);
 
   const [showModal, setShowModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
@@ -142,7 +144,9 @@ const PeopleTable = () => {
     };
   }, [isDrawerOpen]);
 
-  const handleDropdownToggle = () => setShowDropdown(!showDropdown);
+  const handleDropdownToggle = () => {
+    setShowDropdown(!showDropdown);
+  };
 
   //update functions and states
 
@@ -247,6 +251,10 @@ const PeopleTable = () => {
     };
   }, [isUpdateDrawerOpen]);
 
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = peopleData.slice(indexOfFirstItem, indexOfLastItem);
+
   return (
     <div className="min-h-fit bg-white">
       <div className="relative m-4 overflow-x-auto p-8 shadow-md sm:rounded-lg">
@@ -260,7 +268,7 @@ const PeopleTable = () => {
             >
               {/* Icons and text here */}
               <svg
-                class="h-3 w-3 text-gray-500 me-3 dark:text-gray-400"
+                className="h-3 w-3 text-gray-500 me-3 dark:text-gray-400"
                 aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="currentColor"
@@ -287,112 +295,108 @@ const PeopleTable = () => {
             {showDropdown && (
               <div
                 id="dropdownRadio"
-                className="z-10 hidden w-48 divide-y divide-gray-100 rounded-lg bg-white shadow dark:divide-gray-600 dark:bg-gray-700"
-                style={{
-                  position: "absolute",
-                  inset: "auto auto 0px 0px",
-                  transform: "translate3d(0, 0, 0)",
-                }}
+                className="absolute z-10 w-48 divide-y divide-gray-100 rounded-lg bg-white shadow dark:divide-gray-600 dark:bg-gray-700"
               >
                 <ul
-                  class="space-y-1 p-3 text-sm text-gray-700 dark:text-gray-200"
+                  className="space-y-1 p-3 text-sm text-gray-700 dark:text-gray-200"
                   aria-labelledby="dropdownRadioButton"
                 >
                   <li>
-                    <div class="flex items-center rounded p-2 hover:bg-gray-100 dark:hover:bg-gray-600">
+                    <div className="flex items-center rounded p-2 hover:bg-gray-100 dark:hover:bg-gray-600">
                       <input
                         id="filter-radio-example-1"
                         type="radio"
                         value=""
                         name="filter-radio"
-                        class="h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600 dark:focus:ring-offset-gray-800"
+                        className="h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600 dark:focus:ring-offset-gray-800"
                       />
                       <label
                         for="filter-radio-example-1"
-                        class="w-full rounded text-sm font-medium text-gray-900 ms-2 dark:text-gray-300"
+                        className="w-full rounded text-sm font-medium text-gray-900 ms-2 dark:text-gray-300"
                       >
                         Last day
                       </label>
                     </div>
                   </li>
                   <li>
-                    <div class="flex items-center rounded p-2 hover:bg-gray-100 dark:hover:bg-gray-600">
+                    <div className="flex items-center rounded p-2 hover:bg-gray-100 dark:hover:bg-gray-600">
                       <input
                         checked=""
                         id="filter-radio-example-2"
                         type="radio"
                         value=""
                         name="filter-radio"
-                        class="h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600 dark:focus:ring-offset-gray-800"
+                        className="h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600 dark:focus:ring-offset-gray-800"
                       />
                       <label
                         for="filter-radio-example-2"
-                        class="w-full rounded text-sm font-medium text-gray-900 ms-2 dark:text-gray-300"
+                        className="w-full rounded text-sm font-medium text-gray-900 ms-2 dark:text-gray-300"
                       >
                         Last 7 days
                       </label>
                     </div>
                   </li>
                   <li>
-                    <div class="flex items-center rounded p-2 hover:bg-gray-100 dark:hover:bg-gray-600">
+                    <div className="flex items-center rounded p-2 hover:bg-gray-100 dark:hover:bg-gray-600">
                       <input
                         id="filter-radio-example-3"
                         type="radio"
                         value=""
                         name="filter-radio"
-                        class="h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600 dark:focus:ring-offset-gray-800"
+                        className="h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600 dark:focus:ring-offset-gray-800"
                       />
                       <label
                         for="filter-radio-example-3"
-                        class="w-full rounded text-sm font-medium text-gray-900 ms-2 dark:text-gray-300"
+                        className="w-full rounded text-sm font-medium text-gray-900 ms-2 dark:text-gray-300"
                       >
                         Last 30 days
                       </label>
                     </div>
                   </li>
                   <li>
-                    <div class="flex items-center rounded p-2 hover:bg-gray-100 dark:hover:bg-gray-600">
+                    <div className="flex items-center rounded p-2 hover:bg-gray-100 dark:hover:bg-gray-600">
                       <input
                         id="filter-radio-example-4"
                         type="radio"
                         value=""
                         name="filter-radio"
-                        class="h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600 dark:focus:ring-offset-gray-800"
+                        className="h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600 dark:focus:ring-offset-gray-800"
                       />
                       <label
                         for="filter-radio-example-4"
-                        class="w-full rounded text-sm font-medium text-gray-900 ms-2 dark:text-gray-300"
+                        className="w-full rounded text-sm font-medium text-gray-900 ms-2 dark:text-gray-300"
                       >
                         Last month
                       </label>
                     </div>
                   </li>
                   <li>
-                    <div class="flex items-center rounded p-2 hover:bg-gray-100 dark:hover:bg-gray-600">
+                    <div className="flex items-center rounded p-2 hover:bg-gray-100 dark:hover:bg-gray-600">
                       <input
                         id="filter-radio-example-5"
                         type="radio"
                         value=""
                         name="filter-radio"
-                        class="h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600 dark:focus:ring-offset-gray-800"
+                        className="h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600 dark:focus:ring-offset-gray-800"
                       />
                       <label
                         for="filter-radio-example-5"
-                        class="w-full rounded text-sm font-medium text-gray-900 ms-2 dark:text-gray-300"
+                        className="w-full rounded text-sm font-medium text-gray-900 ms-2 dark:text-gray-300"
                       >
                         Last year
                       </label>
                     </div>
                   </li>
+                  {/* Other list items */}
                 </ul>
               </div>
             )}
           </div>
           <div className="flex flex-row justify-between gap-4">
             <div className="relative">
-              <div class="rtl:inset-r-0 pointer-events-none absolute inset-y-0 left-0 flex items-center ps-3 rtl:right-0">
+              <div className="rtl:inset-r-0 pointer-events-none absolute inset-y-0 left-0 flex items-center ps-3 rtl:right-0">
                 <svg
-                  class="h-5 w-5 text-gray-500 dark:text-gray-400"
+                  className="h-5 w-5 text-gray-500 dark:text-gray-400"
                   aria-hidden="true"
                   fill="currentColor"
                   viewBox="0 0 20 20"
@@ -1156,7 +1160,7 @@ const PeopleTable = () => {
             </div>
           </div>
         )}
-        <table className="w-full text-left text-sm text-gray-500 dark:text-gray-400">
+        <table className="z-[-1]x w-full text-left text-sm text-gray-500 dark:text-gray-400">
           <thead class="bg-gray-100 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400">
             <tr>
               <th scope="col" class="p-4">
@@ -1189,7 +1193,7 @@ const PeopleTable = () => {
             </tr>
           </thead>
           <tbody>
-            {peopleData
+            {currentItems
               ?.filter((person) => {
                 if (!searchQuery.trim()) return true;
 
@@ -1249,7 +1253,12 @@ const PeopleTable = () => {
 
       {/* Pagination */}
       <div className="mr-6 mb-4 flex justify-end">
-        <Pagination />
+        <Pagination
+          itemsPerPage={itemsPerPage}
+          totalItems={peopleData.length}
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+        />
       </div>
     </div>
   );
