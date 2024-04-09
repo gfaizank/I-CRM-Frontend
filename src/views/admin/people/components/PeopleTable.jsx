@@ -50,7 +50,7 @@ const PeopleTable = () => {
     bankAccountNumber: "",
     ifscCode: "",
     paymentChannel: "",
-    paymentMode: ""
+    paymentMode: "",
   });
 
   const handleInputChange = (event) => {
@@ -102,7 +102,7 @@ const PeopleTable = () => {
       .then((response) => response.json())
       .then((data) => {
         // console.log(data);
-        setPeopleData(data.data.people)
+        setPeopleData(data.data.people);
       })
       .catch((error) => console.error("Error fetching data:", error));
   }, [deleted, submitted, updated]);
@@ -144,7 +144,6 @@ const PeopleTable = () => {
 
   const handleDropdownToggle = () => setShowDropdown(!showDropdown);
 
-
   //update functions and states
 
   const [selectedId, setSelectedId] = useState(null);
@@ -163,15 +162,17 @@ const PeopleTable = () => {
     bankAccountNumber: "",
     ifscCode: "",
     paymentChannel: "",
-    paymentMode: ""
+    paymentMode: "",
   });
 
-  const handleUpdate = async (event,id) => {
+  const handleUpdate = async (event, id) => {
     event.preventDefault();
     try {
-      const response = await fetch(`https://i-crm-backend-6fqp.onrender.com/people/${id}`);
+      const response = await fetch(
+        `https://i-crm-backend-6fqp.onrender.com/people/${id}`
+      );
       if (!response.ok) {
-        throw new Error('Failed to fetch data');
+        throw new Error("Failed to fetch data");
       }
       const data = await response.json();
       setIdData({
@@ -188,11 +189,11 @@ const PeopleTable = () => {
         bankAccountNumber: data.bankAccountNumber || "",
         ifscCode: data.ifscCode || "",
         paymentChannel: data.paymentChannel || "",
-        paymentMode: data.paymentMode || ""
+        paymentMode: data.paymentMode || "",
       });
       setSelectedId(id);
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error("Error fetching data:", error);
     }
   };
 
@@ -231,7 +232,6 @@ const PeopleTable = () => {
 
   const updateRef = useRef(null);
 
-
   const handleClickOutsideUpdate = (event) => {
     if (updateRef.current && !updateRef.current.contains(event.target)) {
       setIsUpdateDrawerOpen(false);
@@ -246,7 +246,6 @@ const PeopleTable = () => {
       document.removeEventListener("mousedown", handleClickOutsideUpdate);
     };
   }, [isUpdateDrawerOpen]);
-
 
   return (
     <div className="min-h-fit bg-white">
@@ -501,9 +500,7 @@ const PeopleTable = () => {
                       required
                     >
                       <option selected>Choose a department</option>
-                      <option value="Engineering">
-                        Engineering
-                      </option>
+                      <option value="Engineering">Engineering</option>
                       {/* <option value="Wise">Wise</option>
                       <option value="NEFT">NEFT</option>
                       <option value="Cheque">Cheque</option>
@@ -565,9 +562,7 @@ const PeopleTable = () => {
                       required
                     >
                       <option selected>Choose a nature</option>
-                      <option value="REFERRAL_PARTNER">
-                        REFERRAL_PARTNER
-                      </option>
+                      <option value="REFERRAL_PARTNER">REFERRAL_PARTNER</option>
                       {/* <option value="Wise">Wise</option>
                       <option value="NEFT">NEFT</option>
                       <option value="Cheque">Cheque</option>
@@ -865,9 +860,7 @@ const PeopleTable = () => {
                       onChange={handleUpdateChange}
                     >
                       <option selected>Choose a department</option>
-                      <option value="Engineering">
-                        Engineering
-                      </option>
+                      <option value="Engineering">Engineering</option>
                       {/* <option value="Wise">Wise</option>
                       <option value="NEFT">NEFT</option>
                       <option value="Cheque">Cheque</option>
@@ -928,9 +921,7 @@ const PeopleTable = () => {
                       onChange={handleUpdateChange}
                     >
                       <option selected>Choose a nature</option>
-                      <option value="REFERRAL_PARTNER">
-                        REFERRAL_PARTNER
-                      </option>
+                      <option value="REFERRAL_PARTNER">REFERRAL_PARTNER</option>
                       {/* <option value="Wise">Wise</option>
                       <option value="NEFT">NEFT</option>
                       <option value="Cheque">Cheque</option>
@@ -1198,47 +1189,60 @@ const PeopleTable = () => {
             </tr>
           </thead>
           <tbody>
-            {peopleData?.map((row) => (
-              <tr
-                key={row.id}
-                className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600"
-              >
-                <td className="w-4 p-4">
-                  <input
-                    type="checkbox"
-                    className="h-4 w-4 rounded border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:focus:ring-blue-600 dark:focus:ring-offset-gray-800"
-                  />
-                </td>
-                <th
-                  scope="row"
-                  className="whitespace-nowrap px-6 py-4 font-medium text-gray-900 dark:text-white"
+            {peopleData
+              ?.filter((person) => {
+                if (!searchQuery.trim()) return true;
+
+                const query = searchQuery.toLowerCase();
+
+                return (
+                  person.displayName?.toLowerCase().includes(query) ||
+                  person.department?.toLowerCase().includes(query) ||
+                  person.mobile?.toLowerCase().includes(query) ||
+                  person.workEmail?.toLowerCase().includes(query)
+                );
+              })
+              ?.map((row) => (
+                <tr
+                  key={row.id}
+                  className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600"
                 >
-                  {/* {row.firstname+" "+row.lastname} */}
-                  {row.displayName}
-                </th>
-                <td className="px-6 py-4">{row.department}</td>
-                <td className="px-6 py-4">{row.mobile}</td>
-                <td className="px-6 py-4">{row.workEmail}</td>
-                <td className="px-6 py-4">
-                  <div className="flex flex-row items-center gap-3">
-                    <a
-                      href="#"
-                      className="font-medium text-blue-600 hover:underline dark:text-blue-500"
-                      onClick={(event) => {
-                        handleUpdate(event, row._id);
-                        handleUpdateDrawerToggle();
-                      }}
-                    >
-                      Edit
-                    </a>
-                    <MdDelete
-                      className="text-lg text-red-500 hover:text-red-300"
-                      onClick={(event) => handleDeleteClick(event, row._id)}
+                  <td className="w-4 p-4">
+                    <input
+                      type="checkbox"
+                      className="h-4 w-4 rounded border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:focus:ring-blue-600 dark:focus:ring-offset-gray-800"
                     />
-                  </div>
-                </td>
-              </tr>
-            ))}
+                  </td>
+                  <th
+                    scope="row"
+                    className="whitespace-nowrap px-6 py-4 font-medium text-gray-900 dark:text-white"
+                  >
+                    {/* {row.firstname+" "+row.lastname} */}
+                    {row.displayName}
+                  </th>
+                  <td className="px-6 py-4">{row.department}</td>
+                  <td className="px-6 py-4">{row.mobile}</td>
+                  <td className="px-6 py-4">{row.workEmail}</td>
+                  <td className="px-6 py-4">
+                    <div className="flex flex-row items-center gap-3">
+                      <a
+                        href="#"
+                        className="font-medium text-blue-600 hover:underline dark:text-blue-500"
+                        onClick={(event) => {
+                          handleUpdate(event, row._id);
+                          handleUpdateDrawerToggle();
+                        }}
+                      >
+                        Edit
+                      </a>
+                      <MdDelete
+                        className="text-lg text-red-500 hover:text-red-300"
+                        onClick={(event) => handleDeleteClick(event, row._id)}
+                      />
+                    </div>
+                  </td>
+                </tr>
+              ))}
           </tbody>
         </table>
       </div>
