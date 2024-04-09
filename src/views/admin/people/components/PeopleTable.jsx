@@ -3,6 +3,7 @@ import { MdDelete } from "react-icons/md";
 import Pagination from "./Pagination";
 import { useAuthContext } from "hooks/useAuthContext";
 import DeletePeopleConfirm from "./DeletePeopleConfirm";
+import Spinner from "./Spinner";
 
 const PeopleTable = () => {
   const [showDropdown, setShowDropdown] = useState(false);
@@ -17,6 +18,8 @@ const PeopleTable = () => {
   const [updated, setUpdated] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(5);
+  const [spin, setSpin]=useState(false)
+  
 
   const [showModal, setShowModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
@@ -69,6 +72,7 @@ const PeopleTable = () => {
   };
 
   const handleSubmit = (event) => {
+    setSpin(true);
     event.preventDefault();
     console.log(formData);
 
@@ -91,6 +95,7 @@ const PeopleTable = () => {
         console.log("Success:", data);
         setIsDrawerOpen(false);
         setSubmitted((prevSubmitted) => !prevSubmitted);
+        setSpin(false);
         // Optionally, you can show a success message or redirect the user to another page
       })
       .catch((error) => {
@@ -100,16 +105,20 @@ const PeopleTable = () => {
   };
 
   useEffect(() => {
+    setSpin(true);
     fetch("https://i-crm-backend-6fqp.onrender.com/people/")
       .then((response) => response.json())
       .then((data) => {
         // console.log(data);
         setPeopleData(data.data.people);
+        setSpin(false);
+        // setPeopleData((prevData) => [...data.data.people, ...prevData]);
       })
       .catch((error) => console.error("Error fetching data:", error));
   }, [deleted, submitted, updated]);
 
   const handleDeleteRow = (id) => {
+    setSpin(true);
     fetch(`https://i-crm-backend-6fqp.onrender.com/people/${id}`, {
       method: "DELETE",
     })
@@ -119,6 +128,7 @@ const PeopleTable = () => {
         }
         setPeopleData((prevData) => prevData.filter((row) => row.id !== id));
         setDeleted((prevDeleted) => !prevDeleted);
+        setSpin(false);
       })
       .catch((error) => console.error("Error deleting row:", error));
   };
@@ -206,6 +216,7 @@ const PeopleTable = () => {
   };
 
   const sendUpdate = (event) => {
+    setSpin(true);
     event.preventDefault();
     console.log(idData);
 
@@ -228,6 +239,7 @@ const PeopleTable = () => {
         console.log("Success:", data);
         setIsUpdateDrawerOpen(false);
         setUpdated((prevUpdated) => !prevUpdated);
+        setSpin(false);
       })
       .catch((error) => {
         console.error("Error:", error);
@@ -254,6 +266,7 @@ const PeopleTable = () => {
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = peopleData.slice(indexOfFirstItem, indexOfLastItem);
+
 
   return (
     <div className="min-h-fit bg-white">
@@ -498,7 +511,7 @@ const PeopleTable = () => {
                     <select
                       id="department"
                       name="department"
-                      class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                       value={formData.department}
                       onChange={handleInputChange}
                       required
@@ -560,7 +573,7 @@ const PeopleTable = () => {
                     <select
                       id="nature"
                       name="nature"
-                      class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                       value={formData.nature}
                       onChange={handleInputChange}
                       required
@@ -725,7 +738,7 @@ const PeopleTable = () => {
                     </label>
                     <select
                       id="countries"
-                      class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                       value={formData.paymentChannel}
                       onChange={handleInputChange}
                       name="paymentChannel"
@@ -760,7 +773,7 @@ const PeopleTable = () => {
                     </label>
                     <select
                       id="countries"
-                      class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                       value={formData.paymentMode}
                       onChange={handleInputChange}
                       name="paymentMode"
@@ -859,7 +872,7 @@ const PeopleTable = () => {
                     <select
                       id="department"
                       name="department"
-                      class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                       value={idData.department}
                       onChange={handleUpdateChange}
                     >
@@ -920,7 +933,7 @@ const PeopleTable = () => {
                     <select
                       id="nature"
                       name="nature"
-                      class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                       value={idData.nature}
                       onChange={handleUpdateChange}
                     >
@@ -1084,7 +1097,7 @@ const PeopleTable = () => {
                     </label>
                     <select
                       id="countries"
-                      class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                       value={idData.paymentChannel}
                       onChange={handleUpdateChange}
                       name="paymentChannel"
@@ -1119,7 +1132,7 @@ const PeopleTable = () => {
                     </label>
                     <select
                       id="countries"
-                      class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                       value={idData.paymentMode}
                       onChange={handleUpdateChange}
                       name="paymentMode"
@@ -1161,33 +1174,34 @@ const PeopleTable = () => {
           </div>
         )}
         <table className="z-[-1]x w-full text-left text-sm text-gray-500 dark:text-gray-400">
-          <thead class="bg-gray-100 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400">
+          <thead className="bg-gray-100 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400">
             <tr>
-              <th scope="col" class="p-4">
-                <div class="flex items-center">
+              <th scope="col" className="p-4">
+                <div className="flex items-center">
                   <input
                     id="checkbox-all-search"
                     type="checkbox"
-                    class="h-4 w-4 rounded border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600 dark:focus:ring-offset-gray-800"
+                    className="h-4 w-4 rounded border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600 dark:focus:ring-offset-gray-800"
                   />
-                  <label for="checkbox-all-search" class="sr-only">
+                  <label for="checkbox-all-search" 
+                  className="sr-only">
                     checkbox
                   </label>
                 </div>
               </th>
-              <th scope="col" class="px-6 py-3">
+              <th scope="col" className="px-6 py-3">
                 Full name
               </th>
-              <th scope="col" class="px-6 py-3">
+              <th scope="col" className="px-6 py-3">
                 Company
               </th>
-              <th scope="col" class="px-6 py-3">
+              <th scope="col" className="px-6 py-3">
                 Phone
               </th>
-              <th scope="col" class="px-6 py-3">
+              <th scope="col" className="px-6 py-3">
                 Email
               </th>
-              <th scope="col" class="px-6 py-3">
+              <th scope="col" className="px-6 py-3">
                 Action
               </th>
             </tr>
@@ -1240,7 +1254,7 @@ const PeopleTable = () => {
                         Edit
                       </a>
                       <MdDelete
-                        className="text-lg text-red-500 hover:text-red-300"
+                        className="text-lg text-red-500 hover:text-red-300 cursor-pointer"
                         onClick={(event) => handleDeleteClick(event, row._id)}
                       />
                     </div>
@@ -1250,6 +1264,8 @@ const PeopleTable = () => {
           </tbody>
         </table>
       </div>
+
+      {spin && <Spinner />}
 
       {/* Pagination */}
       <div className="mr-6 mb-4 flex justify-end">

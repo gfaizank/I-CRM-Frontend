@@ -3,12 +3,14 @@ import { FcGoogle } from "react-icons/fc";
 import Checkbox from "components/checkbox";
 import { useState } from "react";
 import { useLogin } from "hooks/useLogin";
+import Spinner from "views/admin/people/components/Spinner";
 
 
 export default function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { login, error, isLoading } = useLogin();
+  const [spin, setSpin]=useState(false);
 
   
   const formData = {
@@ -17,12 +19,12 @@ export default function SignIn() {
   };
 
   const handleSubmit = async (e) => {
+    setSpin(true);
     e.preventDefault();
 
     console.log(formData);
-
     await login(email, password);
-
+    setSpin(false);
   };
 
   return (
@@ -93,7 +95,8 @@ export default function SignIn() {
             disabled={isLoading}
             onClick={handleSubmit}
           >
-            Sign In
+            {spin && <Spinner />}
+            {!spin && "Sign In"}
           </button>
           {error && <div className="error">{error}</div>}
         </form>
