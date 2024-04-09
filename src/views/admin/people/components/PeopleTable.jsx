@@ -100,7 +100,10 @@ const PeopleTable = () => {
   useEffect(() => {
     fetch("https://i-crm-backend-6fqp.onrender.com/people/")
       .then((response) => response.json())
-      .then((data) => setPeopleData(data))
+      .then((data) => {
+        // console.log(data);
+        setPeopleData(data.data.people)
+      })
       .catch((error) => console.error("Error fetching data:", error));
   }, [deleted, submitted, updated]);
 
@@ -1195,7 +1198,7 @@ const PeopleTable = () => {
             </tr>
           </thead>
           <tbody>
-            {peopleData.map((row) => (
+            {peopleData?.map((row) => (
               <tr
                 key={row.id}
                 className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600"
