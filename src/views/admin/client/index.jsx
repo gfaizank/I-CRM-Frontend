@@ -1,5 +1,6 @@
 import React from 'react';
 import { useAuthContext } from 'hooks/useAuthContext';
+import ClientTable from './components/ClientTable';
 
 const Client = () => {
 
@@ -8,7 +9,7 @@ const Client = () => {
     return (
         <div className='mt-3 grid'>
             {user && (
-            <h1>Coming Soon</h1>
+            <ClientTable />
             )}
 
             {!user && (

@@ -1194,7 +1194,7 @@ const PeopleTable = () => {
                 Full name
               </th>
               <th scope="col" className="px-6 py-3">
-                Company
+                Department
               </th>
               <th scope="col" className="px-6 py-3">
                 Phone
