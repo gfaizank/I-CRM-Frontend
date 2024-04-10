@@ -1176,8 +1176,8 @@ const PeopleTable = () => {
         <table className="z-[-1]x w-full text-left text-sm text-gray-500 dark:text-gray-400">
           <thead className="bg-gray-100 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400">
             <tr>
-              <th scope="col" className="p-4">
-                <div className="flex items-center">
+              <th scope="col" className="p-4 items-center">
+                {/* <div className="flex items-center">
                   <input
                     id="checkbox-all-search"
                     type="checkbox"
@@ -1187,7 +1187,8 @@ const PeopleTable = () => {
                   className="sr-only">
                     checkbox
                   </label>
-                </div>
+                </div> */}
+                S.No.
               </th>
               <th scope="col" className="px-6 py-3">
                 Full name
@@ -1220,16 +1221,17 @@ const PeopleTable = () => {
                   person.workEmail?.toLowerCase().includes(query)
                 );
               })
-              ?.map((row) => (
+              ?.map((row, index) => (
                 <tr
                   key={row.id}
                   className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600"
                 >
                   <td className="w-4 p-4">
-                    <input
+                    {/* <input
                       type="checkbox"
                       className="h-4 w-4 rounded border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:focus:ring-blue-600 dark:focus:ring-offset-gray-800"
-                    />
+                    /> */}
+                    {((currentPage - 1) * itemsPerPage) + index + 1}.
                   </td>
                   <th
                     scope="row"

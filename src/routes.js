@@ -10,6 +10,7 @@ import RTLDefault from "views/rtl/default";
 import Client from "views/admin/client";
 import Invoice from "views/admin/invoice";
 import Project from "views/admin/project";
+import Settings from "views/admin/settings";
 // Auth Imports
 import SignIn from "views/auth/SignIn";
 
@@ -65,10 +66,10 @@ const routes = [
   },
   {
     name: "Settings",
-    layout: "/rtl",
-    path: "rtl",
+    layout: "/admin",
+    path: "settings",
     icon: <MdLock className="h-6 w-6" />,
-    component: <RTLDefault />,
+    component: <Settings />,
   },
   {
     // name: "Sign in",
