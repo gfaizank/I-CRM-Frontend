@@ -7,7 +7,9 @@ import People from "views/admin/people";
 import Profile from "views/admin/profile";
 import DataTables from "views/admin/tables";
 import RTLDefault from "views/rtl/default";
-
+import Client from "views/admin/client";
+import Invoice from "views/admin/invoice";
+import Project from "views/admin/project";
 // Auth Imports
 import SignIn from "views/auth/SignIn";
 
@@ -40,25 +42,26 @@ const routes = [
     // secondary: true,
   },
   {
-    name: "Project",
-    layout: "/admin",
-    path: "profile",
-    icon: <MdBarChart className="h-6 w-6" />,
-    component: <Profile />,
-  },
-  {
     name: "Client",
     layout: "/admin",
     icon: <MdPerson className="h-6 w-6" />,
-    path: "data-tables",
-    component: <DataTables />,
+    path: "client",
+    component: <Client />,
   },
   {
+    name: "Project",
+    layout: "/admin",
+    path: "project",
+    icon: <MdBarChart className="h-6 w-6" />,
+    component: <Project />,
+  },
+
+  {
     name: "Invoice",
-    layout: "/auth",
-    path: "sign-in",
+    layout: "/admin",
+    path: "invoice",
     icon: <MdAssignment className="h-6 w-6" />,
-    component: <SignIn />,
+    component: <Invoice />,
   },
   {
     name: "Settings",
@@ -67,5 +70,12 @@ const routes = [
     icon: <MdLock className="h-6 w-6" />,
     component: <RTLDefault />,
   },
+  {
+    // name: "Sign in",
+    layout: "/auth",
+    path: "sign-in",
+    icon: <MdLock className="h-6 w-6 text-white" />,
+    component: <SignIn />
+  }
 ];
 export default routes;
