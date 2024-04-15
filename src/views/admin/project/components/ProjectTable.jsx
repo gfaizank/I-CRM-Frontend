@@ -1172,7 +1172,7 @@ const updatedCurrentItems = projectData.slice(updatedIndexOfFirstItem, updatedIn
           <div className="fixed top-0 left-0 flex h-full w-full items-center justify-center">
             <div className="absolute top-0 h-full w-full bg-gray-900 opacity-50"></div>
             <div className="z-50 rounded-lg bg-white p-6 shadow-lg dark:bg-gray-800">
-              <DeletePeopleConfirm
+              <DeleteProjectConfirm
                 onClose={handleCloseModal}
                 onConfirm={handleConfirmDelete}
               />
