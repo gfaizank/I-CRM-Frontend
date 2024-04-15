@@ -1,25 +1,24 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from "react";
 import { MdDelete } from "react-icons/md";
-import Pagination from './Pagination';
-import { useAuthContext } from 'hooks/useAuthContext';
-import DeleteClientConfirmation from './DeleteClientConfirmation';
-import Spinner from './Spinner';
+import Pagination from "./Pagination";
+import { useAuthContext } from "hooks/useAuthContext";
+import DeleteClientConfirmation from "./DeleteClientConfirmation";
+import Spinner from "./Spinner";
 
 export default function ClientTable() {
-    const [showDropdown, setShowDropdown] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isUpdateDrawerOpen, setIsUpdateDrawerOpen] = useState(false);
   const { user } = useAuthContext();
 
-  const [peopleData, setPeopleData] = useState([]);
+  const [clientData, setClientData] = useState([]);
   const [deleted, setDeleted] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [updated, setUpdated] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(5);
-  const [spin, setSpin]=useState(false)
-  
+  const [spin, setSpin] = useState(false);
 
   const [showModal, setShowModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
@@ -42,20 +41,21 @@ export default function ClientTable() {
   };
 
   const [formData, setFormData] = useState({
-    nature: "",
-    workEmail: "",
-    mobile: "",
-    displayName: "",
-    department: "",
-    employeeId: "",
-    hourlyRate: 0,
-    tdsRate: 0,
-    gstRate: 0,
-    pan: "",
-    bankAccountNumber: "",
-    ifscCode: "",
-    paymentChannel: "",
-    paymentMode: "",
+    primaryContactPerson: "",
+    l2ContactPerson: "",
+    billingContactPerson: "",
+    businessName: "",
+    customerDisplayName: "",
+    email: "",
+    primaryContactNumber: "",
+    secondaryContactNumber: "",
+    GSTTreatment: "Registered",
+    placeOfSupply: "",
+    taxPreference: "Taxable",
+    currency: "USD",
+    openingBalance: 0,
+    enablePortal: "YES",
+    nestedFields: [],
   });
 
   const handleInputChange = (event) => {
@@ -77,7 +77,7 @@ export default function ClientTable() {
     console.log(formData);
 
     // Send data to the API endpoint
-    fetch("https://i-crm-backend-6fqp.onrender.com/people/create", {
+    fetch("https://i-crm-backend-6fqp.onrender.com/client", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -106,27 +106,27 @@ export default function ClientTable() {
 
   useEffect(() => {
     setSpin(true);
-    fetch("https://i-crm-backend-6fqp.onrender.com/people/")
+    fetch("https://i-crm-backend-6fqp.onrender.com/client/")
       .then((response) => response.json())
       .then((data) => {
         // console.log(data);
-        setPeopleData(data.data.people);
+        setClientData(data.data.clients);
         setSpin(false);
-        // setPeopleData((prevData) => [...data.data.people, ...prevData]);
+        // setClientData((prevData) => [...data.data.people, ...prevData]);
       })
       .catch((error) => console.error("Error fetching data:", error));
   }, [deleted, submitted, updated]);
 
   const handleDeleteRow = (id) => {
     setSpin(true);
-    fetch(`https://i-crm-backend-6fqp.onrender.com/people/${id}`, {
+    fetch(`https://i-crm-backend-6fqp.onrender.com/client/${id}`, {
       method: "DELETE",
     })
       .then((response) => {
         if (!response.ok) {
           throw new Error("Failed to delete row");
         }
-        setPeopleData((prevData) => prevData.filter((row) => row.id !== id));
+        setClientData((prevData) => prevData.filter((row) => row.id !== id));
         setDeleted((prevDeleted) => !prevDeleted);
         setSpin(false);
       })
@@ -163,47 +163,50 @@ export default function ClientTable() {
   const [selectedId, setSelectedId] = useState(null);
 
   const [idData, setIdData] = useState({
-    nature: "",
-    workEmail: "",
-    mobile: "",
-    displayName: "",
-    department: "",
-    employeeId: "",
-    hourlyRate: 0,
-    tdsRate: 0,
-    gstRate: 0,
-    pan: "",
-    bankAccountNumber: "",
-    ifscCode: "",
-    paymentChannel: "",
-    paymentMode: "",
+    primaryContactPerson: "",
+    l2ContactPerson: "",
+    billingContactPerson: "",
+    businessName: "",
+    customerDisplayName: "",
+    email: "",
+    primaryContactNumber: "",
+    secondaryContactNumber: "",
+    GSTTreatment: "Registered",
+    placeOfSupply: "",
+    taxPreference: "Taxable",
+    currency: "USD",
+    openingBalance: 0,
+    enablePortal: "YES",
+    nestedFields: [],
   });
 
   const handleUpdate = async (event, id) => {
     event.preventDefault();
     try {
       const response = await fetch(
-        `https://i-crm-backend-6fqp.onrender.com/people/${id}`
+        `https://i-crm-backend-6fqp.onrender.com/client/${id}`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch data");
       }
       const data = await response.json();
+      console.log(data);
       setIdData({
-        nature: data.nature || "",
-        workEmail: data.workEmail || "",
-        mobile: data.mobile || "",
-        displayName: data.displayName || "",
-        department: data.department || "",
-        employeeId: data.employeeId || "",
-        hourlyRate: data.hourlyRate || 0,
-        tdsRate: data.tdsRate || 0,
-        gstRate: data.gstRate || 0,
-        pan: data.pan || "",
-        bankAccountNumber: data.bankAccountNumber || "",
-        ifscCode: data.ifscCode || "",
-        paymentChannel: data.paymentChannel || "",
-        paymentMode: data.paymentMode || "",
+        primaryContactPerson: data.data.client.primaryContactPerson || "",
+        l2ContactPerson: data.data.client.l2ContactPerson || "",
+        billingContactPerson: data.data.client.billingContactPerson || "",
+        businessName: data.data.client.businessName || "",
+        customerDisplayName: data.data.client.customerDisplayName || "",
+        email: data.data.client.email || "",
+        primaryContactNumber: data.data.client.primaryContactNumber || "",
+        secondaryContactNumber: data.data.client.secondaryContactNumber || "",
+        GSTTreatment: data.data.client.GSTTreatment || "Registered",
+        placeOfSupply: data.data.client.placeOfSupply || "",
+        taxPreference: data.data.client.taxPreference || "Taxable",
+        currency: data.data.client.currency || "USD",
+        openingBalance: data.data.client.openingBalance || 0,
+        enablePortal: data.data.client.enablePortal || "YES",
+        nestedFields: data.data.client.nestedFields || [],
       });
       setSelectedId(id);
     } catch (error) {
@@ -221,8 +224,8 @@ export default function ClientTable() {
     console.log(idData);
 
     // Send data to the API endpoint
-    fetch(`https://i-crm-backend-6fqp.onrender.com/people/${selectedId}`, {
-      method: "PUT",
+    fetch(`https://i-crm-backend-6fqp.onrender.com/client/${selectedId}`, {
+      method: "PATCH",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${user.token}`,
@@ -265,7 +268,9 @@ export default function ClientTable() {
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = peopleData.slice(indexOfFirstItem, indexOfLastItem);
+  const currentItems = clientData.slice(indexOfFirstItem, indexOfLastItem);
+
+
   return (
     <div className="min-h-fit bg-white">
       <div className="relative m-4 overflow-x-auto p-8 shadow-md sm:rounded-lg">
@@ -483,60 +488,96 @@ export default function ClientTable() {
                 <form className="mb-6">
                   <div className="mb-6">
                     <label
-                      htmlFor="displayName"
+                      htmlFor="primaryContactPerson"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      <span className="text-lg text-red-500">*</span>Company Name
+                      <span className="text-lg text-red-500">*</span>Contact
+                      Person
                     </label>
                     <input
                       type="text"
-                      id="displayName"
-                      name="displayName"
+                      id="primaryContactPerson"
+                      name="primaryContactPerson"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Your Name"
-                      value={formData.displayName}
+                      placeholder="Contact Person's name"
+                      value={formData.primaryContactPerson}
                       onChange={handleInputChange}
                       required
                     />
                   </div>
-                  <div className="mx-auto mb-6">
+                  <div className="mb-6">
                     <label
-                      htmlFor="department"
+                      htmlFor="billingContactPerson"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      <span className="text-lg text-red-500">*</span>Department
+                      <span className="text-lg text-red-500">*</span>Billing
+                      Name
                     </label>
-                    <select
-                      id="department"
-                      name="department"
+                    <input
+                      type="text"
+                      id="billingContactPerson"
+                      name="billingContactPerson"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      value={formData.department}
+                      placeholder="Billing Person's name"
+                      value={formData.billingContactPerson}
                       onChange={handleInputChange}
                       required
-                    >
-                      <option selected>Choose a department</option>
-                      <option value="Engineering">Engineering</option>
-                      {/* <option value="Wise">Wise</option>
-                      <option value="NEFT">NEFT</option>
-                      <option value="Cheque">Cheque</option>
-                      <option value="Cash">Cash</option> */}
-                    </select>
+                    />
                   </div>
 
                   <div className="mb-6">
                     <label
-                      htmlFor="phone"
+                      htmlFor="customerDisplayName"
+                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                    >
+                      <span className="text-lg text-red-500">*</span>Display
+                      Name
+                    </label>
+                    <input
+                      type="text"
+                      id="customerDisplayName"
+                      name="customerDisplayName"
+                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                      placeholder="Display Name"
+                      value={formData.customerDisplayName}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+
+                  <div className="mb-6">
+                    <label
+                      htmlFor="businessName"
+                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                    >
+                      <span className="text-lg text-red-500">*</span>Company
+                    </label>
+                    <input
+                      type="text"
+                      id="businessName"
+                      name="businessName"
+                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                      placeholder="Business Name"
+                      value={formData.businessName}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+
+                  <div className="mb-6">
+                    <label
+                      htmlFor="primaryContactNumber"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
                       <span className="text-lg text-red-500">*</span>Phone
                     </label>
                     <input
                       type="phone"
-                      id="phone"
-                      name="mobile"
+                      id="primaryContactNumber"
+                      name="primaryContactNumber"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Your phone number"
-                      value={formData.mobile}
+                      placeholder="Primary phone number"
+                      value={formData.primaryContactNumber}
                       onChange={handleInputChange}
                       required
                     />
@@ -552,10 +593,30 @@ export default function ClientTable() {
                     <input
                       type="email"
                       id="email"
-                      name="workEmail"
+                      name="email"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                       placeholder="Your email"
-                      value={formData.workEmail}
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+
+                  <div className="mb-6">
+                    <label
+                      htmlFor="secondaryContactNumber"
+                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                    >
+                      <span className="text-lg text-red-500">*</span>Secondary
+                      Phone
+                    </label>
+                    <input
+                      type="phone"
+                      id="secondaryContactNumber"
+                      name="secondaryContactNumber"
+                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                      placeholder="Secondary phone number"
+                      value={formData.secondaryContactNumber}
                       onChange={handleInputChange}
                       required
                     />
@@ -563,42 +624,47 @@ export default function ClientTable() {
 
                   <div className="mx-auto mb-6">
                     <label
-                      htmlFor="nature"
+                      htmlFor="GSTTreatment"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      <span className="text-lg text-red-500">*</span>Nature
+                      <span className="text-lg text-red-500">*</span>GST
+                      Treatment
                     </label>
                     <select
-                      id="nature"
-                      name="nature"
+                      id="GSTTreatment"
+                      name="GSTTreatment"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      value={formData.nature}
+                      value={formData.GSTTreatment}
                       onChange={handleInputChange}
                       required
                     >
-                      <option selected>Choose a nature</option>
-                      <option value="REFERRAL_PARTNER">REFERRAL_PARTNER</option>
-                      {/* <option value="Wise">Wise</option>
-                      <option value="NEFT">NEFT</option>
-                      <option value="Cheque">Cheque</option>
-                      <option value="Cash">Cash</option> */}
+                      <option selected>Choose a GST Treatment</option>
+                      <option value="Registered">Registered</option>
+                      <option value="Registered – Composition">
+                        Registered – Composition
+                      </option>
+                      <option value="Unregistered">Unregistered</option>
+                      <option value="Consumer">Consumer</option>
+                      <option value="Overseas">Overseas</option>
+                      <option value="SEZ">SEZ</option>
                     </select>
                   </div>
 
                   <div className="mb-6">
                     <label
-                      htmlFor="employeeId"
+                      htmlFor="placeOfSupply"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      External ID
+                      <span className="text-lg text-red-500">*</span>Place Of
+                      Supply
                     </label>
                     <input
                       type="text"
-                      id="employeeId"
-                      name="employeeId"
+                      id="placeOfSupply"
+                      name="placeOfSupply"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Optional for Referral Partner"
-                      value={formData.employeeId}
+                      placeholder="Place Of Supply"
+                      value={formData.placeOfSupply}
                       onChange={handleInputChange}
                     />
                   </div>
@@ -618,172 +684,84 @@ export default function ClientTable() {
                     />
                   </div> */}
 
-                  <div className="mb-6">
+                  <div className="mx-auto mb-6">
                     <label
-                      htmlFor="hourly rate"
+                      htmlFor="taxPreference"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      Hourly Rate
+                      <span className="text-lg text-red-500">*</span>Tax Preference
+                    </label>
+                    <select
+                      id="taxPreference"
+                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                      value={formData.taxPreference}
+                      onChange={handleInputChange}
+                      name="taxPreference"
+                    >
+                      <option selected>Choose tax preference</option>
+                      <option value="Taxable">
+                      Taxable
+                      </option>
+                      <option value="Tax Exempt">
+                      Tax Exempt
+                      </option>
+                    </select>
+                  </div>
+
+                  <div className="mx-auto mb-6">
+                    <label
+                      htmlFor="currency"
+                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                    >
+                      <span className="text-lg text-red-500">*</span>Currency
+                    </label>
+                    <select
+                      id="currency"
+                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                      value={formData.currency}
+                      onChange={handleInputChange}
+                      name="currency"
+                    >
+                      <option selected>Choose a currency</option>
+                      <option value="USD">USD</option>
+                    </select>
+                  </div>
+
+                  <div className="mb-6">
+                    <label
+                      htmlFor="openingBalance"
+                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                    >
+                      <span className="text-lg text-red-500">*</span>Opening Balance
                     </label>
                     <input
                       type="number"
-                      id="hourly-rate"
-                      name="hourlyRate"
+                      id="openingBalance"
+                      name="openingBalance"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Your hourly rate"
-                      value={formData.hourlyRate}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-
-                  <div className="mb-6">
-                    <label
-                      htmlFor="tds rate"
-                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      TDS Rate
-                    </label>
-                    <input
-                      type="text"
-                      id="tds-rate"
-                      name="tdsRate"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Your TDS Rate"
-                      value={formData.tdsRate}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-
-                  <div className="mb-6">
-                    <label
-                      htmlFor="gst rate"
-                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      Gst Rate
-                    </label>
-                    <input
-                      type="text"
-                      id="gst-rate"
-                      name="gstRate"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Your Gst Rate"
-                      value={formData.gstRate}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-
-                  <div className="mb-6">
-                    <label
-                      htmlFor="pan"
-                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      PAN Number
-                    </label>
-                    <input
-                      type="text"
-                      id="pan"
-                      name="pan"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Your Pan Card no."
-                      value={formData.pan}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-
-                  <div className="mb-6">
-                    <label
-                      htmlFor="a/c"
-                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      Bank Account Number
-                    </label>
-                    <input
-                      type=""
-                      id="a/c"
-                      name="bankAccountNumber"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Your Bank Account Number"
-                      value={formData.bankAccountNumber}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-
-                  <div className="mb-6">
-                    <label
-                      htmlFor="ifsc"
-                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      IFSC Code
-                    </label>
-                    <input
-                      type="text"
-                      id="ifsc"
-                      name="ifscCode"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Your Bank's IFSC code"
-                      value={formData.ifscCode}
+                      placeholder="Opening Balance"
+                      value={formData.openingBalance}
                       onChange={handleInputChange}
                     />
                   </div>
 
                   <div className="mx-auto mb-6">
                     <label
-                      htmlFor="payment-channel"
+                      htmlFor="enablePortal"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      <span className="text-lg text-red-500">*</span>Payment
-                      Channel
+                      <span className="text-lg text-red-500">*</span>Enable Portal
                     </label>
                     <select
-                      id="countries"
+                      id="enablePortal"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      value={formData.paymentChannel}
+                      value={formData.enablePortal}
                       onChange={handleInputChange}
-                      name="paymentChannel"
+                      name="enablePortal"
                     >
-                      <option selected>Choose a channel</option>
-                      <option value="Domestic Bank Transfer">
-                        Domestic Bank Transfer
-                      </option>
-                      <option value="International Bank Transfer">
-                        International Bank Transfer
-                      </option>
-                      <option value="Via Third Party">Via Third Party</option>
-                    </select>
-                    {/* <input
-                      type="text"
-                      id="payment-channel"
-                      name="paymentChannel"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Your Preferred Channel Partner"
-                      value={formData.paymentChannel}
-                      onChange={handleInputChange}
-                    /> */}
-                  </div>
-
-                  <div className="mx-auto mb-6">
-                    <label
-                      htmlFor="payment-mode"
-                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      <span className="text-lg text-red-500">*</span>Payment
-                      Mode
-                    </label>
-                    <select
-                      id="countries"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      value={formData.paymentMode}
-                      onChange={handleInputChange}
-                      name="paymentMode"
-                    >
-                      <option selected>Choose a mode</option>
-                      <option value="International Wire">
-                        International Wire
-                      </option>
-                      <option value="Wise">Wise</option>
-                      <option value="NEFT">NEFT</option>
-                      <option value="Cheque">Cheque</option>
-                      <option value="Cash">Cash</option>
+                      <option selected>Choose an action</option>
+                      <option value="YES">YES</option>
+                      <option value="NO">NO</option>
                     </select>
                   </div>
 
@@ -842,61 +820,98 @@ export default function ClientTable() {
                   <span className="sr-only">Close menu</span>
                 </button>
                 <form className="mb-6">
-                  <div className="mb-6">
+                <div className="mb-6">
                     <label
-                      htmlFor="displayName"
+                      htmlFor="primaryContactPerson"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      <span className="text-lg text-red-500">*</span>Full Name
+                      <span className="text-lg text-red-500">*</span>Contact
+                      Person
                     </label>
                     <input
                       type="text"
-                      id="displayName"
-                      name="displayName"
+                      id="primaryContactPerson"
+                      name="primaryContactPerson"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Your Name"
-                      value={idData.displayName}
+                      placeholder="Contact Person's name"
+                      value={idData.primaryContactPerson}
                       onChange={handleUpdateChange}
                       required
                     />
                   </div>
-                  <div className="mx-auto mb-6">
+                  <div className="mb-6">
                     <label
-                      htmlFor="department"
+                      htmlFor="billingContactPerson"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      <span className="text-lg text-red-500">*</span>Department
+                      <span className="text-lg text-red-500">*</span>Billing
+                      Name
                     </label>
-                    <select
-                      id="department"
-                      name="department"
+                    <input
+                      type="text"
+                      id="billingContactPerson"
+                      name="billingContactPerson"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      value={idData.department}
+                      placeholder="Billing Person's name"
+                      value={idData.billingContactPerson}
                       onChange={handleUpdateChange}
-                    >
-                      <option selected>Choose a department</option>
-                      <option value="Engineering">Engineering</option>
-                      {/* <option value="Wise">Wise</option>
-                      <option value="NEFT">NEFT</option>
-                      <option value="Cheque">Cheque</option>
-                      <option value="Cash">Cash</option> */}
-                    </select>
+                      required
+                    />
                   </div>
 
                   <div className="mb-6">
                     <label
-                      htmlFor="phone"
+                      htmlFor="customerDisplayName"
+                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                    >
+                      <span className="text-lg text-red-500">*</span>Display
+                      Name
+                    </label>
+                    <input
+                      type="text"
+                      id="customerDisplayName"
+                      name="customerDisplayName"
+                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                      placeholder="Display Name"
+                      value={idData.customerDisplayName}
+                      onChange={handleUpdateChange}
+                      required
+                    />
+                  </div>
+
+                  <div className="mb-6">
+                    <label
+                      htmlFor="businessName"
+                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                    >
+                      <span className="text-lg text-red-500">*</span>Company
+                    </label>
+                    <input
+                      type="text"
+                      id="businessName"
+                      name="businessName"
+                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                      placeholder="Business Name"
+                      value={idData.businessName}
+                      onChange={handleUpdateChange}
+                      required
+                    />
+                  </div>
+
+                  <div className="mb-6">
+                    <label
+                      htmlFor="primaryContactNumber"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
                       <span className="text-lg text-red-500">*</span>Phone
                     </label>
                     <input
                       type="phone"
-                      id="phone"
-                      name="mobile"
+                      id="primaryContactNumber"
+                      name="primaryContactNumber"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Your phone number"
-                      value={idData.mobile}
+                      placeholder="Primary phone number"
+                      value={idData.primaryContactNumber}
                       onChange={handleUpdateChange}
                       required
                     />
@@ -912,10 +927,30 @@ export default function ClientTable() {
                     <input
                       type="email"
                       id="email"
-                      name="workEmail"
+                      name="email"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                       placeholder="Your email"
-                      value={idData.workEmail}
+                      value={idData.email}
+                      onChange={handleUpdateChange}
+                      required
+                    />
+                  </div>
+
+                  <div className="mb-6">
+                    <label
+                      htmlFor="secondaryContactNumber"
+                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                    >
+                      <span className="text-lg text-red-500">*</span>Secondary
+                      Phone
+                    </label>
+                    <input
+                      type="phone"
+                      id="secondaryContactNumber"
+                      name="secondaryContactNumber"
+                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                      placeholder="Secondary phone number"
+                      value={idData.secondaryContactNumber}
                       onChange={handleUpdateChange}
                       required
                     />
@@ -923,41 +958,47 @@ export default function ClientTable() {
 
                   <div className="mx-auto mb-6">
                     <label
-                      htmlFor="nature"
+                      htmlFor="GSTTreatment"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      <span className="text-lg text-red-500">*</span>Nature
+                      <span className="text-lg text-red-500">*</span>GST
+                      Treatment
                     </label>
                     <select
-                      id="nature"
-                      name="nature"
+                      id="GSTTreatment"
+                      name="GSTTreatment"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      value={idData.nature}
+                      value={idData.GSTTreatment}
                       onChange={handleUpdateChange}
+                      required
                     >
-                      <option selected>Choose a nature</option>
-                      <option value="REFERRAL_PARTNER">REFERRAL_PARTNER</option>
-                      {/* <option value="Wise">Wise</option>
-                      <option value="NEFT">NEFT</option>
-                      <option value="Cheque">Cheque</option>
-                      <option value="Cash">Cash</option> */}
+                      <option selected>Choose a GST Treatment</option>
+                      <option value="Registered">Registered</option>
+                      <option value="Registered – Composition">
+                        Registered – Composition
+                      </option>
+                      <option value="Unregistered">Unregistered</option>
+                      <option value="Consumer">Consumer</option>
+                      <option value="Overseas">Overseas</option>
+                      <option value="SEZ">SEZ</option>
                     </select>
                   </div>
 
                   <div className="mb-6">
                     <label
-                      htmlFor="employeeId"
+                      htmlFor="placeOfSupply"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      External ID
+                      <span className="text-lg text-red-500">*</span>Place Of
+                      Supply
                     </label>
                     <input
                       type="text"
-                      id="employeeId"
-                      name="employeeId"
+                      id="placeOfSupply"
+                      name="placeOfSupply"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Optional for Referral Partner"
-                      value={idData.employeeId}
+                      placeholder="Place Of Supply"
+                      value={idData.placeOfSupply}
                       onChange={handleUpdateChange}
                     />
                   </div>
@@ -977,172 +1018,84 @@ export default function ClientTable() {
                     />
                   </div> */}
 
-                  <div className="mb-6">
+                  <div className="mx-auto mb-6">
                     <label
-                      htmlFor="hourly rate"
+                      htmlFor="taxPreference"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      Hourly Rate
+                      <span className="text-lg text-red-500">*</span>Tax Preference
+                    </label>
+                    <select
+                      id="taxPreference"
+                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                      value={idData.taxPreference}
+                      onChange={handleUpdateChange}
+                      name="taxPreference"
+                    >
+                      <option selected>Choose tax preference</option>
+                      <option value="Taxable">
+                      Taxable
+                      </option>
+                      <option value="Tax Exempt">
+                      Tax Exempt
+                      </option>
+                    </select>
+                  </div>
+
+                  <div className="mx-auto mb-6">
+                    <label
+                      htmlFor="currency"
+                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                    >
+                      <span className="text-lg text-red-500">*</span>Currency
+                    </label>
+                    <select
+                      id="currency"
+                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                      value={idData.currency}
+                      onChange={handleUpdateChange}
+                      name="currency"
+                    >
+                      <option selected>Choose a currency</option>
+                      <option value="USD">USD</option>
+                    </select>
+                  </div>
+
+                  <div className="mb-6">
+                    <label
+                      htmlFor="openingBalance"
+                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                    >
+                      <span className="text-lg text-red-500">*</span>Opening Balance
                     </label>
                     <input
                       type="number"
-                      id="hourly-rate"
-                      name="hourlyRate"
+                      id="openingBalance"
+                      name="openingBalance"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Your hourly rate"
-                      value={idData.hourlyRate}
-                      onChange={handleUpdateChange}
-                    />
-                  </div>
-
-                  <div className="mb-6">
-                    <label
-                      htmlFor="tds rate"
-                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      TDS Rate
-                    </label>
-                    <input
-                      type="text"
-                      id="tds-rate"
-                      name="tdsRate"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Your TDS Rate"
-                      value={idData.tdsRate}
-                      onChange={handleUpdateChange}
-                    />
-                  </div>
-
-                  <div className="mb-6">
-                    <label
-                      htmlFor="gst rate"
-                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      Gst Rate
-                    </label>
-                    <input
-                      type="text"
-                      id="gst-rate"
-                      name="gstRate"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Your Gst Rate"
-                      value={idData.gstRate}
-                      onChange={handleUpdateChange}
-                    />
-                  </div>
-
-                  <div className="mb-6">
-                    <label
-                      htmlFor="pan"
-                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      PAN Number
-                    </label>
-                    <input
-                      type="text"
-                      id="pan"
-                      name="pan"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Your Pan Card no."
-                      value={idData.pan}
-                      onChange={handleUpdateChange}
-                    />
-                  </div>
-
-                  <div className="mb-6">
-                    <label
-                      htmlFor="a/c"
-                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      Bank Account Number
-                    </label>
-                    <input
-                      type=""
-                      id="a/c"
-                      name="bankAccountNumber"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Your Bank Account Number"
-                      value={idData.bankAccountNumber}
-                      onChange={handleUpdateChange}
-                    />
-                  </div>
-
-                  <div className="mb-6">
-                    <label
-                      htmlFor="ifsc"
-                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      IFSC Code
-                    </label>
-                    <input
-                      type="text"
-                      id="ifsc"
-                      name="ifscCode"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Your Bank's IFSC code"
-                      value={idData.ifscCode}
+                      placeholder="Opening Balance"
+                      value={idData.openingBalance}
                       onChange={handleUpdateChange}
                     />
                   </div>
 
                   <div className="mx-auto mb-6">
                     <label
-                      htmlFor="payment-channel"
+                      htmlFor="enablePortal"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      <span className="text-lg text-red-500">*</span>Payment
-                      Channel
+                      <span className="text-lg text-red-500">*</span>Enable Portal
                     </label>
                     <select
-                      id="countries"
+                      id="enablePortal"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      value={idData.paymentChannel}
+                      value={idData.enablePortal}
                       onChange={handleUpdateChange}
-                      name="paymentChannel"
+                      name="enablePortal"
                     >
-                      <option selected>Choose a channel</option>
-                      <option value="Domestic Bank Transfer">
-                        Domestic Bank Transfer
-                      </option>
-                      <option value="International Bank Transfer">
-                        International Bank Transfer
-                      </option>
-                      <option value="Via Third Party">Via Third Party</option>
-                    </select>
-                    {/* <input
-                      type="text"
-                      id="payment-channel"
-                      name="paymentChannel"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Your Preferred Channel Partner"
-                      value={formData.paymentChannel}
-                      onChange={handleInputChange}
-                    /> */}
-                  </div>
-
-                  <div className="mx-auto mb-6">
-                    <label
-                      htmlFor="payment-mode"
-                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      <span className="text-lg text-red-500">*</span>Payment
-                      Mode
-                    </label>
-                    <select
-                      id="countries"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      value={idData.paymentMode}
-                      onChange={handleUpdateChange}
-                      name="paymentMode"
-                    >
-                      <option selected>Choose a mode</option>
-                      <option value="International Wire">
-                        International Wire
-                      </option>
-                      <option value="Wise">Wise</option>
-                      <option value="NEFT">NEFT</option>
-                      <option value="Cheque">Cheque</option>
-                      <option value="Cash">Cash</option>
+                      <option selected>Choose an action</option>
+                      <option value="YES">YES</option>
+                      <option value="NO">NO</option>
                     </select>
                   </div>
 
@@ -1158,7 +1111,6 @@ export default function ClientTable() {
             )}
             {/* Update Drawer ends */}
           </div>
-          {/* Add New Person */}
         </div>
         {showModal && (
           <div className="fixed top-0 left-0 flex h-full w-full items-center justify-center">
@@ -1174,7 +1126,7 @@ export default function ClientTable() {
         <table className="z-[-1]x w-full text-left text-sm text-gray-500 dark:text-gray-400">
           <thead className="bg-gray-100 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400">
             <tr>
-              <th scope="col" className="p-4 items-center">
+              <th scope="col" className="items-center p-4">
                 {/* <div className="flex items-center">
                   <input
                     id="checkbox-all-search"
@@ -1207,16 +1159,16 @@ export default function ClientTable() {
           </thead>
           <tbody>
             {currentItems
-              ?.filter((person) => {
+              ?.filter((client) => {
                 if (!searchQuery.trim()) return true;
 
                 const query = searchQuery.toLowerCase();
 
                 return (
-                  person.displayName?.toLowerCase().includes(query) ||
-                  person.department?.toLowerCase().includes(query) ||
-                  person.mobile?.toLowerCase().includes(query) ||
-                  person.workEmail?.toLowerCase().includes(query)
+                  client.primaryContactPerson?.toLowerCase().includes(query) ||
+                  client.businessName?.toLowerCase().includes(query) ||
+                  client.primaryContactNumber?.toLowerCase().includes(query) ||
+                  client.email?.toLowerCase().includes(query)
                 );
               })
               ?.map((row, index) => (
@@ -1229,18 +1181,18 @@ export default function ClientTable() {
                       type="checkbox"
                       className="h-4 w-4 rounded border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:focus:ring-blue-600 dark:focus:ring-offset-gray-800"
                     /> */}
-                    {((currentPage - 1) * itemsPerPage) + index + 1}.
+                    {(currentPage - 1) * itemsPerPage + index + 1}.
                   </td>
                   <th
                     scope="row"
                     className="whitespace-nowrap px-6 py-4 font-medium text-gray-900 dark:text-white"
                   >
                     {/* {row.firstname+" "+row.lastname} */}
-                    {row.displayName}
+                    {row.primaryContactPerson}
                   </th>
-                  <td className="px-6 py-4">{row.department}</td>
-                  <td className="px-6 py-4">{row.mobile}</td>
-                  <td className="px-6 py-4">{row.workEmail}</td>
+                  <td className="px-6 py-4">{row.businessName}</td>
+                  <td className="px-6 py-4">{row.primaryContactNumber}</td>
+                  <td className="px-6 py-4">{row.email}</td>
                   <td className="px-6 py-4">
                     <div className="flex flex-row items-center gap-3">
                       <a
@@ -1254,7 +1206,7 @@ export default function ClientTable() {
                         Edit
                       </a>
                       <MdDelete
-                        className="text-lg text-red-500 hover:text-red-300 cursor-pointer"
+                        className="cursor-pointer text-lg text-red-500 hover:text-red-300"
                         onClick={(event) => handleDeleteClick(event, row._id)}
                       />
                     </div>
@@ -1271,11 +1223,11 @@ export default function ClientTable() {
       <div className="mr-6 mb-4 flex justify-end">
         <Pagination
           itemsPerPage={itemsPerPage}
-          totalItems={peopleData.length}
+          totalItems={clientData.length}
           currentPage={currentPage}
           setCurrentPage={setCurrentPage}
         />
       </div>
     </div>
-  )
+  );
 }
