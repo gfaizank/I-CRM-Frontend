@@ -1,5 +1,6 @@
 import React from 'react';
 import { useAuthContext } from 'hooks/useAuthContext';
+import ProjectTable from './components/ProjectTable';
 
 const Project = () => {
 
@@ -8,7 +9,7 @@ const Project = () => {
     return (
         <div className='mt-3 grid'>
             {user && (
-            <h1>Coming Soon</h1>
+            <ProjectTable />
             )}
 
             {!user && (

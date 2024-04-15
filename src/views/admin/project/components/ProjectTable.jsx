@@ -1,24 +1,26 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MdDelete } from "react-icons/md";
-import Pagination from "./Pagination";
 import { useAuthContext } from "hooks/useAuthContext";
-import DeleteClientConfirmation from "./DeleteClientConfirmation";
 import Spinner from "./Spinner";
+import DeleteProjectConfirm from "./DeleteProjectConfirm";
+import Pagination from "./Pagination";
 
-export default function ClientTable() {
+const ProjectTable = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isUpdateDrawerOpen, setIsUpdateDrawerOpen] = useState(false);
   const { user } = useAuthContext();
 
-  const [clientData, setClientData] = useState([]);
+  const [projectData, setProjectData] = useState([]);
   const [deleted, setDeleted] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [updated, setUpdated] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(5);
-  const [spin, setSpin] = useState(false);
+  const [spin, setSpin]=useState(false)
+  const [sortBy, setSortBy] = useState('-createdAt');
+  
 
   const [showModal, setShowModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
@@ -41,21 +43,20 @@ export default function ClientTable() {
   };
 
   const [formData, setFormData] = useState({
-    primaryContactPerson: "",
-    l2ContactPerson: "",
-    billingContactPerson: "",
-    businessName: "",
-    customerDisplayName: "",
-    email: "",
-    primaryContactNumber: "",
-    secondaryContactNumber: "",
-    GSTTreatment: "Registered",
-    placeOfSupply: "",
-    taxPreference: "Taxable",
-    currency: "USD",
-    openingBalance: 0,
-    enablePortal: "YES",
-    nestedFields: [],
+    name: "",
+    status: "",
+    mobile: "",
+    displayName: "",
+    department: "",
+    employeeId: "",
+    hourlyRate: 0,
+    tdsRate: 0,
+    gstRate: 0,
+    pan: "",
+    bankAccountNumber: "",
+    ifscCode: "",
+    paymentChannel: "",
+    paymentMode: "",
   });
 
   const handleInputChange = (event) => {
@@ -77,7 +78,7 @@ export default function ClientTable() {
     console.log(formData);
 
     // Send data to the API endpoint
-    fetch("https://i-crm-backend-6fqp.onrender.com/client", {
+    fetch("https://i-crm-backend-6fqp.onrender.com/people/create", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -106,27 +107,28 @@ export default function ClientTable() {
 
   useEffect(() => {
     setSpin(true);
-    fetch("https://i-crm-backend-6fqp.onrender.com/client/")
+
+    fetch(`https://i-crm-backend-6fqp.onrender.com/project/?sort=${sortBy}`)
       .then((response) => response.json())
       .then((data) => {
         // console.log(data);
-        setClientData(data.data.clients);
+        setProjectData(data.data.projects);
         setSpin(false);
-        // setClientData((prevData) => [...data.data.people, ...prevData]);
       })
       .catch((error) => console.error("Error fetching data:", error));
-  }, [deleted, submitted, updated]);
+  }, [deleted, submitted, updated, sortBy]);
+
 
   const handleDeleteRow = (id) => {
     setSpin(true);
-    fetch(`https://i-crm-backend-6fqp.onrender.com/client/${id}`, {
+    fetch(`https://i-crm-backend-6fqp.onrender.com/people/${id}`, {
       method: "DELETE",
     })
       .then((response) => {
         if (!response.ok) {
           throw new Error("Failed to delete row");
         }
-        setClientData((prevData) => prevData.filter((row) => row.id !== id));
+        setProjectData((prevData) => prevData.filter((row) => row.id !== id));
         setDeleted((prevDeleted) => !prevDeleted);
         setSpin(false);
       })
@@ -163,50 +165,47 @@ export default function ClientTable() {
   const [selectedId, setSelectedId] = useState(null);
 
   const [idData, setIdData] = useState({
-    primaryContactPerson: "",
-    l2ContactPerson: "",
-    billingContactPerson: "",
-    businessName: "",
-    customerDisplayName: "",
-    email: "",
-    primaryContactNumber: "",
-    secondaryContactNumber: "",
-    GSTTreatment: "Registered",
-    placeOfSupply: "",
-    taxPreference: "Taxable",
-    currency: "USD",
-    openingBalance: 0,
-    enablePortal: "YES",
-    nestedFields: [],
+    nature: "",
+    workEmail: "",
+    mobile: "",
+    displayName: "",
+    department: "",
+    employeeId: "",
+    hourlyRate: 0,
+    tdsRate: 0,
+    gstRate: 0,
+    pan: "",
+    bankAccountNumber: "",
+    ifscCode: "",
+    paymentChannel: "",
+    paymentMode: "",
   });
 
   const handleUpdate = async (event, id) => {
     event.preventDefault();
     try {
       const response = await fetch(
-        `https://i-crm-backend-6fqp.onrender.com/client/${id}`
+        `https://i-crm-backend-6fqp.onrender.com/people/${id}`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch data");
       }
       const data = await response.json();
-      console.log(data);
       setIdData({
-        primaryContactPerson: data.data.client.primaryContactPerson || "",
-        l2ContactPerson: data.data.client.l2ContactPerson || "",
-        billingContactPerson: data.data.client.billingContactPerson || "",
-        businessName: data.data.client.businessName || "",
-        customerDisplayName: data.data.client.customerDisplayName || "",
-        email: data.data.client.email || "",
-        primaryContactNumber: data.data.client.primaryContactNumber || "",
-        secondaryContactNumber: data.data.client.secondaryContactNumber || "",
-        GSTTreatment: data.data.client.GSTTreatment || "Registered",
-        placeOfSupply: data.data.client.placeOfSupply || "",
-        taxPreference: data.data.client.taxPreference || "Taxable",
-        currency: data.data.client.currency || "USD",
-        openingBalance: data.data.client.openingBalance || 0,
-        enablePortal: data.data.client.enablePortal || "YES",
-        nestedFields: data.data.client.nestedFields || [],
+        nature: data.nature || "",
+        workEmail: data.workEmail || "",
+        mobile: data.mobile || "",
+        displayName: data.displayName || "",
+        department: data.department || "",
+        employeeId: data.employeeId || "",
+        hourlyRate: data.hourlyRate || 0,
+        tdsRate: data.tdsRate || 0,
+        gstRate: data.gstRate || 0,
+        pan: data.pan || "",
+        bankAccountNumber: data.bankAccountNumber || "",
+        ifscCode: data.ifscCode || "",
+        paymentChannel: data.paymentChannel || "",
+        paymentMode: data.paymentMode || "",
       });
       setSelectedId(id);
     } catch (error) {
@@ -224,8 +223,8 @@ export default function ClientTable() {
     console.log(idData);
 
     // Send data to the API endpoint
-    fetch(`https://i-crm-backend-6fqp.onrender.com/client/${selectedId}`, {
-      method: "PATCH",
+    fetch(`https://i-crm-backend-6fqp.onrender.com/people/${selectedId}`, {
+      method: "PUT",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${user.token}`,
@@ -268,7 +267,7 @@ export default function ClientTable() {
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = clientData.slice(indexOfFirstItem, indexOfLastItem);
+  const currentItems = projectData.slice(indexOfFirstItem, indexOfLastItem);
   const isCurrentPageEmpty = currentItems.length === 0 && currentPage > 1;
 
 
@@ -276,7 +275,7 @@ const newPage = isCurrentPageEmpty ? currentPage - 1 : currentPage;
 
 const updatedIndexOfLastItem = newPage * itemsPerPage;
 const updatedIndexOfFirstItem = updatedIndexOfLastItem - itemsPerPage;
-const updatedCurrentItems = clientData.slice(updatedIndexOfFirstItem, updatedIndexOfLastItem);
+const updatedCurrentItems = projectData.slice(updatedIndexOfFirstItem, updatedIndexOfLastItem);
 
   return (
     <div className="min-h-fit bg-white">
@@ -289,6 +288,7 @@ const updatedCurrentItems = clientData.slice(updatedIndexOfFirstItem, updatedInd
               className="inline-flex items-center rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-4 focus:ring-gray-100 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:hover:border-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-700"
               type="button"
             >
+              {/* Icons and text here */}
               <svg
                 className="h-3 w-3 text-gray-500 me-3 dark:text-gray-400"
                 aria-hidden="true"
@@ -434,7 +434,7 @@ const updatedCurrentItems = clientData.slice(updatedIndexOfFirstItem, updatedInd
                 type="text"
                 id="table-search"
                 className="w-76 block rounded-lg border border-gray-300 bg-gray-50 p-2 pl-10 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                placeholder="Search for clients"
+                placeholder="Search for projects"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -445,7 +445,7 @@ const updatedCurrentItems = clientData.slice(updatedIndexOfFirstItem, updatedInd
               className="inline-flex items-center rounded-lg border border-gray-300 bg-blue-700 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-900 focus:outline-none focus:ring-4 focus:ring-gray-100 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:hover:border-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-700"
               type="button"
             >
-              ADD NEW CLIENT
+              ADD NEW PROJECT
             </button>
             {/* Drawer starts */}
             {isDrawerOpen && (
@@ -466,7 +466,7 @@ const updatedCurrentItems = clientData.slice(updatedIndexOfFirstItem, updatedInd
                     <path d="M10.036 8.278 9.258-7.79A1.979 1.979 0 0 0 18 0H2A1.987 1.987 0 0 0 .641.541l9.395 7.737Z" />
                     <path d="M11.241 9.817c-.36.275-.801.425-1.255.427-.428 0-.845-.138-1.187-.395L0 2.6V14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V2.5l-8.759 7.317Z" />
                   </svg>
-                  Add Client
+                  Add Project
                 </h5>
                 <button
                   type="button"
@@ -493,99 +493,61 @@ const updatedCurrentItems = clientData.slice(updatedIndexOfFirstItem, updatedInd
                 <form className="mb-6">
                   <div className="mb-6">
                     <label
-                      htmlFor="primaryContactPerson"
+                      htmlFor="projectName"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      <span className="text-lg text-red-500">*</span>Contact
-                      Person
+                      <span className="text-lg text-red-500">*</span>Project Name
                     </label>
                     <input
                       type="text"
-                      id="primaryContactPerson"
-                      name="primaryContactPerson"
+                      id="projectName"
+                      name="projectName"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Contact Person's name"
-                      value={formData.primaryContactPerson}
+                      placeholder="Project Name"
+                      value={formData.name}
                       onChange={handleInputChange}
                       required
                     />
                   </div>
-                  <div className="mb-6">
+                  <div className="mx-auto mb-6">
                     <label
-                      htmlFor="billingContactPerson"
+                      htmlFor="status"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      <span className="text-lg text-red-500">*</span>Billing
-                      Name
+                      <span className="text-lg text-red-500">*</span>Status
                     </label>
-                    <input
-                      type="text"
-                      id="billingContactPerson"
-                      name="billingContactPerson"
+                    <select
+                      id="status"
+                      name="status"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Billing Person's name"
-                      value={formData.billingContactPerson}
+                      value={formData.status}
                       onChange={handleInputChange}
                       required
-                    />
-                  </div>
-
-                  <div className="mb-6">
-                    <label
-                      htmlFor="customerDisplayName"
-                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      <span className="text-lg text-red-500">*</span>Display
-                      Name
-                    </label>
-                    <input
-                      type="text"
-                      id="customerDisplayName"
-                      name="customerDisplayName"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Display Name"
-                      value={formData.customerDisplayName}
-                      onChange={handleInputChange}
-                      required
-                    />
+                      <option selected>Choose a status</option>
+                      <option value="In Progress">In Progress</option>
+                      <option value="Cancelled">Cancelled</option>
+                      <option value="Completed">Completed</option>
+                      <option value="Yet to Start">Yet to Start</option>
+                    </select>
                   </div>
 
                   <div className="mb-6">
                     <label
-                      htmlFor="businessName"
+                      htmlFor="phone"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      <span className="text-lg text-red-500">*</span>Company
+                      <span className="text-lg text-red-500">*</span>Start Date
                     </label>
-                    <input
-                      type="text"
-                      id="businessName"
-                      name="businessName"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Business Name"
-                      value={formData.businessName}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </div>
+                    <div className="relative max-w-sm">
+                        <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                            <svg className="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"/>
+                                </svg>
+                                </div>
+                                <input datepicker datepicker-autohide type="text" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Select date" />
 
-                  <div className="mb-6">
-                    <label
-                      htmlFor="primaryContactNumber"
-                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      <span className="text-lg text-red-500">*</span>Phone
-                    </label>
-                    <input
-                      type="phone"
-                      id="primaryContactNumber"
-                      name="primaryContactNumber"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Primary phone number"
-                      value={formData.primaryContactNumber}
-                      onChange={handleInputChange}
-                      required
-                    />
+                                </div>
                   </div>
 
                   <div className="mb-6">
@@ -598,30 +560,10 @@ const updatedCurrentItems = clientData.slice(updatedIndexOfFirstItem, updatedInd
                     <input
                       type="email"
                       id="email"
-                      name="email"
+                      name="workEmail"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                       placeholder="Your email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </div>
-
-                  <div className="mb-6">
-                    <label
-                      htmlFor="secondaryContactNumber"
-                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      <span className="text-lg text-red-500">*</span>Secondary
-                      Phone
-                    </label>
-                    <input
-                      type="phone"
-                      id="secondaryContactNumber"
-                      name="secondaryContactNumber"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Secondary phone number"
-                      value={formData.secondaryContactNumber}
+                      value={formData.workEmail}
                       onChange={handleInputChange}
                       required
                     />
@@ -629,47 +571,42 @@ const updatedCurrentItems = clientData.slice(updatedIndexOfFirstItem, updatedInd
 
                   <div className="mx-auto mb-6">
                     <label
-                      htmlFor="GSTTreatment"
+                      htmlFor="nature"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      <span className="text-lg text-red-500">*</span>GST
-                      Treatment
+                      <span className="text-lg text-red-500">*</span>Nature
                     </label>
                     <select
-                      id="GSTTreatment"
-                      name="GSTTreatment"
+                      id="nature"
+                      name="nature"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      value={formData.GSTTreatment}
+                      value={formData.nature}
                       onChange={handleInputChange}
                       required
                     >
-                      <option selected>Choose a GST Treatment</option>
-                      <option value="Registered">Registered</option>
-                      <option value="Registered – Composition">
-                        Registered – Composition
-                      </option>
-                      <option value="Unregistered">Unregistered</option>
-                      <option value="Consumer">Consumer</option>
-                      <option value="Overseas">Overseas</option>
-                      <option value="SEZ">SEZ</option>
+                      <option selected>Choose a nature</option>
+                      <option value="REFERRAL_PARTNER">REFERRAL_PARTNER</option>
+                      {/* <option value="Wise">Wise</option>
+                      <option value="NEFT">NEFT</option>
+                      <option value="Cheque">Cheque</option>
+                      <option value="Cash">Cash</option> */}
                     </select>
                   </div>
 
                   <div className="mb-6">
                     <label
-                      htmlFor="placeOfSupply"
+                      htmlFor="employeeId"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      <span className="text-lg text-red-500">*</span>Place Of
-                      Supply
+                      External ID
                     </label>
                     <input
                       type="text"
-                      id="placeOfSupply"
-                      name="placeOfSupply"
+                      id="employeeId"
+                      name="employeeId"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Place Of Supply"
-                      value={formData.placeOfSupply}
+                      placeholder="Optional for Referral Partner"
+                      value={formData.employeeId}
                       onChange={handleInputChange}
                     />
                   </div>
@@ -689,84 +626,172 @@ const updatedCurrentItems = clientData.slice(updatedIndexOfFirstItem, updatedInd
                     />
                   </div> */}
 
-                  <div className="mx-auto mb-6">
+                  <div className="mb-6">
                     <label
-                      htmlFor="taxPreference"
+                      htmlFor="hourly rate"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      <span className="text-lg text-red-500">*</span>Tax Preference
+                      Hourly Rate
                     </label>
-                    <select
-                      id="taxPreference"
+                    <input
+                      type="number"
+                      id="hourly-rate"
+                      name="hourlyRate"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      value={formData.taxPreference}
+                      placeholder="Your hourly rate"
+                      value={formData.hourlyRate}
                       onChange={handleInputChange}
-                      name="taxPreference"
-                    >
-                      <option selected>Choose tax preference</option>
-                      <option value="Taxable">
-                      Taxable
-                      </option>
-                      <option value="Tax Exempt">
-                      Tax Exempt
-                      </option>
-                    </select>
-                  </div>
-
-                  <div className="mx-auto mb-6">
-                    <label
-                      htmlFor="currency"
-                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      <span className="text-lg text-red-500">*</span>Currency
-                    </label>
-                    <select
-                      id="currency"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      value={formData.currency}
-                      onChange={handleInputChange}
-                      name="currency"
-                    >
-                      <option selected>Choose a currency</option>
-                      <option value="USD">USD</option>
-                    </select>
+                    />
                   </div>
 
                   <div className="mb-6">
                     <label
-                      htmlFor="openingBalance"
+                      htmlFor="tds rate"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      <span className="text-lg text-red-500">*</span>Opening Balance
+                      TDS Rate
                     </label>
                     <input
-                      type="number"
-                      id="openingBalance"
-                      name="openingBalance"
+                      type="text"
+                      id="tds-rate"
+                      name="tdsRate"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Opening Balance"
-                      value={formData.openingBalance}
+                      placeholder="Your TDS Rate"
+                      value={formData.tdsRate}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+
+                  <div className="mb-6">
+                    <label
+                      htmlFor="gst rate"
+                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                    >
+                      Gst Rate
+                    </label>
+                    <input
+                      type="text"
+                      id="gst-rate"
+                      name="gstRate"
+                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                      placeholder="Your Gst Rate"
+                      value={formData.gstRate}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+
+                  <div className="mb-6">
+                    <label
+                      htmlFor="pan"
+                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                    >
+                      PAN Number
+                    </label>
+                    <input
+                      type="text"
+                      id="pan"
+                      name="pan"
+                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                      placeholder="Your Pan Card no."
+                      value={formData.pan}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+
+                  <div className="mb-6">
+                    <label
+                      htmlFor="a/c"
+                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                    >
+                      Bank Account Number
+                    </label>
+                    <input
+                      type=""
+                      id="a/c"
+                      name="bankAccountNumber"
+                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                      placeholder="Your Bank Account Number"
+                      value={formData.bankAccountNumber}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+
+                  <div className="mb-6">
+                    <label
+                      htmlFor="ifsc"
+                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                    >
+                      IFSC Code
+                    </label>
+                    <input
+                      type="text"
+                      id="ifsc"
+                      name="ifscCode"
+                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                      placeholder="Your Bank's IFSC code"
+                      value={formData.ifscCode}
                       onChange={handleInputChange}
                     />
                   </div>
 
                   <div className="mx-auto mb-6">
                     <label
-                      htmlFor="enablePortal"
+                      htmlFor="payment-channel"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      <span className="text-lg text-red-500">*</span>Enable Portal
+                      <span className="text-lg text-red-500">*</span>Payment
+                      Channel
                     </label>
                     <select
-                      id="enablePortal"
+                      id="countries"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      value={formData.enablePortal}
+                      value={formData.paymentChannel}
                       onChange={handleInputChange}
-                      name="enablePortal"
+                      name="paymentChannel"
                     >
-                      <option selected>Choose an action</option>
-                      <option value="YES">YES</option>
-                      <option value="NO">NO</option>
+                      <option selected>Choose a channel</option>
+                      <option value="Domestic Bank Transfer">
+                        Domestic Bank Transfer
+                      </option>
+                      <option value="International Bank Transfer">
+                        International Bank Transfer
+                      </option>
+                      <option value="Via Third Party">Via Third Party</option>
+                    </select>
+                    {/* <input
+                      type="text"
+                      id="payment-channel"
+                      name="paymentChannel"
+                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                      placeholder="Your Preferred Channel Partner"
+                      value={formData.paymentChannel}
+                      onChange={handleInputChange}
+                    /> */}
+                  </div>
+
+                  <div className="mx-auto mb-6">
+                    <label
+                      htmlFor="payment-mode"
+                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                    >
+                      <span className="text-lg text-red-500">*</span>Payment
+                      Mode
+                    </label>
+                    <select
+                      id="countries"
+                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                      value={formData.paymentMode}
+                      onChange={handleInputChange}
+                      name="paymentMode"
+                    >
+                      <option selected>Choose a mode</option>
+                      <option value="International Wire">
+                        International Wire
+                      </option>
+                      <option value="Wise">Wise</option>
+                      <option value="NEFT">NEFT</option>
+                      <option value="Cheque">Cheque</option>
+                      <option value="Cash">Cash</option>
                     </select>
                   </div>
 
@@ -800,7 +825,7 @@ const updatedCurrentItems = clientData.slice(updatedIndexOfFirstItem, updatedInd
                     <path d="M10.036 8.278 9.258-7.79A1.979 1.979 0 0 0 18 0H2A1.987 1.987 0 0 0 .641.541l9.395 7.737Z" />
                     <path d="M11.241 9.817c-.36.275-.801.425-1.255.427-.428 0-.845-.138-1.187-.395L0 2.6V14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V2.5l-8.759 7.317Z" />
                   </svg>
-                  Update Client
+                  Update Person
                 </h5>
                 <button
                   type="button"
@@ -825,98 +850,61 @@ const updatedCurrentItems = clientData.slice(updatedIndexOfFirstItem, updatedInd
                   <span className="sr-only">Close menu</span>
                 </button>
                 <form className="mb-6">
-                <div className="mb-6">
+                  <div className="mb-6">
                     <label
-                      htmlFor="primaryContactPerson"
+                      htmlFor="displayName"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      <span className="text-lg text-red-500">*</span>Contact
-                      Person
+                      <span className="text-lg text-red-500">*</span>Full Name
                     </label>
                     <input
                       type="text"
-                      id="primaryContactPerson"
-                      name="primaryContactPerson"
+                      id="displayName"
+                      name="displayName"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Contact Person's name"
-                      value={idData.primaryContactPerson}
+                      placeholder="Your Name"
+                      value={idData.displayName}
                       onChange={handleUpdateChange}
                       required
                     />
                   </div>
-                  <div className="mb-6">
+                  <div className="mx-auto mb-6">
                     <label
-                      htmlFor="billingContactPerson"
+                      htmlFor="department"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      <span className="text-lg text-red-500">*</span>Billing
-                      Name
+                      <span className="text-lg text-red-500">*</span>Department
                     </label>
-                    <input
-                      type="text"
-                      id="billingContactPerson"
-                      name="billingContactPerson"
+                    <select
+                      id="department"
+                      name="department"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Billing Person's name"
-                      value={idData.billingContactPerson}
+                      value={idData.department}
                       onChange={handleUpdateChange}
-                      required
-                    />
-                  </div>
-
-                  <div className="mb-6">
-                    <label
-                      htmlFor="customerDisplayName"
-                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      <span className="text-lg text-red-500">*</span>Display
-                      Name
-                    </label>
-                    <input
-                      type="text"
-                      id="customerDisplayName"
-                      name="customerDisplayName"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Display Name"
-                      value={idData.customerDisplayName}
-                      onChange={handleUpdateChange}
-                      required
-                    />
+                      <option selected>Choose a department</option>
+                      <option value="Engineering">Engineering</option>
+                      {/* <option value="Wise">Wise</option>
+                      <option value="NEFT">NEFT</option>
+                      <option value="Cheque">Cheque</option>
+                      <option value="Cash">Cash</option> */}
+                    </select>
                   </div>
 
                   <div className="mb-6">
                     <label
-                      htmlFor="businessName"
-                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      <span className="text-lg text-red-500">*</span>Company
-                    </label>
-                    <input
-                      type="text"
-                      id="businessName"
-                      name="businessName"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Business Name"
-                      value={idData.businessName}
-                      onChange={handleUpdateChange}
-                      required
-                    />
-                  </div>
-
-                  <div className="mb-6">
-                    <label
-                      htmlFor="primaryContactNumber"
+                      htmlFor="phone"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
                       <span className="text-lg text-red-500">*</span>Phone
                     </label>
                     <input
                       type="phone"
-                      id="primaryContactNumber"
-                      name="primaryContactNumber"
+                      id="phone"
+                      name="mobile"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Primary phone number"
-                      value={idData.primaryContactNumber}
+                      placeholder="Your phone number"
+                      value={idData.mobile}
                       onChange={handleUpdateChange}
                       required
                     />
@@ -932,30 +920,10 @@ const updatedCurrentItems = clientData.slice(updatedIndexOfFirstItem, updatedInd
                     <input
                       type="email"
                       id="email"
-                      name="email"
+                      name="workEmail"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                       placeholder="Your email"
-                      value={idData.email}
-                      onChange={handleUpdateChange}
-                      required
-                    />
-                  </div>
-
-                  <div className="mb-6">
-                    <label
-                      htmlFor="secondaryContactNumber"
-                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      <span className="text-lg text-red-500">*</span>Secondary
-                      Phone
-                    </label>
-                    <input
-                      type="phone"
-                      id="secondaryContactNumber"
-                      name="secondaryContactNumber"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Secondary phone number"
-                      value={idData.secondaryContactNumber}
+                      value={idData.workEmail}
                       onChange={handleUpdateChange}
                       required
                     />
@@ -963,47 +931,41 @@ const updatedCurrentItems = clientData.slice(updatedIndexOfFirstItem, updatedInd
 
                   <div className="mx-auto mb-6">
                     <label
-                      htmlFor="GSTTreatment"
+                      htmlFor="nature"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      <span className="text-lg text-red-500">*</span>GST
-                      Treatment
+                      <span className="text-lg text-red-500">*</span>Nature
                     </label>
                     <select
-                      id="GSTTreatment"
-                      name="GSTTreatment"
+                      id="nature"
+                      name="nature"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      value={idData.GSTTreatment}
+                      value={idData.nature}
                       onChange={handleUpdateChange}
-                      required
                     >
-                      <option selected>Choose a GST Treatment</option>
-                      <option value="Registered">Registered</option>
-                      <option value="Registered – Composition">
-                        Registered – Composition
-                      </option>
-                      <option value="Unregistered">Unregistered</option>
-                      <option value="Consumer">Consumer</option>
-                      <option value="Overseas">Overseas</option>
-                      <option value="SEZ">SEZ</option>
+                      <option selected>Choose a nature</option>
+                      <option value="REFERRAL_PARTNER">REFERRAL_PARTNER</option>
+                      {/* <option value="Wise">Wise</option>
+                      <option value="NEFT">NEFT</option>
+                      <option value="Cheque">Cheque</option>
+                      <option value="Cash">Cash</option> */}
                     </select>
                   </div>
 
                   <div className="mb-6">
                     <label
-                      htmlFor="placeOfSupply"
+                      htmlFor="employeeId"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      <span className="text-lg text-red-500">*</span>Place Of
-                      Supply
+                      External ID
                     </label>
                     <input
                       type="text"
-                      id="placeOfSupply"
-                      name="placeOfSupply"
+                      id="employeeId"
+                      name="employeeId"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Place Of Supply"
-                      value={idData.placeOfSupply}
+                      placeholder="Optional for Referral Partner"
+                      value={idData.employeeId}
                       onChange={handleUpdateChange}
                     />
                   </div>
@@ -1023,84 +985,172 @@ const updatedCurrentItems = clientData.slice(updatedIndexOfFirstItem, updatedInd
                     />
                   </div> */}
 
-                  <div className="mx-auto mb-6">
+                  <div className="mb-6">
                     <label
-                      htmlFor="taxPreference"
+                      htmlFor="hourly rate"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      <span className="text-lg text-red-500">*</span>Tax Preference
+                      Hourly Rate
                     </label>
-                    <select
-                      id="taxPreference"
+                    <input
+                      type="number"
+                      id="hourly-rate"
+                      name="hourlyRate"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      value={idData.taxPreference}
+                      placeholder="Your hourly rate"
+                      value={idData.hourlyRate}
                       onChange={handleUpdateChange}
-                      name="taxPreference"
-                    >
-                      <option selected>Choose tax preference</option>
-                      <option value="Taxable">
-                      Taxable
-                      </option>
-                      <option value="Tax Exempt">
-                      Tax Exempt
-                      </option>
-                    </select>
-                  </div>
-
-                  <div className="mx-auto mb-6">
-                    <label
-                      htmlFor="currency"
-                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      <span className="text-lg text-red-500">*</span>Currency
-                    </label>
-                    <select
-                      id="currency"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      value={idData.currency}
-                      onChange={handleUpdateChange}
-                      name="currency"
-                    >
-                      <option selected>Choose a currency</option>
-                      <option value="USD">USD</option>
-                    </select>
+                    />
                   </div>
 
                   <div className="mb-6">
                     <label
-                      htmlFor="openingBalance"
+                      htmlFor="tds rate"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      <span className="text-lg text-red-500">*</span>Opening Balance
+                      TDS Rate
                     </label>
                     <input
-                      type="number"
-                      id="openingBalance"
-                      name="openingBalance"
+                      type="text"
+                      id="tds-rate"
+                      name="tdsRate"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Opening Balance"
-                      value={idData.openingBalance}
+                      placeholder="Your TDS Rate"
+                      value={idData.tdsRate}
+                      onChange={handleUpdateChange}
+                    />
+                  </div>
+
+                  <div className="mb-6">
+                    <label
+                      htmlFor="gst rate"
+                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                    >
+                      Gst Rate
+                    </label>
+                    <input
+                      type="text"
+                      id="gst-rate"
+                      name="gstRate"
+                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                      placeholder="Your Gst Rate"
+                      value={idData.gstRate}
+                      onChange={handleUpdateChange}
+                    />
+                  </div>
+
+                  <div className="mb-6">
+                    <label
+                      htmlFor="pan"
+                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                    >
+                      PAN Number
+                    </label>
+                    <input
+                      type="text"
+                      id="pan"
+                      name="pan"
+                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                      placeholder="Your Pan Card no."
+                      value={idData.pan}
+                      onChange={handleUpdateChange}
+                    />
+                  </div>
+
+                  <div className="mb-6">
+                    <label
+                      htmlFor="a/c"
+                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                    >
+                      Bank Account Number
+                    </label>
+                    <input
+                      type=""
+                      id="a/c"
+                      name="bankAccountNumber"
+                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                      placeholder="Your Bank Account Number"
+                      value={idData.bankAccountNumber}
+                      onChange={handleUpdateChange}
+                    />
+                  </div>
+
+                  <div className="mb-6">
+                    <label
+                      htmlFor="ifsc"
+                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                    >
+                      IFSC Code
+                    </label>
+                    <input
+                      type="text"
+                      id="ifsc"
+                      name="ifscCode"
+                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                      placeholder="Your Bank's IFSC code"
+                      value={idData.ifscCode}
                       onChange={handleUpdateChange}
                     />
                   </div>
 
                   <div className="mx-auto mb-6">
                     <label
-                      htmlFor="enablePortal"
+                      htmlFor="payment-channel"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      <span className="text-lg text-red-500">*</span>Enable Portal
+                      <span className="text-lg text-red-500">*</span>Payment
+                      Channel
                     </label>
                     <select
-                      id="enablePortal"
+                      id="countries"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      value={idData.enablePortal}
+                      value={idData.paymentChannel}
                       onChange={handleUpdateChange}
-                      name="enablePortal"
+                      name="paymentChannel"
                     >
-                      <option selected>Choose an action</option>
-                      <option value="YES">YES</option>
-                      <option value="NO">NO</option>
+                      <option selected>Choose a channel</option>
+                      <option value="Domestic Bank Transfer">
+                        Domestic Bank Transfer
+                      </option>
+                      <option value="International Bank Transfer">
+                        International Bank Transfer
+                      </option>
+                      <option value="Via Third Party">Via Third Party</option>
+                    </select>
+                    {/* <input
+                      type="text"
+                      id="payment-channel"
+                      name="paymentChannel"
+                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                      placeholder="Your Preferred Channel Partner"
+                      value={formData.paymentChannel}
+                      onChange={handleInputChange}
+                    /> */}
+                  </div>
+
+                  <div className="mx-auto mb-6">
+                    <label
+                      htmlFor="payment-mode"
+                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                    >
+                      <span className="text-lg text-red-500">*</span>Payment
+                      Mode
+                    </label>
+                    <select
+                      id="countries"
+                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                      value={idData.paymentMode}
+                      onChange={handleUpdateChange}
+                      name="paymentMode"
+                    >
+                      <option selected>Choose a mode</option>
+                      <option value="International Wire">
+                        International Wire
+                      </option>
+                      <option value="Wise">Wise</option>
+                      <option value="NEFT">NEFT</option>
+                      <option value="Cheque">Cheque</option>
+                      <option value="Cash">Cash</option>
                     </select>
                   </div>
 
@@ -1116,12 +1166,13 @@ const updatedCurrentItems = clientData.slice(updatedIndexOfFirstItem, updatedInd
             )}
             {/* Update Drawer ends */}
           </div>
+          {/* Add New Person */}
         </div>
         {showModal && (
           <div className="fixed top-0 left-0 flex h-full w-full items-center justify-center">
             <div className="absolute top-0 h-full w-full bg-gray-900 opacity-50"></div>
             <div className="z-50 rounded-lg bg-white p-6 shadow-lg dark:bg-gray-800">
-              <DeleteClientConfirmation
+              <DeletePeopleConfirm
                 onClose={handleCloseModal}
                 onConfirm={handleConfirmDelete}
               />
@@ -1131,7 +1182,7 @@ const updatedCurrentItems = clientData.slice(updatedIndexOfFirstItem, updatedInd
         <table className="z-[-1]x w-full text-left text-sm text-gray-500 dark:text-gray-400">
           <thead className="bg-gray-100 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400">
             <tr>
-              <th scope="col" className="items-center p-4">
+              <th scope="col" className="p-4 items-center">
                 {/* <div className="flex items-center">
                   <input
                     id="checkbox-all-search"
@@ -1146,34 +1197,34 @@ const updatedCurrentItems = clientData.slice(updatedIndexOfFirstItem, updatedInd
                 S.No.
               </th>
               <th scope="col" className="px-6 py-3">
-              Company Name
+                Project name
               </th>
               <th scope="col" className="px-6 py-3">
-              Email
+                Status
               </th>
               <th scope="col" className="px-6 py-3">
-              Contact Person
+                Start Date
               </th>
               <th scope="col" className="px-6 py-3">
-              Phone 
+                End Date
               </th>
-              <th scope="col" classNae="px-6 py-3">
+              <th scope="col" className="px-6 py-3">
                 Action
               </th>
             </tr>
           </thead>
           <tbody>
             {updatedCurrentItems
-              ?.filter((client) => {
+              ?.filter((person) => {
                 if (!searchQuery.trim()) return true;
 
                 const query = searchQuery.toLowerCase();
 
                 return (
-                  client.primaryContactPerson?.toLowerCase().includes(query) ||
-                  client.businessName?.toLowerCase().includes(query) ||
-                  client.primaryContactNumber?.toLowerCase().includes(query) ||
-                  client.email?.toLowerCase().includes(query)
+                  person.displayName?.toLowerCase().includes(query) ||
+                  person.department?.toLowerCase().includes(query) ||
+                  person.mobile?.toLowerCase().includes(query) ||
+                  person.workEmail?.toLowerCase().includes(query)
                 );
               })
               ?.map((row, index) => (
@@ -1193,12 +1244,12 @@ const updatedCurrentItems = clientData.slice(updatedIndexOfFirstItem, updatedInd
                     className="whitespace-nowrap px-6 py-4 font-medium text-gray-900 dark:text-white"
                   >
                     {/* {row.firstname+" "+row.lastname} */}
-                    {row.businessName}
+                    {row.displayName}
                   </th>
-                  <td className="px-6 py-4">{row.email}</td>
-                  <td className="px-6 py-4">{row.primaryContactPerson}</td>
-                  <td className="px-6 py-4">{row.primaryContactNumber}</td>
-                  <td className="p-6 py-4">
+                  <td className="px-6 py-4">{row.department}</td>
+                  <td className="px-6 py-4">{row.mobile}</td>
+                  <td className="px-6 py-4">{row.workEmail}</td>
+                  <td className="px-6 py-4">
                     <div className="flex flex-row items-center gap-3">
                       <a
                         href="#"
@@ -1211,7 +1262,7 @@ const updatedCurrentItems = clientData.slice(updatedIndexOfFirstItem, updatedInd
                         Edit
                       </a>
                       <MdDelete
-                        className="cursor-pointer text-lg text-red-500 hover:text-red-300"
+                        className="text-lg text-red-500 hover:text-red-300 cursor-pointer"
                         onClick={(event) => handleDeleteClick(event, row._id)}
                       />
                     </div>
@@ -1228,11 +1279,13 @@ const updatedCurrentItems = clientData.slice(updatedIndexOfFirstItem, updatedInd
       <div className="mr-6 mb-4 flex justify-end">
         <Pagination
           itemsPerPage={itemsPerPage}
-          totalItems={clientData.length}
+          totalItems={projectData.length}
           currentPage={currentPage}
           setCurrentPage={setCurrentPage}
         />
       </div>
     </div>
   );
-}
+};
+
+export default ProjectTable;
