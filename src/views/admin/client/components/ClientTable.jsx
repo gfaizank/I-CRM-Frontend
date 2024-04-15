@@ -282,7 +282,6 @@ export default function ClientTable() {
               className="inline-flex items-center rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-4 focus:ring-gray-100 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:hover:border-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-700"
               type="button"
             >
-              {/* Icons and text here */}
               <svg
                 className="h-3 w-3 text-gray-500 me-3 dark:text-gray-400"
                 aria-hidden="true"
@@ -1140,18 +1139,18 @@ export default function ClientTable() {
                 S.No.
               </th>
               <th scope="col" className="px-6 py-3">
-                Contact Person
+              Company Name
               </th>
               <th scope="col" className="px-6 py-3">
-                Company
+              Email
               </th>
               <th scope="col" className="px-6 py-3">
-                Phone
+              Contact Person
               </th>
               <th scope="col" className="px-6 py-3">
-                Email
+              Phone 
               </th>
-              <th scope="col" className="px-6 py-3">
+              <th scope="col" classNae="px-6 py-3">
                 Action
               </th>
             </tr>
@@ -1187,12 +1186,12 @@ export default function ClientTable() {
                     className="whitespace-nowrap px-6 py-4 font-medium text-gray-900 dark:text-white"
                   >
                     {/* {row.firstname+" "+row.lastname} */}
-                    {row.primaryContactPerson}
+                    {row.businessName}
                   </th>
-                  <td className="px-6 py-4">{row.businessName}</td>
-                  <td className="px-6 py-4">{row.primaryContactNumber}</td>
                   <td className="px-6 py-4">{row.email}</td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4">{row.primaryContactPerson}</td>
+                  <td className="px-6 py-4">{row.primaryContactNumber}</td>
+                  <td className="p-6 py-4">
                     <div className="flex flex-row items-center gap-3">
                       <a
                         href="#"

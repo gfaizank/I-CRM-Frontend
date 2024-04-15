@@ -19,6 +19,7 @@ const PeopleTable = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(5);
   const [spin, setSpin]=useState(false)
+  const [sortBy, setSortBy] = useState('-createdAt');
   
 
   const [showModal, setShowModal] = useState(false);
@@ -106,7 +107,8 @@ const PeopleTable = () => {
 
   useEffect(() => {
     setSpin(true);
-    fetch("https://i-crm-backend-6fqp.onrender.com/people/")
+
+    fetch(`https://i-crm-backend-6fqp.onrender.com/people/?sort=${sortBy}`)
       .then((response) => response.json())
       .then((data) => {
         // console.log(data);
@@ -115,7 +117,8 @@ const PeopleTable = () => {
         // setPeopleData((prevData) => [...data.data.people, ...prevData]);
       })
       .catch((error) => console.error("Error fetching data:", error));
-  }, [deleted, submitted, updated]);
+  }, [deleted, submitted, updated, sortBy]);
+
 
   const handleDeleteRow = (id) => {
     setSpin(true);
@@ -266,7 +269,14 @@ const PeopleTable = () => {
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = peopleData.slice(indexOfFirstItem, indexOfLastItem);
+  const isCurrentPageEmpty = currentItems.length === 0 && currentPage > 1;
 
+
+const newPage = isCurrentPageEmpty ? currentPage - 1 : currentPage;
+
+const updatedIndexOfLastItem = newPage * itemsPerPage;
+const updatedIndexOfFirstItem = updatedIndexOfLastItem - itemsPerPage;
+const updatedCurrentItems = peopleData.slice(updatedIndexOfFirstItem, updatedIndexOfLastItem);
 
   return (
     <div className="min-h-fit bg-white">
@@ -1207,7 +1217,7 @@ const PeopleTable = () => {
             </tr>
           </thead>
           <tbody>
-            {currentItems
+            {updatedCurrentItems
               ?.filter((person) => {
                 if (!searchQuery.trim()) return true;
 
@@ -1230,7 +1240,7 @@ const PeopleTable = () => {
                       type="checkbox"
                       className="h-4 w-4 rounded border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:focus:ring-blue-600 dark:focus:ring-offset-gray-800"
                     /> */}
-                    {((currentPage - 1) * itemsPerPage) + index + 1}.
+                    {((newPage - 1) * itemsPerPage) + index + 1}.
                   </td>
                   <th
                     scope="row"
