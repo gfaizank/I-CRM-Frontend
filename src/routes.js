@@ -34,6 +34,13 @@ const routes = [
     component: <MainDashboard />,
   },
   {
+    name: "Client",
+    layout: "/admin",
+    icon: <MdPerson className="h-6 w-6" />,
+    path: "client",
+    component: <Client />,
+  },
+  {
     name: "People ",
     layout: "/admin",
     path: "people",
@@ -41,13 +48,6 @@ const routes = [
     component: <People />
     // component: <NFTMarketplace />,
     // secondary: true,
-  },
-  {
-    name: "Client",
-    layout: "/admin",
-    icon: <MdPerson className="h-6 w-6" />,
-    path: "client",
-    component: <Client />,
   },
   {
     name: "Project",

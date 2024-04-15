@@ -305,7 +305,7 @@ const PeopleTable = () => {
                 />
               </svg>
             </button>
-            {showDropdown && (
+            {/* {showDropdown && (
               <div
                 id="dropdownRadio"
                 className="absolute z-10 w-48 divide-y divide-gray-100 rounded-lg bg-white shadow dark:divide-gray-600 dark:bg-gray-700"
@@ -400,10 +400,9 @@ const PeopleTable = () => {
                       </label>
                     </div>
                   </li>
-                  {/* Other list items */}
                 </ul>
               </div>
-            )}
+            )} */}
           </div>
           <div className="flex flex-row justify-between gap-4">
             <div className="relative">
