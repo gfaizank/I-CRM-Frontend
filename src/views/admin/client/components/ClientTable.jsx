@@ -47,6 +47,7 @@ export default function ClientTable() {
     businessName: "",
     customerDisplayName: "",
     email: "",
+    password:"",
     primaryContactNumber: "",
     secondaryContactNumber: "",
     GSTTreatment: "Registered",
@@ -60,16 +61,26 @@ export default function ClientTable() {
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
-    const parsedValue = !isNaN(value) ? parseFloat(value) : value;
-    setFormData({ ...formData, [name]: parsedValue });
-    // setFormData({ ...formData, [name]: value });
-  };
+
+    const numericFields = ['hourlyRate', 'tdsRate', 'gstRate']; 
+    const shouldParse = numericFields.includes(name) && value !== '';
+    const parsedValue = shouldParse ? parseFloat(value) || '' : value;
+
+    setFormData(prevFormData => ({
+        ...prevFormData,
+        [name]: parsedValue
+    }));
+};
+
 
   const handleUpdateChange = (event) => {
     const { name, value } = event.target;
-    const parsedValue = !isNaN(value) ? parseFloat(value) : value;
+    const numericFields = ['hourlyRate', 'tdsRate', 'gstRate']; 
+    const shouldParse = numericFields.includes(name) && value !== '';
+    const parsedValue = shouldParse ? parseFloat(value) || '' : value;
     setIdData({ ...idData, [name]: parsedValue });
   };
+
 
   const handleSubmit = (event) => {
     setSpin(true);
@@ -169,6 +180,7 @@ export default function ClientTable() {
     businessName: "",
     customerDisplayName: "",
     email: "",
+    password:"",
     primaryContactNumber: "",
     secondaryContactNumber: "",
     GSTTreatment: "Registered",
@@ -609,6 +621,25 @@ const updatedCurrentItems = clientData.slice(updatedIndexOfFirstItem, updatedInd
 
                   <div className="mb-6">
                     <label
+                      htmlFor="password"
+                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                    >
+                      <span className="text-lg text-red-500">*</span>Password
+                    </label>
+                    <input
+                      type="password"
+                      id="password"
+                      name="password"
+                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                      placeholder="Your password"
+                      value={formData.password}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+
+                  <div className="mb-6">
+                    <label
                       htmlFor="secondaryContactNumber"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
@@ -936,6 +967,25 @@ const updatedCurrentItems = clientData.slice(updatedIndexOfFirstItem, updatedInd
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                       placeholder="Your email"
                       value={idData.email}
+                      onChange={handleUpdateChange}
+                      required
+                    />
+                  </div>
+
+                  <div className="mb-6">
+                    <label
+                      htmlFor="password"
+                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                    >
+                      <span className="text-lg text-red-500">*</span>Password
+                    </label>
+                    <input
+                      type="password"
+                      id="password"
+                      name="password"
+                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                      placeholder="Your password"
+                      value={idData.password}
                       onChange={handleUpdateChange}
                       required
                     />

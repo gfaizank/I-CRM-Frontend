@@ -61,16 +61,26 @@ const ProjectTable = () => {
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
-    const parsedValue = !isNaN(value) ? parseFloat(value) : value;
-    setFormData({ ...formData, [name]: parsedValue });
-    // setFormData({ ...formData, [name]: value });
-  };
+
+    const numericFields = ['hourlyRate', 'tdsRate', 'gstRate']; 
+    const shouldParse = numericFields.includes(name) && value !== '';
+    const parsedValue = shouldParse ? parseFloat(value) || '' : value;
+
+    setFormData(prevFormData => ({
+        ...prevFormData,
+        [name]: parsedValue
+    }));
+};
+
 
   const handleUpdateChange = (event) => {
     const { name, value } = event.target;
-    const parsedValue = !isNaN(value) ? parseFloat(value) : value;
+    const numericFields = ['hourlyRate', 'tdsRate', 'gstRate']; 
+    const shouldParse = numericFields.includes(name) && value !== '';
+    const parsedValue = shouldParse ? parseFloat(value) || '' : value;
     setIdData({ ...idData, [name]: parsedValue });
   };
+
 
   const handleSubmit = (event) => {
     setSpin(true);
