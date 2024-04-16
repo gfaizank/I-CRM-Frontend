@@ -4,6 +4,7 @@ import Pagination from "./Pagination";
 import { useAuthContext } from "hooks/useAuthContext";
 import DeletePeopleConfirm from "./DeletePeopleConfirm";
 import Spinner from "./Spinner";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const PeopleTable = () => {
   const [showDropdown, setShowDropdown] = useState(false);
@@ -18,9 +19,9 @@ const PeopleTable = () => {
   const [updated, setUpdated] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(5);
-  const [spin, setSpin]=useState(false)
-  const [sortBy, setSortBy] = useState('-createdAt');
-  
+  const [spin, setSpin] = useState(false);
+  const [sortBy, setSortBy] = useState("-createdAt");
+  const [showPassword, setShowPassword] = useState(false);
 
   const [showModal, setShowModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
@@ -46,7 +47,7 @@ const PeopleTable = () => {
     nature: "",
     workEmail: "",
     mobile: "",
-    password:"",
+    password: "",
     displayName: "",
     department: "",
     employeeId: "",
@@ -70,22 +71,21 @@ const PeopleTable = () => {
   const handleInputChange = (event) => {
     const { name, value } = event.target;
 
-    const numericFields = ['hourlyRate', 'tdsRate', 'gstRate']; 
-    const shouldParse = numericFields.includes(name) && value !== '';
-    const parsedValue = shouldParse ? parseFloat(value) || '' : value;
+    const numericFields = ["hourlyRate", "tdsRate", "gstRate"];
+    const shouldParse = numericFields.includes(name) && value !== "";
+    const parsedValue = shouldParse ? parseFloat(value) || "" : value;
 
-    setFormData(prevFormData => ({
-        ...prevFormData,
-        [name]: parsedValue
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [name]: parsedValue,
     }));
-};
-
+  };
 
   const handleUpdateChange = (event) => {
     const { name, value } = event.target;
-    const numericFields = ['hourlyRate', 'tdsRate', 'gstRate']; 
-    const shouldParse = numericFields.includes(name) && value !== '';
-    const parsedValue = shouldParse ? parseFloat(value) || '' : value;
+    const numericFields = ["hourlyRate", "tdsRate", "gstRate"];
+    const shouldParse = numericFields.includes(name) && value !== "";
+    const parsedValue = shouldParse ? parseFloat(value) || "" : value;
     setIdData({ ...idData, [name]: parsedValue });
   };
 
@@ -136,7 +136,6 @@ const PeopleTable = () => {
       .catch((error) => console.error("Error fetching data:", error));
   }, [deleted, submitted, updated, sortBy]);
 
-
   const handleDeleteRow = (id) => {
     setSpin(true);
     fetch(`https://i-crm-backend-6fqp.onrender.com/people/${id}`, {
@@ -186,7 +185,7 @@ const PeopleTable = () => {
     nature: "",
     workEmail: "",
     mobile: "",
-    password:"",
+    password: "",
     displayName: "",
     department: "",
     employeeId: "",
@@ -289,12 +288,14 @@ const PeopleTable = () => {
   const currentItems = peopleData.slice(indexOfFirstItem, indexOfLastItem);
   const isCurrentPageEmpty = currentItems.length === 0 && currentPage > 1;
 
+  const newPage = isCurrentPageEmpty ? currentPage - 1 : currentPage;
 
-const newPage = isCurrentPageEmpty ? currentPage - 1 : currentPage;
-
-const updatedIndexOfLastItem = newPage * itemsPerPage;
-const updatedIndexOfFirstItem = updatedIndexOfLastItem - itemsPerPage;
-const updatedCurrentItems = peopleData.slice(updatedIndexOfFirstItem, updatedIndexOfLastItem);
+  const updatedIndexOfLastItem = newPage * itemsPerPage;
+  const updatedIndexOfFirstItem = updatedIndexOfLastItem - itemsPerPage;
+  const updatedCurrentItems = peopleData.slice(
+    updatedIndexOfFirstItem,
+    updatedIndexOfLastItem
+  );
 
   return (
     <div className="min-h-fit bg-white">
@@ -597,16 +598,30 @@ const updatedCurrentItems = peopleData.slice(updatedIndexOfFirstItem, updatedInd
                     >
                       <span className="text-lg text-red-500">*</span>Password
                     </label>
-                    <input
-                      type="password"
-                      id="password"
-                      name="password"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Your password"
-                      value={formData.password}
-                      onChange={handleInputChange}
-                      required
-                    />
+                    <div className="relative">
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        id="password"
+                        name="password"
+                        className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                        placeholder="Your password"
+                        value={formData.password}
+                        onChange={handleInputChange}
+                        required
+                      />
+                      <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="text-gray-600 dark:text-gray-300"
+                          aria-label={
+                            showPassword ? "Hide password" : "Show password"
+                          }
+                        >
+                          {showPassword ? <FaEyeSlash /> : <FaEye />}
+                        </button>
+                      </div>
+                    </div>
                   </div>
 
                   <div className="mx-auto mb-6">
@@ -968,7 +983,7 @@ const updatedCurrentItems = peopleData.slice(updatedIndexOfFirstItem, updatedInd
                       required
                     />
                   </div>
-                  <div className="mb-6">
+                  {/* <div className="mb-6">
                     <label
                       htmlFor="password"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
@@ -985,6 +1000,39 @@ const updatedCurrentItems = peopleData.slice(updatedIndexOfFirstItem, updatedInd
                       onChange={handleUpdateChange}
                       required
                     />
+                  </div> */}
+
+                  <div className="mb-6">
+                    <label
+                      htmlFor="password"
+                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                    >
+                      <span className="text-lg text-red-500">*</span>Password
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        id="password"
+                        name="password"
+                        className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                        placeholder="Your password"
+                        value={idData.password}
+                        onChange={handleUpdateChange}
+                        required
+                      />
+                      <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="text-gray-600 dark:text-gray-300"
+                          aria-label={
+                            showPassword ? "Hide password" : "Show password"
+                          }
+                        >
+                          {showPassword ? <FaEyeSlash /> : <FaEye />}
+                        </button>
+                      </div>
+                    </div>
                   </div>
 
                   <div className="mx-auto mb-6">
@@ -1240,7 +1288,7 @@ const updatedCurrentItems = peopleData.slice(updatedIndexOfFirstItem, updatedInd
         <table className="z-[-1]x w-full text-left text-sm text-gray-500 dark:text-gray-400">
           <thead className="bg-gray-100 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400">
             <tr>
-              <th scope="col" className="p-4 items-center">
+              <th scope="col" className="items-center p-4">
                 {/* <div className="flex items-center">
                   <input
                     id="checkbox-all-search"
@@ -1295,7 +1343,7 @@ const updatedCurrentItems = peopleData.slice(updatedIndexOfFirstItem, updatedInd
                       type="checkbox"
                       className="h-4 w-4 rounded border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:focus:ring-blue-600 dark:focus:ring-offset-gray-800"
                     /> */}
-                    {((newPage - 1) * itemsPerPage) + index + 1}.
+                    {(newPage - 1) * itemsPerPage + index + 1}.
                   </td>
                   <th
                     scope="row"
@@ -1320,7 +1368,7 @@ const updatedCurrentItems = peopleData.slice(updatedIndexOfFirstItem, updatedInd
                         Edit
                       </a>
                       <MdDelete
-                        className="text-lg text-red-500 hover:text-red-300 cursor-pointer"
+                        className="cursor-pointer text-lg text-red-500 hover:text-red-300"
                         onClick={(event) => handleDeleteClick(event, row._id)}
                       />
                     </div>

@@ -4,6 +4,7 @@ import Pagination from "./Pagination";
 import { useAuthContext } from "hooks/useAuthContext";
 import DeleteClientConfirmation from "./DeleteClientConfirmation";
 import Spinner from "./Spinner";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 export default function ClientTable() {
   const [showDropdown, setShowDropdown] = useState(false);
@@ -19,6 +20,7 @@ export default function ClientTable() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(5);
   const [spin, setSpin] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const [showModal, setShowModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
@@ -47,7 +49,7 @@ export default function ClientTable() {
     businessName: "",
     customerDisplayName: "",
     email: "",
-    password:"",
+    password: "",
     primaryContactNumber: "",
     secondaryContactNumber: "",
     GSTTreatment: "Registered",
@@ -62,25 +64,23 @@ export default function ClientTable() {
   const handleInputChange = (event) => {
     const { name, value } = event.target;
 
-    const numericFields = ['hourlyRate', 'tdsRate', 'gstRate']; 
-    const shouldParse = numericFields.includes(name) && value !== '';
-    const parsedValue = shouldParse ? parseFloat(value) || '' : value;
+    const numericFields = ["hourlyRate", "tdsRate", "gstRate"];
+    const shouldParse = numericFields.includes(name) && value !== "";
+    const parsedValue = shouldParse ? parseFloat(value) || "" : value;
 
-    setFormData(prevFormData => ({
-        ...prevFormData,
-        [name]: parsedValue
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [name]: parsedValue,
     }));
-};
-
+  };
 
   const handleUpdateChange = (event) => {
     const { name, value } = event.target;
-    const numericFields = ['hourlyRate', 'tdsRate', 'gstRate']; 
-    const shouldParse = numericFields.includes(name) && value !== '';
-    const parsedValue = shouldParse ? parseFloat(value) || '' : value;
+    const numericFields = ["hourlyRate", "tdsRate", "gstRate"];
+    const shouldParse = numericFields.includes(name) && value !== "";
+    const parsedValue = shouldParse ? parseFloat(value) || "" : value;
     setIdData({ ...idData, [name]: parsedValue });
   };
-
 
   const handleSubmit = (event) => {
     setSpin(true);
@@ -180,7 +180,7 @@ export default function ClientTable() {
     businessName: "",
     customerDisplayName: "",
     email: "",
-    password:"",
+    password: "",
     primaryContactNumber: "",
     secondaryContactNumber: "",
     GSTTreatment: "Registered",
@@ -283,12 +283,14 @@ export default function ClientTable() {
   const currentItems = clientData.slice(indexOfFirstItem, indexOfLastItem);
   const isCurrentPageEmpty = currentItems.length === 0 && currentPage > 1;
 
+  const newPage = isCurrentPageEmpty ? currentPage - 1 : currentPage;
 
-const newPage = isCurrentPageEmpty ? currentPage - 1 : currentPage;
-
-const updatedIndexOfLastItem = newPage * itemsPerPage;
-const updatedIndexOfFirstItem = updatedIndexOfLastItem - itemsPerPage;
-const updatedCurrentItems = clientData.slice(updatedIndexOfFirstItem, updatedIndexOfLastItem);
+  const updatedIndexOfLastItem = newPage * itemsPerPage;
+  const updatedIndexOfFirstItem = updatedIndexOfLastItem - itemsPerPage;
+  const updatedCurrentItems = clientData.slice(
+    updatedIndexOfFirstItem,
+    updatedIndexOfLastItem
+  );
 
   return (
     <div className="min-h-fit bg-white">
@@ -619,7 +621,7 @@ const updatedCurrentItems = clientData.slice(updatedIndexOfFirstItem, updatedInd
                     />
                   </div>
 
-                  <div className="mb-6">
+                  {/* <div className="mb-6">
                     <label
                       htmlFor="password"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
@@ -636,6 +638,38 @@ const updatedCurrentItems = clientData.slice(updatedIndexOfFirstItem, updatedInd
                       onChange={handleInputChange}
                       required
                     />
+                  </div> */}
+                  <div className="mb-6">
+                    <label
+                      htmlFor="password"
+                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                    >
+                      <span className="text-lg text-red-500">*</span>Password
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        id="password"
+                        name="password"
+                        className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                        placeholder="Your password"
+                        value={formData.password}
+                        onChange={handleInputChange}
+                        required
+                      />
+                      <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="text-gray-600 dark:text-gray-300"
+                          aria-label={
+                            showPassword ? "Hide password" : "Show password"
+                          }
+                        >
+                          {showPassword ? <FaEyeSlash /> : <FaEye />}
+                        </button>
+                      </div>
+                    </div>
                   </div>
 
                   <div className="mb-6">
@@ -725,7 +759,8 @@ const updatedCurrentItems = clientData.slice(updatedIndexOfFirstItem, updatedInd
                       htmlFor="taxPreference"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      <span className="text-lg text-red-500">*</span>Tax Preference
+                      <span className="text-lg text-red-500">*</span>Tax
+                      Preference
                     </label>
                     <select
                       id="taxPreference"
@@ -735,12 +770,8 @@ const updatedCurrentItems = clientData.slice(updatedIndexOfFirstItem, updatedInd
                       name="taxPreference"
                     >
                       <option selected>Choose tax preference</option>
-                      <option value="Taxable">
-                      Taxable
-                      </option>
-                      <option value="Tax Exempt">
-                      Tax Exempt
-                      </option>
+                      <option value="Taxable">Taxable</option>
+                      <option value="Tax Exempt">Tax Exempt</option>
                     </select>
                   </div>
 
@@ -768,7 +799,8 @@ const updatedCurrentItems = clientData.slice(updatedIndexOfFirstItem, updatedInd
                       htmlFor="openingBalance"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      <span className="text-lg text-red-500">*</span>Opening Balance
+                      <span className="text-lg text-red-500">*</span>Opening
+                      Balance
                     </label>
                     <input
                       type="number"
@@ -786,7 +818,8 @@ const updatedCurrentItems = clientData.slice(updatedIndexOfFirstItem, updatedInd
                       htmlFor="enablePortal"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      <span className="text-lg text-red-500">*</span>Enable Portal
+                      <span className="text-lg text-red-500">*</span>Enable
+                      Portal
                     </label>
                     <select
                       id="enablePortal"
@@ -856,7 +889,7 @@ const updatedCurrentItems = clientData.slice(updatedIndexOfFirstItem, updatedInd
                   <span className="sr-only">Close menu</span>
                 </button>
                 <form className="mb-6">
-                <div className="mb-6">
+                  <div className="mb-6">
                     <label
                       htmlFor="primaryContactPerson"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
@@ -972,7 +1005,7 @@ const updatedCurrentItems = clientData.slice(updatedIndexOfFirstItem, updatedInd
                     />
                   </div>
 
-                  <div className="mb-6">
+                  {/* <div className="mb-6">
                     <label
                       htmlFor="password"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
@@ -989,6 +1022,38 @@ const updatedCurrentItems = clientData.slice(updatedIndexOfFirstItem, updatedInd
                       onChange={handleUpdateChange}
                       required
                     />
+                  </div> */}
+                  <div className="mb-6">
+                    <label
+                      htmlFor="password"
+                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                    >
+                      <span className="text-lg text-red-500">*</span>Password
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        id="password"
+                        name="password"
+                        className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                        placeholder="Your password"
+                        value={idData.password}
+                        onChange={handleUpdateChange}
+                        required
+                      />
+                      <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="text-gray-600 dark:text-gray-300"
+                          aria-label={
+                            showPassword ? "Hide password" : "Show password"
+                          }
+                        >
+                          {showPassword ? <FaEyeSlash /> : <FaEye />}
+                        </button>
+                      </div>
+                    </div>
                   </div>
 
                   <div className="mb-6">
@@ -1078,7 +1143,8 @@ const updatedCurrentItems = clientData.slice(updatedIndexOfFirstItem, updatedInd
                       htmlFor="taxPreference"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      <span className="text-lg text-red-500">*</span>Tax Preference
+                      <span className="text-lg text-red-500">*</span>Tax
+                      Preference
                     </label>
                     <select
                       id="taxPreference"
@@ -1088,12 +1154,8 @@ const updatedCurrentItems = clientData.slice(updatedIndexOfFirstItem, updatedInd
                       name="taxPreference"
                     >
                       <option selected>Choose tax preference</option>
-                      <option value="Taxable">
-                      Taxable
-                      </option>
-                      <option value="Tax Exempt">
-                      Tax Exempt
-                      </option>
+                      <option value="Taxable">Taxable</option>
+                      <option value="Tax Exempt">Tax Exempt</option>
                     </select>
                   </div>
 
@@ -1121,7 +1183,8 @@ const updatedCurrentItems = clientData.slice(updatedIndexOfFirstItem, updatedInd
                       htmlFor="openingBalance"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      <span className="text-lg text-red-500">*</span>Opening Balance
+                      <span className="text-lg text-red-500">*</span>Opening
+                      Balance
                     </label>
                     <input
                       type="number"
@@ -1139,7 +1202,8 @@ const updatedCurrentItems = clientData.slice(updatedIndexOfFirstItem, updatedInd
                       htmlFor="enablePortal"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      <span className="text-lg text-red-500">*</span>Enable Portal
+                      <span className="text-lg text-red-500">*</span>Enable
+                      Portal
                     </label>
                     <select
                       id="enablePortal"
@@ -1196,16 +1260,16 @@ const updatedCurrentItems = clientData.slice(updatedIndexOfFirstItem, updatedInd
                 S.No.
               </th>
               <th scope="col" className="px-6 py-3">
-              Company Name
+                Company Name
               </th>
               <th scope="col" className="px-6 py-3">
-              Email
+                Email
               </th>
               <th scope="col" className="px-6 py-3">
-              Contact Person
+                Contact Person
               </th>
               <th scope="col" className="px-6 py-3">
-              Phone 
+                Phone
               </th>
               <th scope="col" classNae="px-6 py-3">
                 Action
@@ -1236,7 +1300,7 @@ const updatedCurrentItems = clientData.slice(updatedIndexOfFirstItem, updatedInd
                       type="checkbox"
                       className="h-4 w-4 rounded border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:focus:ring-blue-600 dark:focus:ring-offset-gray-800"
                     /> */}
-                    {((newPage - 1) * itemsPerPage) + index + 1}.
+                    {(newPage - 1) * itemsPerPage + index + 1}.
                   </td>
                   <th
                     scope="row"
