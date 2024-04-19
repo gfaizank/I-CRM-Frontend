@@ -4,6 +4,8 @@ import { useAuthContext } from "hooks/useAuthContext";
 import Spinner from "./Spinner";
 import DeleteProjectConfirm from "./DeleteProjectConfirm";
 import Pagination from "./Pagination";
+import ObjectId from 'bson-objectid';
+
 
 const ProjectTable = () => {
   const [showDropdown, setShowDropdown] = useState(false);
@@ -18,9 +20,8 @@ const ProjectTable = () => {
   const [updated, setUpdated] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(5);
-  const [spin, setSpin]=useState(false)
-  const [sortBy, setSortBy] = useState('-createdAt');
-  
+  const [spin, setSpin] = useState(false);
+  const [sortBy, setSortBy] = useState("-createdAt");
 
   const [showModal, setShowModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
@@ -44,57 +45,107 @@ const ProjectTable = () => {
 
   const [formData, setFormData] = useState({
     name: "",
-    status: "",
-    mobile: "",
-    displayName: "",
-    department: "",
-    employeeId: "",
-    hourlyRate: 0,
-    tdsRate: 0,
-    gstRate: 0,
-    pan: "",
-    bankAccountNumber: "",
-    ifscCode: "",
-    paymentChannel: "",
-    paymentMode: "",
+    clientId: "",
+    managerId: "",
+    acquisitionPersonId: "",
+    status: "In Progress",
+    startDate: "",
+    endDate: "",
+    resources: [
+      {
+        personId: "",
+        defaultAllocation: 5,
+        startDate: "",
+        endDate: "",
+        acquisitionPersonId: "",
+        billability: "Billable",
+        // shadowOf: "",
+        billingRate: null,
+        billableHours: [],
+        overtimeAllocations: [],
+      },
+    ],
   });
+
+  const handleResourceChange = (index, field, value) => {
+    const updatedResources = formData.resources.map((resource, i) => {
+      if (i === index) {
+        return { ...resource, [field]: value };
+      }
+      return resource;
+    });
+    setFormData({ ...formData, resources: updatedResources });
+  };
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
 
-    const numericFields = ['hourlyRate', 'tdsRate', 'gstRate']; 
-    const shouldParse = numericFields.includes(name) && value !== '';
-    const parsedValue = shouldParse ? parseFloat(value) || '' : value;
-
-    setFormData(prevFormData => ({
-        ...prevFormData,
-        [name]: parsedValue
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [name]: value,
     }));
-};
-
+  };
 
   const handleUpdateChange = (event) => {
     const { name, value } = event.target;
-    const numericFields = ['hourlyRate', 'tdsRate', 'gstRate']; 
-    const shouldParse = numericFields.includes(name) && value !== '';
-    const parsedValue = shouldParse ? parseFloat(value) || '' : value;
-    setIdData({ ...idData, [name]: parsedValue });
+
+    setIdData((prevIdData) => ({
+      ...prevIdData,
+      [name]: value,
+    }));
   };
 
+  const writeDate = (dateString) => {
+    const date = new Date(dateString);
+    // Extract year, month, and day
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Adding leading zero if needed
+    const day = String(date.getDate()).padStart(2, "0"); // Adding leading zero if needed
+    return `${year}-${month}-${day}`;
+  };
 
   const handleSubmit = (event) => {
     setSpin(true);
     event.preventDefault();
-    console.log(formData);
+    if (
+      !formData.name ||
+      !formData.startDate ||
+      !formData.endDate ||
+      !formData.clientId ||
+      !formData.managerId ||
+      !formData.acquisitionPersonId
+    ) {
+      alert("Please fill in all required fields.");
+      setSpin(false);
+      return;
+    }
+    const formatDate = (date) => {
+      return new Date(date).toISOString().split("T")[0];
+    };
 
-    // Send data to the API endpoint
-    fetch("https://i-crm-backend-6fqp.onrender.com/people/create", {
+    const formattedFormData = {
+      ...formData,
+      clientId: ObjectId(formData.clientId),
+      managerId: ObjectId(formData.managerId),
+      acquisitionPersonId: ObjectId(formData.acquisitionPersonId),
+      startDate: formatDate(formData.startDate),
+      endDate: formatDate(formData.endDate),
+      resources: formData.resources.map((resource) => ({
+        ...resource,
+        personId: ObjectId(resource.personId),
+        acquisitionPersonId: ObjectId(resource.acquisitionPersonId),
+      })),
+    };
+
+    console.log(formattedFormData);
+
+    fetch("https://i-crm-backend-6fqp.onrender.com/project", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${user.token}`,
       },
-      body: JSON.stringify(formData),
+      body: JSON.stringify(formattedFormData),
     })
       .then((response) => {
         if (!response.ok) {
@@ -107,11 +158,31 @@ const ProjectTable = () => {
         setIsDrawerOpen(false);
         setSubmitted((prevSubmitted) => !prevSubmitted);
         setSpin(false);
-        // Optionally, you can show a success message or redirect the user to another page
+        setFormData({
+          name: "",
+          clientId: "",
+          managerId: "",
+          acquisitionPersonId: "",
+          status: "In Progress",
+          startDate: "",
+          endDate: "",
+          resources: [
+            {
+              personId: "",
+              defaultAllocation: 5,
+              startDate: "",
+              endDate: "",
+              acquisitionPersonId: "",
+              billability: "Billable",
+              billingRate: null,
+              billableHours: [],
+              overtimeAllocations: [],
+            },
+          ],
+        });
       })
       .catch((error) => {
         console.error("Error:", error);
-        // Optionally, you can show an error message to the user
       });
   };
 
@@ -128,10 +199,9 @@ const ProjectTable = () => {
       .catch((error) => console.error("Error fetching data:", error));
   }, [deleted, submitted, updated, sortBy]);
 
-
   const handleDeleteRow = (id) => {
     setSpin(true);
-    fetch(`https://i-crm-backend-6fqp.onrender.com/people/${id}`, {
+    fetch(`https://i-crm-backend-6fqp.onrender.com/project/${id}`, {
       method: "DELETE",
     })
       .then((response) => {
@@ -175,47 +245,70 @@ const ProjectTable = () => {
   const [selectedId, setSelectedId] = useState(null);
 
   const [idData, setIdData] = useState({
-    nature: "",
-    workEmail: "",
-    mobile: "",
-    displayName: "",
-    department: "",
-    employeeId: "",
-    hourlyRate: 0,
-    tdsRate: 0,
-    gstRate: 0,
-    pan: "",
-    bankAccountNumber: "",
-    ifscCode: "",
-    paymentChannel: "",
-    paymentMode: "",
+    name: "",
+    clientId: "",
+    managerId: "",
+    acquisitionPersonId: "",
+    status: "In Progress",
+    startDate: "",
+    endDate: "",
+    resources: [
+      {
+        personId: "",
+        defaultAllocation: 5,
+        startDate: "",
+        endDate: "",
+        acquisitionPersonId: "",
+        billability: "Billable",
+        // shadowOf: "",
+        billingRate: null,
+        billableHours: [],
+        overtimeAllocations: [],
+      },
+    ],
   });
+
+  const handleUpdateResourceChange = (index, field, value) => {
+    const updatedResources = idData.resources.map((resource, i) => {
+      if (i === index) {
+        return { ...resource, [field]: value };
+      }
+      return resource;
+    });
+    setIdData({ ...idData, resources: updatedResources });
+  };
 
   const handleUpdate = async (event, id) => {
     event.preventDefault();
     try {
       const response = await fetch(
-        `https://i-crm-backend-6fqp.onrender.com/people/${id}`
+        `https://i-crm-backend-6fqp.onrender.com/project/${id}`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch data");
       }
       const data = await response.json();
       setIdData({
-        nature: data.nature || "",
-        workEmail: data.workEmail || "",
-        mobile: data.mobile || "",
-        displayName: data.displayName || "",
-        department: data.department || "",
-        employeeId: data.employeeId || "",
-        hourlyRate: data.hourlyRate || 0,
-        tdsRate: data.tdsRate || 0,
-        gstRate: data.gstRate || 0,
-        pan: data.pan || "",
-        bankAccountNumber: data.bankAccountNumber || "",
-        ifscCode: data.ifscCode || "",
-        paymentChannel: data.paymentChannel || "",
-        paymentMode: data.paymentMode || "",
+        name: data.name || "",
+        clientId: data.clientId || "",
+        managerId: data.managerId || "",
+        acquisitionPersonId: data.acquisitionPersonId || "",
+        status: data.status || "In Progress",
+        startDate: data.startDate || "",
+        endDate: data.endDate || "",
+        resources: [
+          {
+            personId: data.resources[0]?.personId || "",
+            defaultAllocation: data.resources[0]?.defaultAllocation || 5,
+            startDate: data.resources[0]?.startDate || "",
+            endDate: data.resources[0]?.endDate || "",
+            acquisitionPersonId: data.resources[0]?.acquisitionPersonId || "",
+            billability: data.resources[0]?.billability || "Billable",
+            billingRate: data.resources[0]?.billingRate || null,
+            billableHours: data.resources[0]?.billableHours || [],
+            overtimeAllocations: data.resources[0]?.overtimeAllocations || [],
+          },
+        ],
       });
       setSelectedId(id);
     } catch (error) {
@@ -233,7 +326,7 @@ const ProjectTable = () => {
     console.log(idData);
 
     // Send data to the API endpoint
-    fetch(`https://i-crm-backend-6fqp.onrender.com/people/${selectedId}`, {
+    fetch(`https://i-crm-backend-6fqp.onrender.com/project/${selectedId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -280,12 +373,14 @@ const ProjectTable = () => {
   const currentItems = projectData.slice(indexOfFirstItem, indexOfLastItem);
   const isCurrentPageEmpty = currentItems.length === 0 && currentPage > 1;
 
+  const newPage = isCurrentPageEmpty ? currentPage - 1 : currentPage;
 
-const newPage = isCurrentPageEmpty ? currentPage - 1 : currentPage;
-
-const updatedIndexOfLastItem = newPage * itemsPerPage;
-const updatedIndexOfFirstItem = updatedIndexOfLastItem - itemsPerPage;
-const updatedCurrentItems = projectData.slice(updatedIndexOfFirstItem, updatedIndexOfLastItem);
+  const updatedIndexOfLastItem = newPage * itemsPerPage;
+  const updatedIndexOfFirstItem = updatedIndexOfLastItem - itemsPerPage;
+  const updatedCurrentItems = projectData.slice(
+    updatedIndexOfFirstItem,
+    updatedIndexOfLastItem
+  );
 
   return (
     <div className="min-h-fit bg-white">
@@ -506,12 +601,13 @@ const updatedCurrentItems = projectData.slice(updatedIndexOfFirstItem, updatedIn
                       htmlFor="projectName"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      <span className="text-lg text-red-500">*</span>Project Name
+                      <span className="text-lg text-red-500">*</span>Project
+                      Name
                     </label>
                     <input
                       type="text"
-                      id="projectName"
-                      name="projectName"
+                      id="name"
+                      name="name"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                       placeholder="Project Name"
                       value={formData.name}
@@ -544,266 +640,389 @@ const updatedCurrentItems = projectData.slice(updatedIndexOfFirstItem, updatedIn
 
                   <div className="mb-6">
                     <label
-                      htmlFor="phone"
+                      htmlFor="start-date"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
                       <span className="text-lg text-red-500">*</span>Start Date
                     </label>
                     <div className="relative max-w-sm">
-                        <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                            <svg className="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"/>
-                                </svg>
-                                </div>
-                                <input datepicker datepicker-autohide type="text" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Select date" />
-
-                                </div>
+                      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                        <svg
+                          className="h-4 w-4 text-gray-500 dark:text-gray-400"
+                          aria-hidden="true"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z" />
+                        </svg>
+                      </div>
+                      <input
+                        type="date"
+                        id="startDate"
+                        name="startDate"
+                        className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 pl-10 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                        value={formData.startDate}
+                        onChange={handleInputChange}
+                        required
+                      />
+                    </div>
                   </div>
 
                   <div className="mb-6">
                     <label
-                      htmlFor="email"
+                      htmlFor="start-date"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      <span className="text-lg text-red-500">*</span>Email
+                      <span className="text-lg text-red-500">*</span> End Date
                     </label>
-                    <input
-                      type="email"
-                      id="email"
-                      name="workEmail"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Your email"
-                      value={formData.workEmail}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </div>
-
-                  <div className="mx-auto mb-6">
-                    <label
-                      htmlFor="nature"
-                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      <span className="text-lg text-red-500">*</span>Nature
-                    </label>
-                    <select
-                      id="nature"
-                      name="nature"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      value={formData.nature}
-                      onChange={handleInputChange}
-                      required
-                    >
-                      <option selected>Choose a nature</option>
-                      <option value="REFERRAL_PARTNER">REFERRAL_PARTNER</option>
-                      {/* <option value="Wise">Wise</option>
-                      <option value="NEFT">NEFT</option>
-                      <option value="Cheque">Cheque</option>
-                      <option value="Cash">Cash</option> */}
-                    </select>
+                    <div className="relative max-w-sm">
+                      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                        <svg
+                          className="h-4 w-4 text-gray-500 dark:text-gray-400"
+                          aria-hidden="true"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z" />
+                        </svg>
+                      </div>
+                      <input
+                        type="date"
+                        id="endDate"
+                        name="endDate"
+                        className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 pl-10 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                        value={formData.endDate}
+                        onChange={handleInputChange}
+                      />
+                    </div>
                   </div>
 
                   <div className="mb-6">
                     <label
-                      htmlFor="employeeId"
+                      htmlFor="clientId"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      External ID
+                      <span className="text-lg text-red-500">*</span>Client ID
                     </label>
                     <input
                       type="text"
-                      id="employeeId"
-                      name="employeeId"
+                      id="clientId"
+                      name="clientId"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Optional for Referral Partner"
-                      value={formData.employeeId}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-
-                  {/* <div className="mb-6">
-                    <label
-                      htmlFor="department"
-                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      Department
-                    </label>
-                    <input
-                      type="text"
-                      id="department"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Engineering, Sales or Outside Inzint..."
-                    />
-                  </div> */}
-
-                  <div className="mb-6">
-                    <label
-                      htmlFor="hourly rate"
-                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      Hourly Rate
-                    </label>
-                    <input
-                      type="number"
-                      id="hourly-rate"
-                      name="hourlyRate"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Your hourly rate"
-                      value={formData.hourlyRate}
+                      placeholder="Client Id"
+                      value={formData.clientId}
                       onChange={handleInputChange}
                     />
                   </div>
 
                   <div className="mb-6">
                     <label
-                      htmlFor="tds rate"
+                      htmlFor="managerId"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      TDS Rate
+                      <span className="text-lg text-red-500">*</span>Manager ID
                     </label>
                     <input
                       type="text"
-                      id="tds-rate"
-                      name="tdsRate"
+                      id="managerId"
+                      name="managerId"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Your TDS Rate"
-                      value={formData.tdsRate}
+                      placeholder="Manager Id"
+                      value={formData.managerId}
                       onChange={handleInputChange}
                     />
                   </div>
 
                   <div className="mb-6">
                     <label
-                      htmlFor="gst rate"
+                      htmlFor="acquisitionPersonId"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      Gst Rate
+                      <span className="text-lg text-red-500">*</span>Acquisition
+                      Person ID
                     </label>
                     <input
                       type="text"
-                      id="gst-rate"
-                      name="gstRate"
+                      id="acquisitionPersonId"
+                      name="acquisitionPersonId"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Your Gst Rate"
-                      value={formData.gstRate}
+                      placeholder="Acquisition Person Id"
+                      value={formData.acquisitionPersonId}
                       onChange={handleInputChange}
                     />
                   </div>
+                  <h5 className="mb-6 inline-flex items-center text-base font-semibold uppercase text-gray-500 dark:text-gray-400">
+                    <svg
+                      className="h-4 w-4 me-2.5"
+                      aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="currentColor"
+                      viewBox="0 0 20 16"
+                    >
+                      <path d="M10.036 8.278 9.258-7.79A1.979 1.979 0 0 0 18 0H2A1.987 1.987 0 0 0 .641.541l9.395 7.737Z" />
+                      <path d="M11.241 9.817c-.36.275-.801.425-1.255.427-.428 0-.845-.138-1.187-.395L0 2.6V14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V2.5l-8.759 7.317Z" />
+                    </svg>
+                    Resources
+                  </h5>
+                  {formData.resources.map((resource, index) => (
+                    <div key={index}>
+                      <div className="mb-6" key={index}>
+                        <label
+                          htmlFor="personId"
+                          className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                        >
+                          <span className="text-lg text-red-500">*</span>Person
+                          Id
+                        </label>
+                        <input
+                          type="text"
+                          id="personId"
+                          name="personId"
+                          className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                          placeholder="Person's Id"
+                          value={resource.personId}
+                          onChange={(e) =>
+                            handleResourceChange(
+                              index,
+                              "personId",
+                              e.target.value
+                            )
+                          }
+                          required
+                        />
+                      </div>
 
-                  <div className="mb-6">
-                    <label
-                      htmlFor="pan"
-                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      PAN Number
-                    </label>
-                    <input
-                      type="text"
-                      id="pan"
-                      name="pan"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Your Pan Card no."
-                      value={formData.pan}
-                      onChange={handleInputChange}
-                    />
-                  </div>
+                      <div className="mx-auto mb-6">
+                        <label
+                          htmlFor="defaultAllocation"
+                          className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                        >
+                          <span className="text-lg text-red-500">*</span>Default
+                          Allocation
+                        </label>
+                        <select
+                          id="defaultAllocation"
+                          name="defaultAllocation"
+                          className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                          value={resource.defaultAllocation}
+                          onChange={(e) =>
+                            handleResourceChange(
+                              index,
+                              "defaultAllocation",
+                              Number(e.target.value)
+                            )
+                          }
+                          required
+                        >
+                          <option value="">Choose a Default Allocation</option>
+                          {[5, 10, 15, 20, 25, 30, 35, 40].map((value) => (
+                            <option key={value} value={value}>
+                              {value}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
 
-                  <div className="mb-6">
-                    <label
-                      htmlFor="a/c"
-                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      Bank Account Number
-                    </label>
-                    <input
-                      type=""
-                      id="a/c"
-                      name="bankAccountNumber"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Your Bank Account Number"
-                      value={formData.bankAccountNumber}
-                      onChange={handleInputChange}
-                    />
-                  </div>
+                      <div className="mb-6">
+                        <label
+                          htmlFor="resource-start-date"
+                          className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                        >
+                          Start Date
+                        </label>
+                        <div className="relative max-w-sm">
+                          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                            <svg
+                              className="h-4 w-4 text-gray-500 dark:text-gray-400"
+                              aria-hidden="true"
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z" />
+                            </svg>
+                          </div>
+                          <input
+                            type="date"
+                            id="resource-start-date"
+                            name="resource-start-date"
+                            className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 pl-10 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                            value={resource.startDate}
+                            onChange={(e) =>
+                              handleResourceChange(
+                                index,
+                                "startDate",
+                                e.target.value
+                              )
+                            }
+                          />
+                        </div>
+                      </div>
 
-                  <div className="mb-6">
-                    <label
-                      htmlFor="ifsc"
-                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      IFSC Code
-                    </label>
-                    <input
-                      type="text"
-                      id="ifsc"
-                      name="ifscCode"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Your Bank's IFSC code"
-                      value={formData.ifscCode}
-                      onChange={handleInputChange}
-                    />
-                  </div>
+                      <div className="mb-6">
+                        <label
+                          htmlFor="resource-end-date"
+                          className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                        >
+                          End Date
+                        </label>
+                        <div className="relative max-w-sm">
+                          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                            <svg
+                              className="h-4 w-4 text-gray-500 dark:text-gray-400"
+                              aria-hidden="true"
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z" />
+                            </svg>
+                          </div>
+                          <input
+                            type="date"
+                            id="resource-end-date"
+                            name="resource.end-date"
+                            className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 pl-10 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                            value={resource.endDate}
+                            onChange={(e) =>
+                              handleResourceChange(
+                                index,
+                                "endDate",
+                                e.target.value
+                              )
+                            }
+                          />
+                        </div>
+                      </div>
 
-                  <div className="mx-auto mb-6">
-                    <label
-                      htmlFor="payment-channel"
-                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      <span className="text-lg text-red-500">*</span>Payment
-                      Channel
-                    </label>
-                    <select
-                      id="countries"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      value={formData.paymentChannel}
-                      onChange={handleInputChange}
-                      name="paymentChannel"
-                    >
-                      <option selected>Choose a channel</option>
-                      <option value="Domestic Bank Transfer">
-                        Domestic Bank Transfer
-                      </option>
-                      <option value="International Bank Transfer">
-                        International Bank Transfer
-                      </option>
-                      <option value="Via Third Party">Via Third Party</option>
-                    </select>
-                    {/* <input
-                      type="text"
-                      id="payment-channel"
-                      name="paymentChannel"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Your Preferred Channel Partner"
-                      value={formData.paymentChannel}
-                      onChange={handleInputChange}
-                    /> */}
-                  </div>
+                      <div className="mb-6">
+                        <label
+                          htmlFor="acquisitionPersonId"
+                          className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                        >
+                          Acquisition Person Id
+                        </label>
+                        <input
+                          type="text"
+                          id="acquisitionPersonId"
+                          name="acquisitionPersonId"
+                          className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                          placeholder="Acquisition Person's Id"
+                          value={resource.acquisitionPersonId}
+                          onChange={(e) =>
+                            handleResourceChange(
+                              index,
+                              "acquisitionPersonId",
+                              e.target.value
+                            )
+                          }
+                        />
+                      </div>
 
-                  <div className="mx-auto mb-6">
-                    <label
-                      htmlFor="payment-mode"
-                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      <span className="text-lg text-red-500">*</span>Payment
-                      Mode
-                    </label>
-                    <select
-                      id="countries"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      value={formData.paymentMode}
-                      onChange={handleInputChange}
-                      name="paymentMode"
-                    >
-                      <option selected>Choose a mode</option>
-                      <option value="International Wire">
-                        International Wire
-                      </option>
-                      <option value="Wise">Wise</option>
-                      <option value="NEFT">NEFT</option>
-                      <option value="Cheque">Cheque</option>
-                      <option value="Cash">Cash</option>
-                    </select>
-                  </div>
+                      <div className="mx-auto mb-6">
+                        <label
+                          htmlFor="billability"
+                          className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                        >
+                          <span className="text-lg text-red-500">*</span>
+                          Billability
+                        </label>
+                        <select
+                          id="billability"
+                          name="billability"
+                          className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                          value={resource.billability}
+                          onChange={(e) =>
+                            handleResourceChange(
+                              index,
+                              "billability",
+                              e.target.value
+                            )
+                          }
+                          required
+                        >
+                          <option value="">Choose Billability</option>
+                          {["Billable", "Not Billable", "Shadow"].map(
+                            (value) => (
+                              <option key={value} value={value}>
+                                {value}
+                              </option>
+                            )
+                          )}
+                        </select>
+                      </div>
+
+                      {/* <div className="mb-6">
+                        <label
+                          htmlFor="shadowOf"
+                          className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                        >
+                          Shadow Of
+                        </label>
+                        <input
+                          type="text"
+                          id="shadowOf"
+                          name="shadowOf"
+                          className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                          placeholder="Shadow Of"
+                          value={resource.shadowOf}
+                          onChange={(e) =>
+                            handleResourceChange(
+                              index,
+                              "shadowOf",
+                              e.target.value
+                            )
+                          }
+                        />
+                      </div> */}
+
+                      <div className="mb-6">
+                        <label
+                          htmlFor="billingRate"
+                          className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                        >
+                          Billing Rate
+                        </label>
+                        <input
+                          type="number"
+                          id="billingRate"
+                          name="billingRate"
+                          className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                          placeholder="Billing Rate"
+                          value={
+                            resource.billingRate === null
+                              ? ""
+                              : resource.billingRate
+                          }
+                          onChange={(e) => {
+                            const newValue =
+                              e.target.value === ""
+                                ? null
+                                : Number(e.target.value);
+                            if (
+                              newValue === null ||
+                              !(
+                                resource.billability === "Billable" &&
+                                newValue <= 0
+                              )
+                            ) {
+                              handleResourceChange(
+                                index,
+                                "billingRate",
+                                newValue
+                              );
+                            } else {
+                              alert(
+                                "Billing rate must be a non-zero positive value if Billability is Billable"
+                              );
+                            }
+                          }}
+                        />
+                      </div>
+                    </div>
+                  ))}
 
                   <button
                     type="submit"
@@ -862,307 +1081,431 @@ const updatedCurrentItems = projectData.slice(updatedIndexOfFirstItem, updatedIn
                 <form className="mb-6">
                   <div className="mb-6">
                     <label
-                      htmlFor="displayName"
+                      htmlFor="projectName"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      <span className="text-lg text-red-500">*</span>Full Name
+                      <span className="text-lg text-red-500">*</span>Project
+                      Name
                     </label>
                     <input
                       type="text"
-                      id="displayName"
-                      name="displayName"
+                      id="name"
+                      name="name"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Your Name"
-                      value={idData.displayName}
+                      placeholder="Project Name"
+                      value={idData.name}
                       onChange={handleUpdateChange}
                       required
                     />
                   </div>
                   <div className="mx-auto mb-6">
                     <label
-                      htmlFor="department"
+                      htmlFor="status"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      <span className="text-lg text-red-500">*</span>Department
+                      <span className="text-lg text-red-500">*</span>Status
                     </label>
                     <select
-                      id="department"
-                      name="department"
+                      id="status"
+                      name="status"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      value={idData.department}
-                      onChange={handleUpdateChange}
-                    >
-                      <option selected>Choose a department</option>
-                      <option value="Engineering">Engineering</option>
-                      {/* <option value="Wise">Wise</option>
-                      <option value="NEFT">NEFT</option>
-                      <option value="Cheque">Cheque</option>
-                      <option value="Cash">Cash</option> */}
-                    </select>
-                  </div>
-
-                  <div className="mb-6">
-                    <label
-                      htmlFor="phone"
-                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      <span className="text-lg text-red-500">*</span>Phone
-                    </label>
-                    <input
-                      type="phone"
-                      id="phone"
-                      name="mobile"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Your phone number"
-                      value={idData.mobile}
+                      value={idData.status}
                       onChange={handleUpdateChange}
                       required
-                    />
-                  </div>
-
-                  <div className="mb-6">
-                    <label
-                      htmlFor="email"
-                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      <span className="text-lg text-red-500">*</span>Email
-                    </label>
-                    <input
-                      type="email"
-                      id="email"
-                      name="workEmail"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Your email"
-                      value={idData.workEmail}
-                      onChange={handleUpdateChange}
-                      required
-                    />
-                  </div>
-
-                  <div className="mx-auto mb-6">
-                    <label
-                      htmlFor="nature"
-                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      <span className="text-lg text-red-500">*</span>Nature
-                    </label>
-                    <select
-                      id="nature"
-                      name="nature"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      value={idData.nature}
-                      onChange={handleUpdateChange}
-                    >
-                      <option selected>Choose a nature</option>
-                      <option value="REFERRAL_PARTNER">REFERRAL_PARTNER</option>
-                      {/* <option value="Wise">Wise</option>
-                      <option value="NEFT">NEFT</option>
-                      <option value="Cheque">Cheque</option>
-                      <option value="Cash">Cash</option> */}
+                      <option selected>Choose a status</option>
+                      <option value="In Progress">In Progress</option>
+                      <option value="Cancelled">Cancelled</option>
+                      <option value="Completed">Completed</option>
+                      <option value="Yet to Start">Yet to Start</option>
                     </select>
                   </div>
 
                   <div className="mb-6">
                     <label
-                      htmlFor="employeeId"
+                      htmlFor="start-date"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      External ID
+                      <span className="text-lg text-red-500">*</span>Start Date
                     </label>
-                    <input
-                      type="text"
-                      id="employeeId"
-                      name="employeeId"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Optional for Referral Partner"
-                      value={idData.employeeId}
-                      onChange={handleUpdateChange}
-                    />
-                  </div>
-
-                  {/* <div className="mb-6">
-                    <label
-                      htmlFor="department"
-                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      Department
-                    </label>
-                    <input
-                      type="text"
-                      id="department"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Engineering, Sales or Outside Inzint..."
-                    />
-                  </div> */}
-
-                  <div className="mb-6">
-                    <label
-                      htmlFor="hourly rate"
-                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      Hourly Rate
-                    </label>
-                    <input
-                      type="number"
-                      id="hourly-rate"
-                      name="hourlyRate"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Your hourly rate"
-                      value={idData.hourlyRate}
-                      onChange={handleUpdateChange}
-                    />
+                    <div className="relative max-w-sm">
+                      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                        <svg
+                          className="h-4 w-4 text-gray-500 dark:text-gray-400"
+                          aria-hidden="true"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z" />
+                        </svg>
+                      </div>
+                      <input
+                        type="date"
+                        id="startDate"
+                        name="startDate"
+                        className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 pl-10 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                        value={idData.startDate}
+                        onChange={handleUpdateChange}
+                        required
+                      />
+                    </div>
                   </div>
 
                   <div className="mb-6">
                     <label
-                      htmlFor="tds rate"
+                      htmlFor="start-date"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      TDS Rate
+                      <span className="text-lg text-red-500">*</span> End Date
                     </label>
-                    <input
-                      type="text"
-                      id="tds-rate"
-                      name="tdsRate"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Your TDS Rate"
-                      value={idData.tdsRate}
-                      onChange={handleUpdateChange}
-                    />
+                    <div className="relative max-w-sm">
+                      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                        <svg
+                          className="h-4 w-4 text-gray-500 dark:text-gray-400"
+                          aria-hidden="true"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z" />
+                        </svg>
+                      </div>
+                      <input
+                        type="date"
+                        id="endDate"
+                        name="endDate"
+                        className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 pl-10 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                        value={idData.endDate}
+                        onChange={handleUpdateChange}
+                      />
+                    </div>
                   </div>
 
                   <div className="mb-6">
                     <label
-                      htmlFor="gst rate"
+                      htmlFor="clientId"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      Gst Rate
+                      <span className="text-lg text-red-500">*</span>Client ID
                     </label>
                     <input
                       type="text"
-                      id="gst-rate"
-                      name="gstRate"
+                      id="clientId"
+                      name="clientId"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Your Gst Rate"
-                      value={idData.gstRate}
+                      placeholder="Client Id"
+                      value={idData.clientId}
                       onChange={handleUpdateChange}
                     />
                   </div>
 
                   <div className="mb-6">
                     <label
-                      htmlFor="pan"
+                      htmlFor="managerId"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      PAN Number
+                      <span className="text-lg text-red-500">*</span>Manager ID
                     </label>
                     <input
                       type="text"
-                      id="pan"
-                      name="pan"
+                      id="managerId"
+                      name="managerId"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Your Pan Card no."
-                      value={idData.pan}
+                      placeholder="Manager Id"
+                      value={idData.managerId}
                       onChange={handleUpdateChange}
                     />
                   </div>
 
                   <div className="mb-6">
                     <label
-                      htmlFor="a/c"
+                      htmlFor="acquisitionPersonId"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      Bank Account Number
-                    </label>
-                    <input
-                      type=""
-                      id="a/c"
-                      name="bankAccountNumber"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Your Bank Account Number"
-                      value={idData.bankAccountNumber}
-                      onChange={handleUpdateChange}
-                    />
-                  </div>
-
-                  <div className="mb-6">
-                    <label
-                      htmlFor="ifsc"
-                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      IFSC Code
+                      <span className="text-lg text-red-500">*</span>Acquisition
+                      Person ID
                     </label>
                     <input
                       type="text"
-                      id="ifsc"
-                      name="ifscCode"
+                      id="acquisitionPersonId"
+                      name="acquisitionPersonId"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Your Bank's IFSC code"
-                      value={idData.ifscCode}
+                      placeholder="Acquisition Person Id"
+                      value={idData.acquisitionPersonId}
                       onChange={handleUpdateChange}
                     />
                   </div>
+                  <h5 className="mb-6 inline-flex items-center text-base font-semibold uppercase text-gray-500 dark:text-gray-400">
+                    <svg
+                      className="h-4 w-4 me-2.5"
+                      aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="currentColor"
+                      viewBox="0 0 20 16"
+                    >
+                      <path d="M10.036 8.278 9.258-7.79A1.979 1.979 0 0 0 18 0H2A1.987 1.987 0 0 0 .641.541l9.395 7.737Z" />
+                      <path d="M11.241 9.817c-.36.275-.801.425-1.255.427-.428 0-.845-.138-1.187-.395L0 2.6V14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V2.5l-8.759 7.317Z" />
+                    </svg>
+                    Resources
+                  </h5>
+                  {idData.resources.map((resource, index) => (
+                    <div key={index}>
+                      <div className="mb-6" key={index}>
+                        <label
+                          htmlFor="personId"
+                          className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                        >
+                          <span className="text-lg text-red-500">*</span>Person
+                          Id
+                        </label>
+                        <input
+                          type="text"
+                          id="personId"
+                          name="personId"
+                          className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                          placeholder="Person's Id"
+                          value={resource.personId}
+                          onChange={(e) =>
+                            handleUpdateResourceChange(
+                              index,
+                              "personId",
+                              e.target.value
+                            )
+                          }
+                          required
+                        />
+                      </div>
 
-                  <div className="mx-auto mb-6">
-                    <label
-                      htmlFor="payment-channel"
-                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      <span className="text-lg text-red-500">*</span>Payment
-                      Channel
-                    </label>
-                    <select
-                      id="countries"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      value={idData.paymentChannel}
-                      onChange={handleUpdateChange}
-                      name="paymentChannel"
-                    >
-                      <option selected>Choose a channel</option>
-                      <option value="Domestic Bank Transfer">
-                        Domestic Bank Transfer
-                      </option>
-                      <option value="International Bank Transfer">
-                        International Bank Transfer
-                      </option>
-                      <option value="Via Third Party">Via Third Party</option>
-                    </select>
-                    {/* <input
-                      type="text"
-                      id="payment-channel"
-                      name="paymentChannel"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Your Preferred Channel Partner"
-                      value={formData.paymentChannel}
-                      onChange={handleInputChange}
-                    /> */}
-                  </div>
+                      <div className="mx-auto mb-6">
+                        <label
+                          htmlFor="defaultAllocation"
+                          className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                        >
+                          <span className="text-lg text-red-500">*</span>Default
+                          Allocation
+                        </label>
+                        <select
+                          id="defaultAllocation"
+                          name="defaultAllocation"
+                          className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                          value={resource.defaultAllocation}
+                          onChange={(e) =>
+                            handleUpdateResourceChange(
+                              index,
+                              "defaultAllocation",
+                              Number(e.target.value)
+                            )
+                          }
+                          required
+                        >
+                          <option value="">Choose a Default Allocation</option>
+                          {[5, 10, 15, 20, 25, 30, 35, 40].map((value) => (
+                            <option key={value} value={value}>
+                              {value}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
 
-                  <div className="mx-auto mb-6">
-                    <label
-                      htmlFor="payment-mode"
-                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      <span className="text-lg text-red-500">*</span>Payment
-                      Mode
-                    </label>
-                    <select
-                      id="countries"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      value={idData.paymentMode}
-                      onChange={handleUpdateChange}
-                      name="paymentMode"
-                    >
-                      <option selected>Choose a mode</option>
-                      <option value="International Wire">
-                        International Wire
-                      </option>
-                      <option value="Wise">Wise</option>
-                      <option value="NEFT">NEFT</option>
-                      <option value="Cheque">Cheque</option>
-                      <option value="Cash">Cash</option>
-                    </select>
-                  </div>
+                      <div className="mb-6">
+                        <label
+                          htmlFor="resource-start-date"
+                          className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                        >
+                          Start Date
+                        </label>
+                        <div className="relative max-w-sm">
+                          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                            <svg
+                              className="h-4 w-4 text-gray-500 dark:text-gray-400"
+                              aria-hidden="true"
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z" />
+                            </svg>
+                          </div>
+                          <input
+                            type="date"
+                            id="resource-start-date"
+                            name="resource-start-date"
+                            className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 pl-10 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                            value={resource.startDate}
+                            onChange={(e) =>
+                              handleUpdateResourceChange(
+                                index,
+                                "startDate",
+                                e.target.value
+                              )
+                            }
+                          />
+                        </div>
+                      </div>
+
+                      <div className="mb-6">
+                        <label
+                          htmlFor="resource-end-date"
+                          className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                        >
+                          End Date
+                        </label>
+                        <div className="relative max-w-sm">
+                          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                            <svg
+                              className="h-4 w-4 text-gray-500 dark:text-gray-400"
+                              aria-hidden="true"
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z" />
+                            </svg>
+                          </div>
+                          <input
+                            type="date"
+                            id="resource-end-date"
+                            name="resource.end-date"
+                            className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 pl-10 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                            value={resource.endDate}
+                            onChange={(e) =>
+                              handleUpdateResourceChange(
+                                index,
+                                "endDate",
+                                e.target.value
+                              )
+                            }
+                          />
+                        </div>
+                      </div>
+
+                      <div className="mb-6">
+                        <label
+                          htmlFor="acquisitionPersonId"
+                          className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                        >
+                          Acquisition Person Id
+                        </label>
+                        <input
+                          type="text"
+                          id="acquisitionPersonId"
+                          name="acquisitionPersonId"
+                          className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                          placeholder="Acquisition Person's Id"
+                          value={resource.acquisitionPersonId}
+                          onChange={(e) =>
+                            handleUpdateResourceChange(
+                              index,
+                              "acquisitionPersonId",
+                              e.target.value
+                            )
+                          }
+                        />
+                      </div>
+
+                      <div className="mx-auto mb-6">
+                        <label
+                          htmlFor="billability"
+                          className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                        >
+                          <span className="text-lg text-red-500">*</span>
+                          Billability
+                        </label>
+                        <select
+                          id="billability"
+                          name="billability"
+                          className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                          value={resource.billability}
+                          onChange={(e) =>
+                            handleUpdateResourceChange(
+                              index,
+                              "billability",
+                              e.target.value
+                            )
+                          }
+                          required
+                        >
+                          <option value="">Choose Billability</option>
+                          {["Billable", "Not Billable", "Shadow"].map(
+                            (value) => (
+                              <option key={value} value={value}>
+                                {value}
+                              </option>
+                            )
+                          )}
+                        </select>
+                      </div>
+
+                      {/* <div className="mb-6">
+                        <label
+                          htmlFor="shadowOf"
+                          className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                        >
+                          Shadow Of
+                        </label>
+                        <input
+                          type="text"
+                          id="shadowOf"
+                          name="shadowOf"
+                          className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                          placeholder="Shadow Of"
+                          value={resource.shadowOf}
+                          onChange={(e) =>
+                            handleResourceChange(
+                              index,
+                              "shadowOf",
+                              e.target.value
+                            )
+                          }
+                        />
+                      </div> */}
+
+                      <div className="mb-6">
+                        <label
+                          htmlFor="billingRate"
+                          className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                        >
+                          Billing Rate
+                        </label>
+                        <input
+                          type="number"
+                          id="billingRate"
+                          name="billingRate"
+                          className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                          placeholder="Billing Rate"
+                          value={
+                            resource.billingRate === null
+                              ? ""
+                              : resource.billingRate
+                          }
+                          onChange={(e) => {
+                            const newValue =
+                              e.target.value === ""
+                                ? null
+                                : Number(e.target.value);
+                            if (
+                              newValue === null ||
+                              !(
+                                resource.billability === "Billable" &&
+                                newValue <= 0
+                              )
+                            ) {
+                              handleUpdateResourceChange(
+                                index,
+                                "billingRate",
+                                newValue
+                              );
+                            } else {
+                              alert(
+                                "Billing rate must be a non-zero positive value if Billability is Billable"
+                              );
+                            }
+                          }}
+                        />
+                      </div>
+                    </div>
+                  ))}
 
                   <button
                     type="submit"
@@ -1192,7 +1535,7 @@ const updatedCurrentItems = projectData.slice(updatedIndexOfFirstItem, updatedIn
         <table className="z-[-1]x w-full text-left text-sm text-gray-500 dark:text-gray-400">
           <thead className="bg-gray-100 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400">
             <tr>
-              <th scope="col" className="p-4 items-center">
+              <th scope="col" className="items-center p-4">
                 {/* <div className="flex items-center">
                   <input
                     id="checkbox-all-search"
@@ -1247,18 +1590,18 @@ const updatedCurrentItems = projectData.slice(updatedIndexOfFirstItem, updatedIn
                       type="checkbox"
                       className="h-4 w-4 rounded border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:focus:ring-blue-600 dark:focus:ring-offset-gray-800"
                     /> */}
-                    {((newPage - 1) * itemsPerPage) + index + 1}.
+                    {(newPage - 1) * itemsPerPage + index + 1}.
                   </td>
                   <th
                     scope="row"
                     className="whitespace-nowrap px-6 py-4 font-medium text-gray-900 dark:text-white"
                   >
                     {/* {row.firstname+" "+row.lastname} */}
-                    {row.displayName}
+                    {row.name}
                   </th>
-                  <td className="px-6 py-4">{row.department}</td>
-                  <td className="px-6 py-4">{row.mobile}</td>
-                  <td className="px-6 py-4">{row.workEmail}</td>
+                  <td className="px-6 py-4">{row.status}</td>
+                  <td className="px-6 py-4">{writeDate(row.startDate)}</td>
+                  <td className="px-6 py-4">{writeDate(row.endDate)}</td>
                   <td className="px-6 py-4">
                     <div className="flex flex-row items-center gap-3">
                       <a
@@ -1272,7 +1615,7 @@ const updatedCurrentItems = projectData.slice(updatedIndexOfFirstItem, updatedIn
                         Edit
                       </a>
                       <MdDelete
-                        className="text-lg text-red-500 hover:text-red-300 cursor-pointer"
+                        className="cursor-pointer text-lg text-red-500 hover:text-red-300"
                         onClick={(event) => handleDeleteClick(event, row._id)}
                       />
                     </div>
