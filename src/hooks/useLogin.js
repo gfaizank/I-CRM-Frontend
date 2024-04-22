@@ -31,7 +31,9 @@ export const useLogin = () => {
       // update the auth context
       dispatch({type: 'LOGIN', payload: json})
 
+      setTimeout(()=>{
       navigate("/admin/default");
+    }, 1000)
 
       // update loading state
       setIsLoading(false)
