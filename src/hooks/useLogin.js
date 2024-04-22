@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useAuthContext } from './useAuthContext'
 import { useNavigate } from "react-router-dom";
 
@@ -9,7 +9,7 @@ export const useLogin = () => {
   const { dispatch } = useAuthContext()
   const navigate = useNavigate();
   
-  const login = async (email, password) => {
+  const login = async (email, password, rememberMe) => {
     setIsLoading(true)
     setError(null)
 
@@ -24,6 +24,13 @@ export const useLogin = () => {
       setIsLoading(false)
       setError(json.error)
     }
+
+    if (rememberMe) {
+      localStorage.setItem('rememberMe', 'true');
+      } else {
+        localStorage.removeItem('rememberMe');
+      }
+
     if (response.ok) {
       // save the user to local storage
       localStorage.setItem('user', JSON.stringify(json))
@@ -40,5 +47,13 @@ export const useLogin = () => {
     }
   }
 
-  return { login, isLoading, error }
+  const persistLogin = () => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      dispatch({ type: 'LOGIN', payload: JSON.parse(storedUser) });
+      navigate("/admin/default");
+    }
+  }
+
+  return { login, persistLogin, isLoading, error }
 }

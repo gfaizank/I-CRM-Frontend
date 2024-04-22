@@ -1,23 +1,37 @@
 import InputField from "components/fields/InputField";
 import { FcGoogle } from "react-icons/fc";
 import Checkbox from "components/checkbox";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLogin } from "hooks/useLogin";
 import Spinner from "views/admin/people/components/Spinner";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 
+
 export default function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { login, error, isLoading } = useLogin();
+  const [rememberMe, setRememberMe] = useState(false)
+  const { login, persistLogin, error, isLoading } = useLogin();
   const [spin, setSpin]=useState(false);
 
   
   const formData = {
     email: email,
     password: password,
+  };
+
+  useEffect(() => {
+    if (localStorage.getItem('user') && localStorage.getItem('rememberMe') === 'true') {
+      setSpin()
+      persistLogin();
+    }
+  }, []);
+
+  const handleCheckboxChange = () => {
+    setRememberMe(!rememberMe);
+    localStorage.setItem('rememberMe', !rememberMe);
   };
 
   const handleSubmit = async (e) => {
@@ -33,7 +47,7 @@ export default function SignIn() {
 
     console.log(formData);
     try {
-    await login(email, password);
+    await login(email, password, rememberMe);
     setSpin(false);
       toast.success("Login successful!");
     } catch (error) {
@@ -93,7 +107,8 @@ export default function SignIn() {
           {/* Checkbox */}
           <div className="mb-4 flex items-center justify-between px-2">
             <div className="flex items-center">
-              <Checkbox />
+              <Checkbox checked={rememberMe}
+                onChange={handleCheckboxChange} />
               <p className="ml-2 text-sm font-medium text-navy-700 dark:text-white">
                 Keep me logged In
               </p>
