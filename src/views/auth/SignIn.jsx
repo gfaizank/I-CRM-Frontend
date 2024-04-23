@@ -27,6 +27,25 @@ export default function SignIn() {
       setSpin()
       persistLogin();
     }
+
+    const serverStart = async () => {
+      try {
+        const response = await fetch('https://i-crm-backend-6fqp.onrender.com/auth/fake', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          console.log('Server alarmed');
+        } else {
+          console.error('failed');
+        }
+      } catch (error) {
+        console.error('Error occurred:', error);
+      }
+    };
   }, []);
 
   const handleCheckboxChange = () => {
