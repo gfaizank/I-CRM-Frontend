@@ -6,6 +6,7 @@ import { useLogin } from "hooks/useLogin";
 import Spinner from "views/admin/people/components/Spinner";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 
 
@@ -15,6 +16,11 @@ export default function SignIn() {
   const [rememberMe, setRememberMe] = useState(false)
   const { login, persistLogin, error, isLoading } = useLogin();
   const [spin, setSpin]=useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
 
   
   const formData = {
@@ -64,11 +70,12 @@ export default function SignIn() {
       return;
     }
 
-    console.log(formData);
+    // console.log(formData);
     try {
     await login(email, password, rememberMe);
+    // console.log(await login(email, password, rememberMe));
+    toast.success("Login successful!");
     setSpin(false);
-      toast.success("Login successful!");
     } catch (error) {
       setSpin(false);
       toast.error("Error: " + error.message);
@@ -113,16 +120,24 @@ export default function SignIn() {
           />
 
           {/* Password */}
+          <div className="relative">
           <InputField
             variant="auth"
             extra="mb-3"
             label="Password*"
             placeholder="Min. 8 characters"
             id="password"
-            type="password"
+            type={showPassword ? "text" : "password"}
             onChange={(e) => setPassword(e.target.value)}
             value={password}
           />
+          <div
+              className="absolute top-8 right-4 mr-3 mt-4 cursor-pointer"
+              onClick={togglePasswordVisibility}
+            >
+              {showPassword ? <FaEyeSlash className="text-gray-500" /> : <FaEye className="text-gray-500" />}
+            </div>
+          </div>
           {/* Checkbox */}
           <div className="mb-4 flex items-center justify-between px-2">
             <div className="flex items-center">

@@ -42,8 +42,7 @@ const PeopleTable = () => {
     setShowModal(false);
     setDeleteId(null);
   };
-
-  const [formData, setFormData] = useState({
+  const initialFormData = {
     nature: "",
     workEmail: "",
     mobile: "",
@@ -59,7 +58,9 @@ const PeopleTable = () => {
     ifscCode: "",
     paymentChannel: "",
     paymentMode: "",
-  });
+  };
+
+  const [formData, setFormData] = useState(initialFormData);
 
   // const handleInputChange = (event) => {
   //   const { name, value } = event.target;
@@ -114,11 +115,10 @@ const PeopleTable = () => {
         setIsDrawerOpen(false);
         setSubmitted((prevSubmitted) => !prevSubmitted);
         setSpin(false);
-        // Optionally, you can show a success message or redirect the user to another page
+        setFormData(initialFormData);
       })
       .catch((error) => {
         console.error("Error:", error);
-        // Optionally, you can show an error message to the user
       });
   };
 
@@ -546,6 +546,8 @@ const PeopleTable = () => {
                     >
                       <option selected>Choose a department</option>
                       <option value="Engineering">Engineering</option>
+                      <option value="Sales">Sales</option>
+                      <option value="OutsideInzint">Outside Inzint</option>
                       {/* <option value="Wise">Wise</option>
                       <option value="NEFT">NEFT</option>
                       <option value="Cheque">Cheque</option>
@@ -641,19 +643,21 @@ const PeopleTable = () => {
                     >
                       <option selected>Choose a nature</option>
                       <option value="REFERRAL_PARTNER">REFERRAL_PARTNER</option>
+                      <option value="EMPLOYEE">EMPLOYEE</option>
                       {/* <option value="Wise">Wise</option>
                       <option value="NEFT">NEFT</option>
                       <option value="Cheque">Cheque</option>
                       <option value="Cash">Cash</option> */}
                     </select>
                   </div>
+                  
 
                   <div className="mb-6">
                     <label
                       htmlFor="employeeId"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      External ID
+                      Employee ID
                     </label>
                     <input
                       type="text"
@@ -939,6 +943,8 @@ const PeopleTable = () => {
                     >
                       <option selected>Choose a department</option>
                       <option value="Engineering">Engineering</option>
+                      <option value="Sales">Sales</option>
+                      <option value="OutsideInzint">Outside Inzint</option>
                       {/* <option value="Wise">Wise</option>
                       <option value="NEFT">NEFT</option>
                       <option value="Cheque">Cheque</option>
@@ -1051,6 +1057,7 @@ const PeopleTable = () => {
                     >
                       <option selected>Choose a nature</option>
                       <option value="REFERRAL_PARTNER">REFERRAL_PARTNER</option>
+                      <option value="EMPLOYEE">EMPLOYEE</option>
                       {/* <option value="Wise">Wise</option>
                       <option value="NEFT">NEFT</option>
                       <option value="Cheque">Cheque</option>

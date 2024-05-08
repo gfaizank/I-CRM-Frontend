@@ -21,8 +21,10 @@ export const useLogin = () => {
     const json = await response.json()
 
     if (!response.ok) {
+      const errorData = await response.json();
       setIsLoading(false)
-      setError(json.error)
+      setError(errorData.error || "Login failed. Please try again.");
+      return;
     }
 
     if (rememberMe) {

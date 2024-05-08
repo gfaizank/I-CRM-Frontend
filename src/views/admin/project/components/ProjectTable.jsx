@@ -99,8 +99,8 @@ const ProjectTable = () => {
     const date = new Date(dateString);
 
     const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0"); // Adding leading zero if needed
-    const day = String(date.getDate()).padStart(2, "0"); // Adding leading zero if needed
+    const month = String(date.getMonth() + 1).padStart(2, "0"); 
+    const day = String(date.getDate()).padStart(2, "0"); 
     return `${year}-${month}-${day}`;
   };
 
@@ -325,7 +325,7 @@ const ProjectTable = () => {
     event.preventDefault();
     console.log(idData);
 
-    // Send data to the API endpoint
+  
     fetch(`https://i-crm-backend-6fqp.onrender.com/project/${selectedId}`, {
       method: "PUT",
       headers: {
