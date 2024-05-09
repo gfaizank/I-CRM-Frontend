@@ -4,8 +4,7 @@ import { useAuthContext } from "hooks/useAuthContext";
 import Spinner from "./Spinner";
 import DeleteProjectConfirm from "./DeleteProjectConfirm";
 import Pagination from "./Pagination";
-import ObjectId from 'bson-objectid';
-
+import ObjectId from "bson-objectid";
 
 const ProjectTable = () => {
   const [showDropdown, setShowDropdown] = useState(false);
@@ -25,6 +24,11 @@ const ProjectTable = () => {
 
   const [showModal, setShowModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
+
+  const [clients, setClients] = useState([]);
+  const [people, setPeople] = useState([]);
+  const [acquisitionPeople, setAcquisitionPeople] = useState([]);
+  const [managers, setManagers] = useState([]);
 
   const handleDeleteClick = (event, id) => {
     event.preventDefault();
@@ -99,8 +103,8 @@ const ProjectTable = () => {
     const date = new Date(dateString);
 
     const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0"); 
-    const day = String(date.getDate()).padStart(2, "0"); 
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
   };
 
@@ -325,7 +329,6 @@ const ProjectTable = () => {
     event.preventDefault();
     console.log(idData);
 
-  
     fetch(`https://i-crm-backend-6fqp.onrender.com/project/${selectedId}`, {
       method: "PUT",
       headers: {
@@ -381,6 +384,38 @@ const ProjectTable = () => {
     updatedIndexOfFirstItem,
     updatedIndexOfLastItem
   );
+
+  useEffect(() => {
+    fetch("https://i-crm-backend-6fqp.onrender.com/client/")
+      .then((response) => response.json())
+      .then((data) => {
+        setClients(data.data.clients);
+      })
+      .catch((error) => {
+        console.error("Failed to fetch clients", error);
+      });
+  }, []);
+
+  useEffect(() => {
+    fetch("https://i-crm-backend-6fqp.onrender.com/people/")
+      .then((response) => response.json())
+      .then((data) => {
+        setPeople(data.data.people);
+
+        setAcquisitionPeople(
+          data.data.people.filter((person) => person.department === "Sales")
+        );
+
+        setManagers(
+          data.data.people.filter(
+            (person) => person.department === "Engineering"
+          )
+        );
+      })
+      .catch((error) => {
+        console.error("Failed to fetch people", error);
+      });
+  }, []);
 
   return (
     <div className="min-h-fit bg-white">
@@ -699,43 +734,113 @@ const ProjectTable = () => {
                     </div>
                   </div>
 
-                  <div className="mb-6">
+                  {/* <div className="mx-auto mb-6">
                     <label
                       htmlFor="clientId"
-                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                      className="mb-2 block text-sm font-medium text-gray-900"
                     >
                       <span className="text-lg text-red-500">*</span>Client ID
                     </label>
-                    <input
-                      type="text"
+                    <select
                       id="clientId"
                       name="clientId"
                       className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Client Id"
+                      value={formData.clientId}
+                      onChange={handleUpdateChange}
+                      required
+                    >
+                      <option selected>Choose Client</option>
+                      <option value="In Progress">In Progress</option>
+                      <option value="Cancelled">Cancelled</option>
+                      <option value="Completed">Completed</option>
+                      <option value="Yet to Start">Yet to Start</option>
+                    </select>
+                  </div> */}
+
+                  <div className="mx-auto mb-6">
+                    <label
+                      htmlFor="clientId"
+                      className="mb-2 block text-sm font-medium text-gray-900"
+                    >
+                      <span className="text-lg text-red-500">*</span>Select a
+                      Client
+                    </label>
+                    <select
+                      id="clientId"
+                      name="clientId"
+                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                      required
                       value={formData.clientId}
                       onChange={handleInputChange}
-                    />
+                    >
+                      <option value="" disabled>
+                        Choose Client
+                      </option>
+                      {clients.map((client) => (
+                        <option
+                          key={client.id}
+                          value={client.primaryContactPerson}
+                        >
+                          {client.primaryContactPerson}
+                        </option>
+                      ))}
+                    </select>
                   </div>
 
                   <div className="mb-6">
                     <label
                       htmlFor="managerId"
-                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                      className="mb-2 block text-sm font-medium text-gray-900"
                     >
-                      <span className="text-lg text-red-500">*</span>Manager ID
+                      <span className="text-lg text-red-500">*</span>Manager
                     </label>
-                    <input
-                      type="text"
+                    <select
                       id="managerId"
                       name="managerId"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Manager Id"
+                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-blue-500 dark:focus:ring-blue-500"
                       value={formData.managerId}
                       onChange={handleInputChange}
-                    />
+                      required
+                    >
+                      <option value="" disabled>
+                        Choose a Manager
+                      </option>
+                      {managers.map((person) => (
+                        <option key={person.id} value={person.id}>
+                          {person.displayName}
+                        </option>
+                      ))}
+                    </select>
                   </div>
 
                   <div className="mb-6">
+                    <label
+                      htmlFor="acquisitionPersonId"
+                      className="mb-2 block text-sm font-medium text-gray-900"
+                    >
+                      <span className="text-lg text-red-500">*</span>Acquisition
+                      Person
+                    </label>
+                    <select
+                      id="acquisitionPersonId"
+                      name="acquisitionPersonId"
+                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                      value={formData.acquisitionPersonId}
+                      onChange={handleInputChange}
+                      required
+                    >
+                      <option value="" disabled>
+                        Choose an Acquisition Person
+                      </option>
+                      {acquisitionPeople.map((person) => (
+                        <option key={person.id} value={person.displayName}>
+                          {person.displayName}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* <div className="mb-6">
                     <label
                       htmlFor="acquisitionPersonId"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
@@ -752,7 +857,7 @@ const ProjectTable = () => {
                       value={formData.acquisitionPersonId}
                       onChange={handleInputChange}
                     />
-                  </div>
+                  </div> */}
                   <h5 className="mb-6 inline-flex items-center text-base font-semibold uppercase text-gray-500 dark:text-gray-400">
                     <svg
                       className="h-4 w-4 me-2.5"
@@ -768,7 +873,7 @@ const ProjectTable = () => {
                   </h5>
                   {formData.resources.map((resource, index) => (
                     <div key={index}>
-                      <div className="mb-6" key={index}>
+                      {/* <div className="mb-6" key={index}>
                         <label
                           htmlFor="personId"
                           className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
@@ -792,6 +897,37 @@ const ProjectTable = () => {
                           }
                           required
                         />
+                      </div> */}
+
+                      <div className="mb-6">
+                        <label
+                          htmlFor="personId"
+                          className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                        >
+                          <span className="text-lg text-red-500">*</span>Person
+                          Id
+                        </label>
+                        <select
+                          id="personId"
+                          name="personId"
+                          className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                          value={resource.personId}
+                          onChange={(e) =>
+                            handleResourceChange(
+                              index,
+                              "personId",
+                              e.target.value
+                            )
+                          }
+                          required
+                        >
+                          <option value="">Choose a Person</option>
+                          {managers.map((person) => (
+                            <option key={person.id} value={person.id}>
+                              {person.displayName}
+                            </option>
+                          ))}
+                        </select>
                       </div>
 
                       <div className="mx-auto mb-6">
@@ -897,12 +1033,12 @@ const ProjectTable = () => {
                         </div>
                       </div>
 
-                      <div className="mb-6">
+                      {/* <div className="mb-6">
                         <label
                           htmlFor="acquisitionPersonId"
                           className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                         >
-                          Acquisition Person Id
+                          <span className="text-lg text-red-500">*</span>Acquisition Person Id
                         </label>
                         <input
                           type="text"
@@ -919,6 +1055,36 @@ const ProjectTable = () => {
                             )
                           }
                         />
+                      </div> */}
+                      <div className="mb-6">
+                        <label
+                          htmlFor="acquisitionPersonId"
+                          className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                        >
+                          <span className="text-lg text-red-500">*</span>
+                          Acquisition Person Id
+                        </label>
+                        <select
+                          id="acquisitionPersonId"
+                          name="acquisitionPersonId"
+                          className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                          value={resource.acquisitionPersonId}
+                          onChange={(e) =>
+                            handleResourceChange(
+                              index,
+                              "acquisitionPersonId",
+                              e.target.value
+                            )
+                          }
+                          required
+                        >
+                          <option value="">Choose an Acquisition Person</option>
+                          {acquisitionPeople.map((person) => (
+                            <option key={person.id} value={person.id}>
+                              {person.displayName}
+                            </option>
+                          ))}
+                        </select>
                       </div>
 
                       <div className="mx-auto mb-6">
@@ -1182,10 +1348,40 @@ const ProjectTable = () => {
                     </div>
                   </div>
 
-                  <div className="mb-6">
+                  <div className="mx-auto mb-6">
                     <label
                       htmlFor="clientId"
-                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                      className="mb-2 block text-sm font-medium text-gray-900"
+                    >
+                      <span className="text-lg text-red-500">*</span>Select a
+                      Client
+                    </label>
+                    <select
+                      id="clientId"
+                      name="clientId"
+                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                      required
+                      value={idData.clientId}
+                      onChange={handleUpdateChange}
+                    >
+                      <option value="" disabled>
+                        Choose Client
+                      </option>
+                      {clients.map((client) => (
+                        <option
+                          key={client.id}
+                          value={client.primaryContactPerson}
+                        >
+                          {client.primaryContactPerson}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* <div className="mb-6">
+                    <label
+                      htmlFor="clientId"
+                      className="mb-2 block text-sm font-medium text-gray-900 "
                     >
                       <span className="text-lg text-red-500">*</span>Client ID
                     </label>
@@ -1198,44 +1394,61 @@ const ProjectTable = () => {
                       value={idData.clientId}
                       onChange={handleUpdateChange}
                     />
-                  </div>
+                  </div> */}
 
                   <div className="mb-6">
                     <label
                       htmlFor="managerId"
-                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                      className="mb-2 block text-sm font-medium text-gray-900"
                     >
-                      <span className="text-lg text-red-500">*</span>Manager ID
+                      <span className="text-lg text-red-500">*</span>Manager
                     </label>
-                    <input
-                      type="text"
+                    <select
                       id="managerId"
                       name="managerId"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Manager Id"
+                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-blue-500 dark:focus:ring-blue-500"
                       value={idData.managerId}
                       onChange={handleUpdateChange}
-                    />
+                      required
+                    >
+                      <option value="" disabled>
+                        Choose a Manager
+                      </option>
+                      {managers.map((person) => (
+                        <option key={person.id} value={person.id}>
+                          {person.displayName}
+                        </option>
+                      ))}
+                    </select>
                   </div>
 
                   <div className="mb-6">
                     <label
                       htmlFor="acquisitionPersonId"
-                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                      className="mb-2 block text-sm font-medium text-gray-900"
                     >
                       <span className="text-lg text-red-500">*</span>Acquisition
-                      Person ID
+                      Person
                     </label>
-                    <input
-                      type="text"
+                    <select
                       id="acquisitionPersonId"
                       name="acquisitionPersonId"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Acquisition Person Id"
+                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-blue-500 dark:focus:ring-blue-500"
                       value={idData.acquisitionPersonId}
                       onChange={handleUpdateChange}
-                    />
+                      required
+                    >
+                      <option value="" disabled>
+                        Choose an Acquisition Person
+                      </option>
+                      {acquisitionPeople.map((person) => (
+                        <option key={person.id} value={person.displayName}>
+                          {person.displayName}
+                        </option>
+                      ))}
+                    </select>
                   </div>
+
                   <h5 className="mb-6 inline-flex items-center text-base font-semibold uppercase text-gray-500 dark:text-gray-400">
                     <svg
                       className="h-4 w-4 me-2.5"
@@ -1251,7 +1464,7 @@ const ProjectTable = () => {
                   </h5>
                   {idData.resources.map((resource, index) => (
                     <div key={index}>
-                      <div className="mb-6" key={index}>
+                      <div className="mb-6">
                         <label
                           htmlFor="personId"
                           className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
@@ -1259,22 +1472,27 @@ const ProjectTable = () => {
                           <span className="text-lg text-red-500">*</span>Person
                           Id
                         </label>
-                        <input
-                          type="text"
+                        <select
                           id="personId"
                           name="personId"
-                          className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                          placeholder="Person's Id"
+                          className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                           value={resource.personId}
                           onChange={(e) =>
-                            handleUpdateResourceChange(
+                            handleResourceChange(
                               index,
                               "personId",
                               e.target.value
                             )
                           }
                           required
-                        />
+                        >
+                          <option value="">Choose a Person</option>
+                          {managers.map((person) => (
+                            <option key={person.id} value={person.id}>
+                              {person.displayName}
+                            </option>
+                          ))}
+                        </select>
                       </div>
 
                       <div className="mx-auto mb-6">
@@ -1385,23 +1603,30 @@ const ProjectTable = () => {
                           htmlFor="acquisitionPersonId"
                           className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                         >
+                          <span className="text-lg text-red-500">*</span>
                           Acquisition Person Id
                         </label>
-                        <input
-                          type="text"
+                        <select
                           id="acquisitionPersonId"
                           name="acquisitionPersonId"
-                          className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                          placeholder="Acquisition Person's Id"
+                          className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                           value={resource.acquisitionPersonId}
                           onChange={(e) =>
-                            handleUpdateResourceChange(
+                            handleResourceChange(
                               index,
                               "acquisitionPersonId",
                               e.target.value
                             )
                           }
-                        />
+                          required
+                        >
+                          <option value="">Choose an Acquisition Person</option>
+                          {acquisitionPeople.map((person) => (
+                            <option key={person.id} value={person.id}>
+                              {person.displayName}
+                            </option>
+                          ))}
+                        </select>
                       </div>
 
                       <div className="mx-auto mb-6">

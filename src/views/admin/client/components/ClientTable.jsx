@@ -639,7 +639,7 @@ export default function ClientTable() {
                       required
                     />
                   </div> */}
-                  <div className="mb-6">
+                  {/* <div className="mb-6">
                     <label
                       htmlFor="password"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
@@ -670,7 +670,7 @@ export default function ClientTable() {
                         </button>
                       </div>
                     </div>
-                  </div>
+                  </div> */}
 
                   <div className="mb-6">
                     <label
@@ -1023,7 +1023,7 @@ export default function ClientTable() {
                       required
                     />
                   </div> */}
-                  <div className="mb-6">
+                  {/* <div className="mb-6">
                     <label
                       htmlFor="password"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
@@ -1054,7 +1054,7 @@ export default function ClientTable() {
                         </button>
                       </div>
                     </div>
-                  </div>
+                  </div> */}
 
                   <div className="mb-6">
                     <label
