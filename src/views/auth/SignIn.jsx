@@ -52,6 +52,8 @@ export default function SignIn() {
         console.error('Error occurred:', error);
       }
     };
+
+    serverStart();
   }, []);
 
   const handleCheckboxChange = () => {
