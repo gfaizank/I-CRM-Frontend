@@ -34,26 +34,26 @@ export default function SignIn() {
       persistLogin();
     }
 
-    const serverStart = async () => {
-      try {
-        const response = await fetch('https://i-crm-backend-6fqp.onrender.com/auth/fake', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
+    // const serverStart = async () => {
+    //   try {
+    //     const response = await fetch('https://i-crm-backend-6fqp.onrender.com/auth/fake', {
+    //       method: 'POST',
+    //       headers: {
+    //         'Content-Type': 'application/json'
+    //       }
+    //     });
 
-        if (response.ok) {
-          console.log('Server alarmed');
-        } else {
-          console.error('failed');
-        }
-      } catch (error) {
-        console.error('Error occurred:', error);
-      }
-    };
+    //     if (response.ok) {
+    //       console.log('Server alarmed');
+    //     } else {
+    //       console.error('failed');
+    //     }
+    //   } catch (error) {
+    //     console.error('Error occurred:', error);
+    //   }
+    // };
 
-    serverStart();
+    // serverStart();
   }, []);
 
   const handleCheckboxChange = () => {

@@ -237,7 +237,7 @@ export default function ClientTable() {
 
     // Send data to the API endpoint
     fetch(`https://i-crm-backend-6fqp.onrender.com/client/${selectedId}`, {
-      method: "PATCH",
+      method: "PUT",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${user.token}`,
