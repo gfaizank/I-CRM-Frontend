@@ -4,6 +4,7 @@ import InvoiceDrawer from "./InvoiceDrawer";
 import { MdDelete } from "react-icons/md";
 import { useAuthContext } from "hooks/useAuthContext";
 import Spinner from "./Spinner";
+import DeleteInvoiceConfirm from "./DeleteInvoiceConfirm";
 
 const InvoiceTable = () => {
   const [filter, setFilter] = useState("");
@@ -58,8 +59,8 @@ const InvoiceTable = () => {
       {
         name: "",
         description: "",
-        fromDate: "",
-        toDate: "",
+        // fromDate: "",
+        // toDate: "",
         mileStone: "",
         hours: "",
         rate: "",
@@ -89,7 +90,7 @@ const InvoiceTable = () => {
     forgivenReason: "",
     cancellationReason: "",
     paymentChannel: "WISE",
-    lostAmountINR: "",
+    lostAmountINR: 0,
   };
 
   const [formData, setFormData] = useState(initialFormData);
@@ -151,6 +152,10 @@ const InvoiceTable = () => {
     handleDeleteRow(deleteId);
     setShowModal(false);
     setDeleteId(null);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
   };
 
   const handleDropdownToggle = () => {
@@ -217,7 +222,7 @@ const InvoiceTable = () => {
       .catch((error) => {
         console.error("Failed to fetch invoices", error);
       });
-  }, [deleted]);
+  }, [deleted, submitted]);
 
   useEffect(() => {
     fetch(`${process.env.REACT_APP_API_URL}/project/`, {
@@ -287,14 +292,12 @@ const InvoiceTable = () => {
   const [idData, setIdData] = useState({
     clientId: "",
     projectId: "",
-    serialNumber: "",
     number: "",
     poNumber: "",
     date: "",
     serviceFromDate: "",
     serviceToDate: "",
-    mileStones: "",
-    serviceDays: "",
+    // mileStones: "",
     dueDate: "",
     preparedBy: "",
     reviewedBy: "",
@@ -338,7 +341,7 @@ const InvoiceTable = () => {
     event.preventDefault();
     try {
       const response = await fetch(
-        `https://i-crm-backend-6fqp.onrender.com/invoices/${id}`
+        // `https://i-crm-backend-6fqp.onrender.com/invoices/${id}`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch data");
@@ -428,8 +431,8 @@ const InvoiceTable = () => {
     updatedIndexOfFirstItem,
     updatedIndexOfLastItem
   );
-  console.log("Data left after filterations: ");
-  console.log(updatedCurrentItems);
+  // console.log("Data left after filterations: ");
+  // console.log(updatedCurrentItems);
 
   return (
     <div className="min-h-fit bg-white">
@@ -517,7 +520,6 @@ const InvoiceTable = () => {
               handleServiceChange={handleServiceChange}
               handleAdjustmentChange={handleAdjustmentChange}
               handleClientChange={handleClientChange}
-              clientID={selectedClientID}
             />
           </div>
         </div>

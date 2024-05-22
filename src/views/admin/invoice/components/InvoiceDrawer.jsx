@@ -13,8 +13,7 @@ const InvoiceDrawer = ({
   managers,
   handleServiceChange,
   handleAdjustmentChange,
-  handleClientChange,
-  clientID,
+  handleClientChange
 }) => {
   const drawerRef = useRef(null);
   const data = ["Apple", "Banana"];
@@ -47,11 +46,11 @@ const InvoiceDrawer = ({
     setShowDropdown(false);
   };
 
-  useEffect(() => {
-    if (clientID) {
-      handleClientChange({ target: { name: "clientId", value: clientID } });
-    }
-  }, [clientID, handleClientChange]);
+  // useEffect(() => {
+  //   if (clientID) {
+  //     handleClientChange({ target: { name: "clientId", value: clientID } });
+  //   }
+  // }, [clientID, handleClientChange]);
 
   return (
     <div>
@@ -117,7 +116,7 @@ const InvoiceDrawer = ({
                   Choose Client
                 </option>
                 {clients.map((client) => (
-                  <option key={client.id} value={client.id}>
+                  <option key={client._id} value={client._id}>
                     {client.primaryContactPerson}
                   </option>
                 ))}
@@ -142,7 +141,7 @@ const InvoiceDrawer = ({
                   Choose Project
                 </option>
                 {projects.map((project) => (
-                  <option key={project.id} value={project.id}>
+                  <option key={project._id} value={project._id}>
                     {project.name}
                   </option>
                 ))}
@@ -360,7 +359,7 @@ const InvoiceDrawer = ({
                   Choose an admin
                 </option>
                 {managers.map((manager) => (
-                  <option key={manager.id} value={manager.id}>
+                  <option key={manager._id} value={manager._id}>
                     {manager.displayName}
                   </option>
                 ))}
@@ -385,7 +384,7 @@ const InvoiceDrawer = ({
                   Choose a Manager
                 </option>
                 {managers.map((manager) => (
-                  <option key={manager.id} value={manager.id}>
+                  <option key={manager._id} value={manager._id}>
                     {manager.displayName}
                   </option>
                 ))}
