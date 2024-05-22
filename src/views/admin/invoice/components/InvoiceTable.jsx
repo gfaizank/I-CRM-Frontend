@@ -3,6 +3,7 @@ import Pagination from "./Pagination";
 import InvoiceDrawer from "./InvoiceDrawer";
 import { MdDelete } from "react-icons/md";
 import { useAuthContext } from "hooks/useAuthContext";
+import Spinner from "./Spinner";
 
 const InvoiceTable = () => {
   const [filter, setFilter] = useState("");
@@ -22,9 +23,11 @@ const InvoiceTable = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [spin, setSpin] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [deleted, setDeleted] = useState(false);
   const [clients, setClients] = useState([]);
   const [projects, setProjects] = useState([]);
-  const [peoples, setPeoples] = useState([]);
+  const [people, setPeople] = useState([]);
+  const [managers, setManagers] = useState([]);
   const [clientIds, setClientIds] = useState([]);
   const [selectedClientID, setSelectedClientID] = useState(null);
   const [invoices, setInvoices] = useState([]);
@@ -41,25 +44,25 @@ const InvoiceTable = () => {
   const initialFormData = {
     clientId: "",
     projectId: "",
-    serialNumber: "",
     number: "",
     poNumber: "",
     date: "",
     serviceFromDate: "",
     serviceToDate: "",
-    mileStones: "",
-    serviceDays: "",
+    mileStones: [],
     dueDate: "",
     preparedBy: "",
-    reviewedBy: "",
+    reviewedBy: [],
 
     services: [
       {
         name: "",
         description: "",
+        fromDate: "",
+        toDate: "",
+        mileStone: "",
         hours: "",
         rate: "",
-        mileStone: "",
         discountPercent: "",
         discountAmount: "",
         SAC: "998311",
@@ -86,6 +89,7 @@ const InvoiceTable = () => {
     forgivenReason: "",
     cancellationReason: "",
     paymentChannel: "WISE",
+    lostAmountINR: "",
   };
 
   const [formData, setFormData] = useState(initialFormData);
@@ -144,7 +148,7 @@ const InvoiceTable = () => {
 
   const handleConfirmDelete = () => {
     if (!deleteId) return;
-    // handleDeleteRow(deleteId);
+    handleDeleteRow(deleteId);
     setShowModal(false);
     setDeleteId(null);
   };
@@ -201,17 +205,19 @@ const InvoiceTable = () => {
   }, []);
 
   useEffect(() => {
+    setSpin(true);
     fetch(`${process.env.REACT_APP_API_URL}/invoices`, {
       method: "GET",
     })
       .then((response) => response.json())
       .then((data) => {
-        setInvoices(data.data.invoices); // Assuming the API returns invoices in data.data.invoices
+        setInvoices(data.data.invoices);
+        setSpin(false); // Assuming the API returns invoices in data.data.invoices
       })
       .catch((error) => {
         console.error("Failed to fetch invoices", error);
       });
-  }, []);
+  }, [deleted]);
 
   useEffect(() => {
     fetch(`${process.env.REACT_APP_API_URL}/project/`, {
@@ -226,6 +232,39 @@ const InvoiceTable = () => {
         console.error("Failed to fetch projects", error);
       });
   }, []);
+
+  useEffect(() => {
+    fetch(`${process.env.REACT_APP_API_URL}/people/`)
+      .then((response) => response.json())
+      .then((data) => {
+        setPeople(data.data.people);
+
+        setManagers(
+          data.data.people.filter(
+            (person) => person.department === "Engineering"
+          )
+        );
+      })
+      .catch((error) => {
+        console.error("Failed to fetch people", error);
+      });
+  }, []);
+
+  const handleDeleteRow = (id) => {
+    setSpin(true);
+    fetch(`${process.env.REACT_APP_API_URL}/invoices/${id}`, {
+      method: "DELETE",
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to delete row");
+        }
+        setInvoices((prevData) => prevData.filter((row) => row.id !== id));
+        setDeleted((prevDeleted) => !prevDeleted);
+        setSpin(false);
+      })
+      .catch((error) => console.error("Error deleting row:", error));
+  };
 
   const handleClientSelect = (clientID) => {
     setSelectedClientID(clientID);
@@ -378,14 +417,14 @@ const InvoiceTable = () => {
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = invoiceData.slice(indexOfFirstItem, indexOfLastItem);
+  const currentItems = invoices.slice(indexOfFirstItem, indexOfLastItem);
   const isCurrentPageEmpty = currentItems.length === 0 && currentPage > 1;
 
   const newPage = isCurrentPageEmpty ? currentPage - 1 : currentPage;
 
   const updatedIndexOfLastItem = newPage * itemsPerPage;
   const updatedIndexOfFirstItem = updatedIndexOfLastItem - itemsPerPage;
-  const updatedCurrentItems = invoiceData.slice(
+  const updatedCurrentItems = invoices.slice(
     updatedIndexOfFirstItem,
     updatedIndexOfLastItem
   );
@@ -473,7 +512,8 @@ const InvoiceTable = () => {
               handleSubmit={handleSubmit}
               clients={clients}
               projects={projects}
-              peoples={peoples}
+              managers={managers}
+              peoples={people}
               handleServiceChange={handleServiceChange}
               handleAdjustmentChange={handleAdjustmentChange}
               handleClientChange={handleClientChange}
@@ -485,10 +525,10 @@ const InvoiceTable = () => {
           <div className="fixed top-0 left-0 flex h-full w-full items-center justify-center">
             <div className="absolute top-0 h-full w-full bg-gray-900 opacity-50"></div>
             <div className="z-50 rounded-lg bg-white p-6 shadow-lg dark:bg-gray-800">
-              {/* <DeleteProjectConfirm
+              <DeleteInvoiceConfirm
                 onClose={handleCloseModal}
                 onConfirm={handleConfirmDelete}
-              /> */}
+              />
             </div>
           </div>
         )}
@@ -541,10 +581,11 @@ const InvoiceTable = () => {
                     className="whitespace-nowrap px-6 py-4 font-medium text-gray-900 dark:text-white"
                   >
                     {/* {row.firstname+" "+row.lastname} */}
-                    {row.reviewedBy}
+                    {row.clientID}
                   </th>
-                  <td className="px-6 py-4">{row.preparedBy}</td>
                   <td className="px-6 py-4">{row.projectId}</td>
+                  <td className="px-6 py-4">{row.serviceFromDate}</td>
+                  <td className="px-6 py-4">{row.serviceToDate}</td>
                   {/* <td className="px-6 py-4">{row.workEmail}</td> */}
                   <td className="px-6 py-4">
                     <div className="flex flex-row items-center gap-3">
@@ -570,7 +611,7 @@ const InvoiceTable = () => {
         </table>
       </div>
 
-      {/* {spin && <Spinner />} */}
+      {spin && <Spinner />}
 
       {/* Pagination */}
       <div className="mr-6 mb-4 flex justify-end">

@@ -10,6 +10,7 @@ const InvoiceDrawer = ({
   handleSubmit,
   clients,
   projects,
+  managers,
   handleServiceChange,
   handleAdjustmentChange,
   handleClientChange,
@@ -116,24 +117,11 @@ const InvoiceDrawer = ({
                   Choose Client
                 </option>
                 {clients.map((client) => (
-                  <option
-                    key={client.id.toString()}
-                    value={client.id.toString()}
-                  >
+                  <option key={client.id} value={client.id}>
                     {client.primaryContactPerson}
                   </option>
                 ))}
               </select>
-              {/* <input
-                type="name"
-                id="clientId"
-                name="clientId"
-                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                placeholder="Serial Number"
-                value={formData.clientId}
-                onChange={handleInputChange}
-                required
-              /> */}
             </div>
             <div className="mx-auto mb-6">
               <label
@@ -142,7 +130,7 @@ const InvoiceDrawer = ({
               >
                 <span className="text-lg text-red-500">*</span>Project Name
               </label>
-              {/* <select
+              <select
                 id="projectId"
                 name="projectId"
                 className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
@@ -154,23 +142,13 @@ const InvoiceDrawer = ({
                   Choose Project
                 </option>
                 {projects.map((project) => (
-                  <option key={project.id} value={project.name}>
+                  <option key={project.id} value={project.id}>
                     {project.name}
                   </option>
                 ))}
-              </select> */}
-              <input
-                type="text"
-                id="projectId"
-                name="projectId"
-                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                placeholder="Serial Number"
-                value={formData.projectId}
-                onChange={handleInputChange}
-                required
-              />
+              </select>
             </div>
-            <div className="mb-6">
+            {/* <div className="mb-6">
               <label
                 htmlFor="projectName"
                 className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
@@ -187,10 +165,10 @@ const InvoiceDrawer = ({
                 onChange={handleInputChange}
                 required
               />
-            </div>
+            </div> */}
             <div className="mb-6">
               <label
-                htmlFor="projectName"
+                htmlFor="Phone Number"
                 className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
               >
                 <span className="text-lg text-red-500">*</span>Phone Number
@@ -208,7 +186,7 @@ const InvoiceDrawer = ({
             </div>
             <div className="mb-6">
               <label
-                htmlFor="projectName"
+                htmlFor="Po Number"
                 className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
               >
                 <span className="text-lg text-red-500">*</span>Po Number
@@ -226,10 +204,10 @@ const InvoiceDrawer = ({
             </div>
             <div className="mb-6">
               <label
-                htmlFor="start-date"
+                htmlFor="Date of Invoice "
                 className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
               >
-                <span className="text-lg text-red-500">*</span>Date
+                <span className="text-lg text-red-500">*</span>Date of Invoice
               </label>
               <div className="relative max-w-sm">
                 <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
@@ -345,7 +323,7 @@ const InvoiceDrawer = ({
                 onChange={handleInputChange}
               />
             </div>
-            <div className="mb-6">
+            {/* <div className="mb-6">
               <label
                 htmlFor="projectName"
                 className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
@@ -362,42 +340,56 @@ const InvoiceDrawer = ({
                 onChange={handleInputChange}
                 required
               />
-            </div>
+            </div> */}
             <div className="mb-6">
               <label
-                htmlFor="managerId"
+                htmlFor="Prepared By"
                 className="mb-2 block text-sm font-medium text-gray-900"
               >
                 <span className="text-lg text-red-500">*</span>Prepared By
               </label>
-              <input
-                type="text"
+              <select
                 id="preparedBy"
                 name="preparedBy"
-                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                placeholder="Prepared By"
+                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-blue-500 dark:focus:ring-blue-500"
                 value={formData.preparedBy}
                 onChange={handleInputChange}
                 required
-              />
+              >
+                <option value="" disabled>
+                  Choose an admin
+                </option>
+                {managers.map((manager) => (
+                  <option key={manager.id} value={manager.id}>
+                    {manager.displayName}
+                  </option>
+                ))}
+              </select>
             </div>
             <div className="mb-6">
               <label
-                htmlFor="managerId"
+                htmlFor="Reviewed By"
                 className="mb-2 block text-sm font-medium text-gray-900"
               >
                 <span className="text-lg text-red-500">*</span>Reviewed By
               </label>
-              <input
-                type="text"
+              <select
                 id="reviewedBy"
                 name="reviewedBy"
-                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                placeholder="Reviewed By"
+                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-blue-500 dark:focus:ring-blue-500"
                 value={formData.reviewedBy}
                 onChange={handleInputChange}
                 required
-              />
+              >
+                <option value="" disabled>
+                  Choose a Manager
+                </option>
+                {managers.map((manager) => (
+                  <option key={manager.id} value={manager.id}>
+                    {manager.displayName}
+                  </option>
+                ))}
+              </select>
             </div>
             <h5 className="mb-6 inline-flex items-center text-base font-semibold uppercase text-gray-500 dark:text-gray-400">
               <svg

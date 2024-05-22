@@ -9,6 +9,7 @@ const AddDrawer = ({
   handleSubmit,
   drawerRef,
   clients,
+  projects,
   managers,
   acquisitionPeople,
   handleResourceChange,
@@ -93,11 +94,14 @@ const AddDrawer = ({
                 onChange={handleInputChange}
                 required
               >
-                <option selected>Choose a status</option>
-                <option value="In Progress">In Progress</option>
-                <option value="Cancelled">Cancelled</option>
-                <option value="Completed">Completed</option>
-                <option value="Yet to Start">Yet to Start</option>
+                <option value="" disabled>
+                  Choose Client
+                </option>
+                {clients.map((client) => (
+                  <option key={client.id} value={client.id}>
+                    {client.primaryContactPerson}
+                  </option>
+                ))}
               </select>
             </div>
             <div className="mx-auto mb-6">
@@ -115,11 +119,14 @@ const AddDrawer = ({
                 onChange={handleInputChange}
                 required
               >
-                <option selected>Choose a status</option>
-                <option value="In Progress">In Progress</option>
-                <option value="Cancelled">Cancelled</option>
-                <option value="Completed">Completed</option>
-                <option value="Yet to Start">Yet to Start</option>
+                <option value="" disabled>
+                  Choose Project
+                </option>
+                {pro.map((client) => (
+                  <option key={client.id} value={client.id}>
+                    {client.primaryContactPerson}
+                  </option>
+                ))}
               </select>
             </div>
             <div className="mb-6">
