@@ -5,6 +5,8 @@ import Spinner from "./Spinner";
 import DeleteProjectConfirm from "./DeleteProjectConfirm";
 import Pagination from "./Pagination";
 import ObjectId from "bson-objectid";
+import AddDrawer from "./AddDrawer";
+import UpdateDrawer from "./UpdateDrawer";
 
 const ProjectTable = () => {
   const [showDropdown, setShowDropdown] = useState(false);
@@ -12,6 +14,7 @@ const ProjectTable = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isUpdateDrawerOpen, setIsUpdateDrawerOpen] = useState(false);
   const { user } = useAuthContext();
+  const [isOpen, setIsOpen] = useState(false);
 
   const [projectData, setProjectData] = useState([]);
   const [deleted, setDeleted] = useState(false);
@@ -29,6 +32,10 @@ const ProjectTable = () => {
   const [people, setPeople] = useState([]);
   const [acquisitionPeople, setAcquisitionPeople] = useState([]);
   const [managers, setManagers] = useState([]);
+
+  const closeModal = () => {
+    setIsOpen(false);
+  };
 
   const handleDeleteClick = (event, id) => {
     event.preventDefault();
@@ -130,7 +137,7 @@ const ProjectTable = () => {
 
     console.log(formattedFormData);
 
-    fetch("https://i-crm-backend-6fqp.onrender.com/project", {
+    fetch(`${process.env.REACT_APP_API_URL}/project`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -180,7 +187,7 @@ const ProjectTable = () => {
   useEffect(() => {
     setSpin(true);
 
-    fetch(`https://i-crm-backend-6fqp.onrender.com/project/?sort=${sortBy}`)
+    fetch(`${process.env.REACT_APP_API_URL}/project/?sort=${sortBy}`)
       .then((response) => response.json())
       .then((data) => {
         // console.log(data);
@@ -192,7 +199,7 @@ const ProjectTable = () => {
 
   const handleDeleteRow = (id) => {
     setSpin(true);
-    fetch(`https://i-crm-backend-6fqp.onrender.com/project/${id}`, {
+    fetch(`${process.env.REACT_APP_API_URL}/project/${id}`, {
       method: "DELETE",
     })
       .then((response) => {
@@ -210,6 +217,7 @@ const ProjectTable = () => {
 
   const handleDrawerToggle = () => {
     setIsDrawerOpen(!isDrawerOpen);
+    setIsOpen(true);
   };
 
   const handleClickOutside = (event) => {
@@ -273,7 +281,7 @@ const ProjectTable = () => {
     event.preventDefault();
     try {
       const response = await fetch(
-        `https://i-crm-backend-6fqp.onrender.com/project/${id}`
+        `${process.env.REACT_APP_API_URL}/project/${id}`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch data");
@@ -316,7 +324,7 @@ const ProjectTable = () => {
     event.preventDefault();
     console.log(idData);
 
-    fetch(`https://i-crm-backend-6fqp.onrender.com/project/${selectedId}`, {
+    fetch(`${process.env.REACT_APP_API_URL}/project/${selectedId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -373,7 +381,7 @@ const ProjectTable = () => {
   );
 
   useEffect(() => {
-    fetch("https://i-crm-backend-6fqp.onrender.com/client/")
+    fetch(`${process.env.REACT_APP_API_URL}/client/`)
       .then((response) => response.json())
       .then((data) => {
         setClients(data.data.clients);
@@ -384,7 +392,7 @@ const ProjectTable = () => {
   }, []);
 
   useEffect(() => {
-    fetch("https://i-crm-backend-6fqp.onrender.com/people/")
+    fetch(`${process.env.REACT_APP_API_URL}/people/`)
       .then((response) => response.json())
       .then((data) => {
         setPeople(data.data.people);
@@ -416,147 +424,12 @@ const ProjectTable = () => {
               type="button"
             >
               {/* Icons and text here */}
-              <svg
-                className="h-3 w-3 text-gray-500 me-3 dark:text-gray-400"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path d="M10 0a10 10 0 1 0 10 10A10.011 10.011 0 0 0 10 0Zm3.982 13.982a1 1 0 0 1-1.414 0l-3.274-3.274A1.012 1.012 0 0 1 9 10V6a1 1 0 0 1 2 0v3.586l2.982 2.982a1 1 0 0 1 0 1.414Z" />
-              </svg>
               Recents
-              <svg
-                className="ml-2 h-4 w-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
             </button>
-            {/* {showDropdown && (
-              <div
-                id="dropdownRadio"
-                className="absolute z-10 w-48 divide-y divide-gray-100 rounded-lg bg-white shadow dark:divide-gray-600 dark:bg-gray-700"
-              >
-                <ul
-                  className="space-y-1 p-3 text-sm text-gray-700 dark:text-gray-200"
-                  aria-labelledby="dropdownRadioButton"
-                >
-                  <li>
-                    <div className="flex items-center rounded p-2 hover:bg-gray-100 dark:hover:bg-gray-600">
-                      <input
-                        id="filter-radio-example-1"
-                        type="radio"
-                        value=""
-                        name="filter-radio"
-                        className="h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600 dark:focus:ring-offset-gray-800"
-                      />
-                      <label
-                        for="filter-radio-example-1"
-                        className="w-full rounded text-sm font-medium text-gray-900 ms-2 dark:text-gray-300"
-                      >
-                        Last day
-                      </label>
-                    </div>
-                  </li>
-                  <li>
-                    <div className="flex items-center rounded p-2 hover:bg-gray-100 dark:hover:bg-gray-600">
-                      <input
-                        checked=""
-                        id="filter-radio-example-2"
-                        type="radio"
-                        value=""
-                        name="filter-radio"
-                        className="h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600 dark:focus:ring-offset-gray-800"
-                      />
-                      <label
-                        for="filter-radio-example-2"
-                        className="w-full rounded text-sm font-medium text-gray-900 ms-2 dark:text-gray-300"
-                      >
-                        Last 7 days
-                      </label>
-                    </div>
-                  </li>
-                  <li>
-                    <div className="flex items-center rounded p-2 hover:bg-gray-100 dark:hover:bg-gray-600">
-                      <input
-                        id="filter-radio-example-3"
-                        type="radio"
-                        value=""
-                        name="filter-radio"
-                        className="h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600 dark:focus:ring-offset-gray-800"
-                      />
-                      <label
-                        for="filter-radio-example-3"
-                        className="w-full rounded text-sm font-medium text-gray-900 ms-2 dark:text-gray-300"
-                      >
-                        Last 30 days
-                      </label>
-                    </div>
-                  </li>
-                  <li>
-                    <div className="flex items-center rounded p-2 hover:bg-gray-100 dark:hover:bg-gray-600">
-                      <input
-                        id="filter-radio-example-4"
-                        type="radio"
-                        value=""
-                        name="filter-radio"
-                        className="h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600 dark:focus:ring-offset-gray-800"
-                      />
-                      <label
-                        for="filter-radio-example-4"
-                        className="w-full rounded text-sm font-medium text-gray-900 ms-2 dark:text-gray-300"
-                      >
-                        Last month
-                      </label>
-                    </div>
-                  </li>
-                  <li>
-                    <div className="flex items-center rounded p-2 hover:bg-gray-100 dark:hover:bg-gray-600">
-                      <input
-                        id="filter-radio-example-5"
-                        type="radio"
-                        value=""
-                        name="filter-radio"
-                        className="h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600 dark:focus:ring-offset-gray-800"
-                      />
-                      <label
-                        for="filter-radio-example-5"
-                        className="w-full rounded text-sm font-medium text-gray-900 ms-2 dark:text-gray-300"
-                      >
-                        Last year
-                      </label>
-                    </div>
-                  </li>
-                </ul>
-              </div>
-            )} */}
           </div>
           <div className="flex flex-row justify-between gap-4">
             <div className="relative">
-              <div className="rtl:inset-r-0 pointer-events-none absolute inset-y-0 left-0 flex items-center ps-3 rtl:right-0">
-                <svg
-                  className="h-5 w-5 text-gray-500 dark:text-gray-400"
-                  aria-hidden="true"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                    clip-rule="evenodd"
-                  ></path>
-                </svg>
-              </div>
+              <div className="rtl:inset-r-0 pointer-events-none absolute inset-y-0 left-0 flex items-center ps-3 rtl:right-0"></div>
               <input
                 type="text"
                 id="table-search"
@@ -575,1160 +448,33 @@ const ProjectTable = () => {
               ADD NEW PROJECT
             </button>
             {/* Drawer starts */}
-            {isDrawerOpen && (
-              <div
-                ref={drawerRef}
-                id="drawer-contact"
-                className="fixed top-0 right-0 z-40 h-screen w-80 -translate-x-0 overflow-y-auto bg-gray-100 p-4 transition-transform dark:bg-gray-800"
-                tabIndex="-1"
-              >
-                <h5 className="mb-6 inline-flex items-center text-base font-semibold uppercase text-gray-500 dark:text-gray-400">
-                  <svg
-                    className="h-4 w-4 me-2.5"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="currentColor"
-                    viewBox="0 0 20 16"
-                  >
-                    <path d="M10.036 8.278 9.258-7.79A1.979 1.979 0 0 0 18 0H2A1.987 1.987 0 0 0 .641.541l9.395 7.737Z" />
-                    <path d="M11.241 9.817c-.36.275-.801.425-1.255.427-.428 0-.845-.138-1.187-.395L0 2.6V14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V2.5l-8.759 7.317Z" />
-                  </svg>
-                  Add Project
-                </h5>
-                <button
-                  type="button"
-                  onClick={handleDrawerToggle}
-                  className="bg-transparent absolute top-2.5 inline-flex h-8 w-8 items-center justify-center rounded-lg text-sm text-gray-400 end-2.5 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
-                >
-                  <svg
-                    className="h-3 w-3"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 14 14"
-                  >
-                    <path
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-                    />
-                  </svg>
-                  <span className="sr-only">Close menu</span>
-                </button>
-                <form className="mb-6">
-                  <div className="mb-6">
-                    <label
-                      htmlFor="projectName"
-                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      <span className="text-lg text-red-500">*</span>Project
-                      Name
-                    </label>
-                    <input
-                      type="text"
-                      id="name"
-                      name="name"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Project Name"
-                      value={formData.name}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </div>
-                  <div className="mx-auto mb-6">
-                    <label
-                      htmlFor="status"
-                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      <span className="text-lg text-red-500">*</span>Status
-                    </label>
-                    <select
-                      id="status"
-                      name="status"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      value={formData.status}
-                      onChange={handleInputChange}
-                      required
-                    >
-                      <option selected>Choose a status</option>
-                      <option value="In Progress">In Progress</option>
-                      <option value="Cancelled">Cancelled</option>
-                      <option value="Completed">Completed</option>
-                      <option value="Yet to Start">Yet to Start</option>
-                    </select>
-                  </div>
-
-                  <div className="mb-6">
-                    <label
-                      htmlFor="start-date"
-                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      <span className="text-lg text-red-500">*</span>Start Date
-                    </label>
-                    <div className="relative max-w-sm">
-                      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                        <svg
-                          className="h-4 w-4 text-gray-500 dark:text-gray-400"
-                          aria-hidden="true"
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                        >
-                          <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z" />
-                        </svg>
-                      </div>
-                      <input
-                        type="date"
-                        id="startDate"
-                        name="startDate"
-                        className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 pl-10 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                        value={formData.startDate}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="mb-6">
-                    <label
-                      htmlFor="start-date"
-                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      <span className="text-lg text-red-500">*</span> End Date
-                    </label>
-                    <div className="relative max-w-sm">
-                      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                        <svg
-                          className="h-4 w-4 text-gray-500 dark:text-gray-400"
-                          aria-hidden="true"
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                        >
-                          <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z" />
-                        </svg>
-                      </div>
-                      <input
-                        type="date"
-                        id="endDate"
-                        name="endDate"
-                        className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 pl-10 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                        value={formData.endDate}
-                        onChange={handleInputChange}
-                      />
-                    </div>
-                  </div>
-
-                  {/* <div className="mx-auto mb-6">
-                    <label
-                      htmlFor="clientId"
-                      className="mb-2 block text-sm font-medium text-gray-900"
-                    >
-                      <span className="text-lg text-red-500">*</span>Client ID
-                    </label>
-                    <select
-                      id="clientId"
-                      name="clientId"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      value={formData.clientId}
-                      onChange={handleUpdateChange}
-                      required
-                    >
-                      <option selected>Choose Client</option>
-                      <option value="In Progress">In Progress</option>
-                      <option value="Cancelled">Cancelled</option>
-                      <option value="Completed">Completed</option>
-                      <option value="Yet to Start">Yet to Start</option>
-                    </select>
-                  </div> */}
-
-                  <div className="mx-auto mb-6">
-                    <label
-                      htmlFor="clientId"
-                      className="mb-2 block text-sm font-medium text-gray-900"
-                    >
-                      <span className="text-lg text-red-500">*</span>Select a
-                      Client
-                    </label>
-                    <select
-                      id="clientId"
-                      name="clientId"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      required
-                      value={formData.clientId}
-                      onChange={handleInputChange}
-                    >
-                      <option value="" disabled>
-                        Choose Client
-                      </option>
-                      {clients.map((client) => (
-                        <option
-                          key={client.id}
-                          value={client.primaryContactPerson}
-                        >
-                          {client.primaryContactPerson}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="mb-6">
-                    <label
-                      htmlFor="managerId"
-                      className="mb-2 block text-sm font-medium text-gray-900"
-                    >
-                      <span className="text-lg text-red-500">*</span>Manager
-                    </label>
-                    <select
-                      id="managerId"
-                      name="managerId"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      value={formData.managerId}
-                      onChange={handleInputChange}
-                      required
-                    >
-                      <option value="" disabled>
-                        Choose a Manager
-                      </option>
-                      {managers.map((person) => (
-                        <option key={person.id} value={person.id}>
-                          {person.displayName}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="mb-6">
-                    <label
-                      htmlFor="acquisitionPersonId"
-                      className="mb-2 block text-sm font-medium text-gray-900"
-                    >
-                      <span className="text-lg text-red-500">*</span>Acquisition
-                      Person
-                    </label>
-                    <select
-                      id="acquisitionPersonId"
-                      name="acquisitionPersonId"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      value={formData.acquisitionPersonId}
-                      onChange={handleInputChange}
-                      required
-                    >
-                      <option value="" disabled>
-                        Choose an Acquisition Person
-                      </option>
-                      {acquisitionPeople.map((person) => (
-                        <option key={person.id} value={person.displayName}>
-                          {person.displayName}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* <div className="mb-6">
-                    <label
-                      htmlFor="acquisitionPersonId"
-                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      <span className="text-lg text-red-500">*</span>Acquisition
-                      Person ID
-                    </label>
-                    <input
-                      type="text"
-                      id="acquisitionPersonId"
-                      name="acquisitionPersonId"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Acquisition Person Id"
-                      value={formData.acquisitionPersonId}
-                      onChange={handleInputChange}
-                    />
-                  </div> */}
-                  <h5 className="mb-6 inline-flex items-center text-base font-semibold uppercase text-gray-500 dark:text-gray-400">
-                    <svg
-                      className="h-4 w-4 me-2.5"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="currentColor"
-                      viewBox="0 0 20 16"
-                    >
-                      <path d="M10.036 8.278 9.258-7.79A1.979 1.979 0 0 0 18 0H2A1.987 1.987 0 0 0 .641.541l9.395 7.737Z" />
-                      <path d="M11.241 9.817c-.36.275-.801.425-1.255.427-.428 0-.845-.138-1.187-.395L0 2.6V14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V2.5l-8.759 7.317Z" />
-                    </svg>
-                    Resources
-                  </h5>
-                  {formData.resources.map((resource, index) => (
-                    <div key={index}>
-                      {/* <div className="mb-6" key={index}>
-                        <label
-                          htmlFor="personId"
-                          className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                        >
-                          <span className="text-lg text-red-500">*</span>Person
-                          Id
-                        </label>
-                        <input
-                          type="text"
-                          id="personId"
-                          name="personId"
-                          className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                          placeholder="Person's Id"
-                          value={resource.personId}
-                          onChange={(e) =>
-                            handleResourceChange(
-                              index,
-                              "personId",
-                              e.target.value
-                            )
-                          }
-                          required
-                        />
-                      </div> */}
-
-                      <div className="mb-6">
-                        <label
-                          htmlFor="personId"
-                          className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                        >
-                          <span className="text-lg text-red-500">*</span>Person
-                          Id
-                        </label>
-                        <select
-                          id="personId"
-                          name="personId"
-                          className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                          value={resource.personId}
-                          onChange={(e) =>
-                            handleResourceChange(
-                              index,
-                              "personId",
-                              e.target.value
-                            )
-                          }
-                          required
-                        >
-                          <option value="">Choose a Person</option>
-                          {managers.map((person) => (
-                            <option key={person.id} value={person.id}>
-                              {person.displayName}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div className="mx-auto mb-6">
-                        <label
-                          htmlFor="defaultAllocation"
-                          className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                        >
-                          <span className="text-lg text-red-500">*</span>Default
-                          Allocation
-                        </label>
-                        <select
-                          id="defaultAllocation"
-                          name="defaultAllocation"
-                          className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                          value={resource.defaultAllocation}
-                          onChange={(e) =>
-                            handleResourceChange(
-                              index,
-                              "defaultAllocation",
-                              Number(e.target.value)
-                            )
-                          }
-                          required
-                        >
-                          <option value="">Choose a Default Allocation</option>
-                          {[5, 10, 15, 20, 25, 30, 35, 40].map((value) => (
-                            <option key={value} value={value}>
-                              {value}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div className="mb-6">
-                        <label
-                          htmlFor="resource-start-date"
-                          className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                        >
-                          Start Date
-                        </label>
-                        <div className="relative max-w-sm">
-                          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                            <svg
-                              className="h-4 w-4 text-gray-500 dark:text-gray-400"
-                              aria-hidden="true"
-                              xmlns="http://www.w3.org/2000/svg"
-                              fill="currentColor"
-                              viewBox="0 0 20 20"
-                            >
-                              <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z" />
-                            </svg>
-                          </div>
-                          <input
-                            type="date"
-                            id="resource-start-date"
-                            name="resource-start-date"
-                            className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 pl-10 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                            value={resource.startDate}
-                            onChange={(e) =>
-                              handleResourceChange(
-                                index,
-                                "startDate",
-                                e.target.value
-                              )
-                            }
-                          />
-                        </div>
-                      </div>
-
-                      <div className="mb-6">
-                        <label
-                          htmlFor="resource-end-date"
-                          className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                        >
-                          End Date
-                        </label>
-                        <div className="relative max-w-sm">
-                          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                            <svg
-                              className="h-4 w-4 text-gray-500 dark:text-gray-400"
-                              aria-hidden="true"
-                              xmlns="http://www.w3.org/2000/svg"
-                              fill="currentColor"
-                              viewBox="0 0 20 20"
-                            >
-                              <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z" />
-                            </svg>
-                          </div>
-                          <input
-                            type="date"
-                            id="resource-end-date"
-                            name="resource.end-date"
-                            className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 pl-10 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                            value={resource.endDate}
-                            onChange={(e) =>
-                              handleResourceChange(
-                                index,
-                                "endDate",
-                                e.target.value
-                              )
-                            }
-                          />
-                        </div>
-                      </div>
-
-                      {/* <div className="mb-6">
-                        <label
-                          htmlFor="acquisitionPersonId"
-                          className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                        >
-                          <span className="text-lg text-red-500">*</span>Acquisition Person Id
-                        </label>
-                        <input
-                          type="text"
-                          id="acquisitionPersonId"
-                          name="acquisitionPersonId"
-                          className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                          placeholder="Acquisition Person's Id"
-                          value={resource.acquisitionPersonId}
-                          onChange={(e) =>
-                            handleResourceChange(
-                              index,
-                              "acquisitionPersonId",
-                              e.target.value
-                            )
-                          }
-                        />
-                      </div> */}
-                      <div className="mb-6">
-                        <label
-                          htmlFor="acquisitionPersonId"
-                          className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                        >
-                          <span className="text-lg text-red-500">*</span>
-                          Acquisition Person Id
-                        </label>
-                        <select
-                          id="acquisitionPersonId"
-                          name="acquisitionPersonId"
-                          className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                          value={resource.acquisitionPersonId}
-                          onChange={(e) =>
-                            handleResourceChange(
-                              index,
-                              "acquisitionPersonId",
-                              e.target.value
-                            )
-                          }
-                          required
-                        >
-                          <option value="">Choose an Acquisition Person</option>
-                          {acquisitionPeople.map((person) => (
-                            <option key={person.id} value={person.id}>
-                              {person.displayName}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div className="mx-auto mb-6">
-                        <label
-                          htmlFor="billability"
-                          className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                        >
-                          <span className="text-lg text-red-500">*</span>
-                          Billability
-                        </label>
-                        <select
-                          id="billability"
-                          name="billability"
-                          className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                          value={resource.billability}
-                          onChange={(e) =>
-                            handleResourceChange(
-                              index,
-                              "billability",
-                              e.target.value
-                            )
-                          }
-                          required
-                        >
-                          <option value="">Choose Billability</option>
-                          {["Billable", "Not Billable", "Shadow"].map(
-                            (value) => (
-                              <option key={value} value={value}>
-                                {value}
-                              </option>
-                            )
-                          )}
-                        </select>
-                      </div>
-
-                      {/* <div className="mb-6">
-                        <label
-                          htmlFor="shadowOf"
-                          className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                        >
-                          Shadow Of
-                        </label>
-                        <input
-                          type="text"
-                          id="shadowOf"
-                          name="shadowOf"
-                          className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                          placeholder="Shadow Of"
-                          value={resource.shadowOf}
-                          onChange={(e) =>
-                            handleResourceChange(
-                              index,
-                              "shadowOf",
-                              e.target.value
-                            )
-                          }
-                        />
-                      </div> */}
-
-                      <div className="mb-6">
-                        <label
-                          htmlFor="billingRate"
-                          className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                        >
-                          <span className="text-lg text-red-500">*</span>Billing Rate
-                        </label>
-                        <input
-                          type="number"
-                          id="billingRate"
-                          name="billingRate"
-                          className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                          placeholder="Billing Rate"
-                          value={
-                            resource.billingRate === null
-                              ? ""
-                              : resource.billingRate
-                          }
-                          onChange={(e) => {
-                            const newValue =
-                              e.target.value === ""
-                                ? null
-                                : Number(e.target.value);
-                            if (
-                              newValue === null ||
-                              !(
-                                resource.billability === "Billable" &&
-                                newValue <= 0
-                              )
-                            ) {
-                              handleResourceChange(
-                                index,
-                                "billingRate",
-                                newValue
-                              );
-                            } else {
-                              alert(
-                                "Billing rate must be a non-zero positive value if Billability is Billable"
-                              );
-                            }
-                          }}
-                        />
-                      </div>
-                    </div>
-                  ))}
-
-                  <button
-                    type="submit"
-                    onClick={handleSubmit}
-                    className="mb-2 block w-full rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                  >
-                    Submit
-                  </button>
-                </form>
-              </div>
-            )}
+            <AddDrawer
+              isDrawerOpen={isDrawerOpen}
+              handleDrawerToggle={handleDrawerToggle}
+              formData={formData}
+              handleInputChange={handleInputChange}
+              handleSubmit={handleSubmit}
+              drawerRef={drawerRef}
+              clients={clients}
+              managers={managers}
+              acquisitionPeople={acquisitionPeople}
+              handleResourceChange={handleResourceChange}
+            />
             {/* Drawer ends */}
             {/* Update Drawer starts */}
-            {isUpdateDrawerOpen && (
-              <div
-                ref={updateRef}
-                id="drawer-contact"
-                className="fixed top-0 right-0 z-40 h-screen w-80 -translate-x-0 overflow-y-auto bg-gray-100 p-4 transition-transform dark:bg-gray-800"
-                tabIndex="-1"
-              >
-                <h5 className="mb-6 inline-flex items-center text-base font-semibold uppercase text-gray-500 dark:text-gray-400">
-                  <svg
-                    className="h-4 w-4 me-2.5"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="currentColor"
-                    viewBox="0 0 20 16"
-                  >
-                    <path d="M10.036 8.278 9.258-7.79A1.979 1.979 0 0 0 18 0H2A1.987 1.987 0 0 0 .641.541l9.395 7.737Z" />
-                    <path d="M11.241 9.817c-.36.275-.801.425-1.255.427-.428 0-.845-.138-1.187-.395L0 2.6V14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V2.5l-8.759 7.317Z" />
-                  </svg>
-                  Update Person
-                </h5>
-                <button
-                  type="button"
-                  onClick={handleUpdateDrawerToggle}
-                  className="bg-transparent absolute top-2.5 inline-flex h-8 w-8 items-center justify-center rounded-lg text-sm text-gray-400 end-2.5 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
-                >
-                  <svg
-                    className="h-3 w-3"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 14 14"
-                  >
-                    <path
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-                    />
-                  </svg>
-                  <span className="sr-only">Close menu</span>
-                </button>
-                <form className="mb-6">
-                  <div className="mb-6">
-                    <label
-                      htmlFor="projectName"
-                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      <span className="text-lg text-red-500">*</span>Project
-                      Name
-                    </label>
-                    <input
-                      type="text"
-                      id="name"
-                      name="name"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Project Name"
-                      value={idData.name}
-                      onChange={handleUpdateChange}
-                      required
-                    />
-                  </div>
-                  <div className="mx-auto mb-6">
-                    <label
-                      htmlFor="status"
-                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      <span className="text-lg text-red-500">*</span>Status
-                    </label>
-                    <select
-                      id="status"
-                      name="status"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      value={idData.status}
-                      onChange={handleUpdateChange}
-                      required
-                    >
-                      <option selected>Choose a status</option>
-                      <option value="In Progress">In Progress</option>
-                      <option value="Cancelled">Cancelled</option>
-                      <option value="Completed">Completed</option>
-                      <option value="Yet to Start">Yet to Start</option>
-                    </select>
-                  </div>
-
-                  <div className="mb-6">
-                    <label
-                      htmlFor="start-date"
-                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      <span className="text-lg text-red-500">*</span>Start Date
-                    </label>
-                    <div className="relative max-w-sm">
-                      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                        <svg
-                          className="h-4 w-4 text-gray-500 dark:text-gray-400"
-                          aria-hidden="true"
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                        >
-                          <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z" />
-                        </svg>
-                      </div>
-                      <input
-                        type="date"
-                        id="startDate"
-                        name="startDate"
-                        className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 pl-10 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                        value={idData.startDate}
-                        onChange={handleUpdateChange}
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="mb-6">
-                    <label
-                      htmlFor="start-date"
-                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      <span className="text-lg text-red-500">*</span> End Date
-                    </label>
-                    <div className="relative max-w-sm">
-                      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                        <svg
-                          className="h-4 w-4 text-gray-500 dark:text-gray-400"
-                          aria-hidden="true"
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                        >
-                          <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z" />
-                        </svg>
-                      </div>
-                      <input
-                        type="date"
-                        id="endDate"
-                        name="endDate"
-                        className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 pl-10 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                        value={idData.endDate}
-                        onChange={handleUpdateChange}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="mx-auto mb-6">
-                    <label
-                      htmlFor="clientId"
-                      className="mb-2 block text-sm font-medium text-gray-900"
-                    >
-                      <span className="text-lg text-red-500">*</span>Select a
-                      Client
-                    </label>
-                    <select
-                      id="clientId"
-                      name="clientId"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      required
-                      value={idData.clientId}
-                      onChange={handleUpdateChange}
-                    >
-                      <option value="" disabled>
-                        Choose Client
-                      </option>
-                      {clients.map((client) => (
-                        <option
-                          key={client.id}
-                          value={client.primaryContactPerson}
-                        >
-                          {client.primaryContactPerson}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* <div className="mb-6">
-                    <label
-                      htmlFor="clientId"
-                      className="mb-2 block text-sm font-medium text-gray-900 "
-                    >
-                      <span className="text-lg text-red-500">*</span>Client ID
-                    </label>
-                    <input
-                      type="text"
-                      id="clientId"
-                      name="clientId"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      placeholder="Client Id"
-                      value={idData.clientId}
-                      onChange={handleUpdateChange}
-                    />
-                  </div> */}
-
-                  <div className="mb-6">
-                    <label
-                      htmlFor="managerId"
-                      className="mb-2 block text-sm font-medium text-gray-900"
-                    >
-                      <span className="text-lg text-red-500">*</span>Manager
-                    </label>
-                    <select
-                      id="managerId"
-                      name="managerId"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      value={idData.managerId}
-                      onChange={handleUpdateChange}
-                      required
-                    >
-                      <option value="" disabled>
-                        Choose a Manager
-                      </option>
-                      {managers.map((person) => (
-                        <option key={person.id} value={person.id}>
-                          {person.displayName}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="mb-6">
-                    <label
-                      htmlFor="acquisitionPersonId"
-                      className="mb-2 block text-sm font-medium text-gray-900"
-                    >
-                      <span className="text-lg text-red-500">*</span>Acquisition
-                      Person
-                    </label>
-                    <select
-                      id="acquisitionPersonId"
-                      name="acquisitionPersonId"
-                      className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                      value={idData.acquisitionPersonId}
-                      onChange={handleUpdateChange}
-                      required
-                    >
-                      <option value="" disabled>
-                        Choose an Acquisition Person
-                      </option>
-                      {acquisitionPeople.map((person) => (
-                        <option key={person.id} value={person.displayName}>
-                          {person.displayName}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <h5 className="mb-6 inline-flex items-center text-base font-semibold uppercase text-gray-500 dark:text-gray-400">
-                    <svg
-                      className="h-4 w-4 me-2.5"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="currentColor"
-                      viewBox="0 0 20 16"
-                    >
-                      <path d="M10.036 8.278 9.258-7.79A1.979 1.979 0 0 0 18 0H2A1.987 1.987 0 0 0 .641.541l9.395 7.737Z" />
-                      <path d="M11.241 9.817c-.36.275-.801.425-1.255.427-.428 0-.845-.138-1.187-.395L0 2.6V14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V2.5l-8.759 7.317Z" />
-                    </svg>
-                    Resources
-                  </h5>
-                  {idData.resources.map((resource, index) => (
-                    <div key={index}>
-                      <div className="mb-6">
-                        <label
-                          htmlFor="personId"
-                          className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                        >
-                          <span className="text-lg text-red-500">*</span>Person
-                          Id
-                        </label>
-                        <select
-                          id="personId"
-                          name="personId"
-                          className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                          value={resource.personId}
-                          onChange={(e) =>
-                            handleResourceChange(
-                              index,
-                              "personId",
-                              e.target.value
-                            )
-                          }
-                          required
-                        >
-                          <option value="">Choose a Person</option>
-                          {managers.map((person) => (
-                            <option key={person.id} value={person.id}>
-                              {person.displayName}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div className="mx-auto mb-6">
-                        <label
-                          htmlFor="defaultAllocation"
-                          className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                        >
-                          <span className="text-lg text-red-500">*</span>Default
-                          Allocation
-                        </label>
-                        <select
-                          id="defaultAllocation"
-                          name="defaultAllocation"
-                          className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                          value={resource.defaultAllocation}
-                          onChange={(e) =>
-                            handleUpdateResourceChange(
-                              index,
-                              "defaultAllocation",
-                              Number(e.target.value)
-                            )
-                          }
-                          required
-                        >
-                          <option value="">Choose a Default Allocation</option>
-                          {[5, 10, 15, 20, 25, 30, 35, 40].map((value) => (
-                            <option key={value} value={value}>
-                              {value}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div className="mb-6">
-                        <label
-                          htmlFor="resource-start-date"
-                          className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                        >
-                          Start Date
-                        </label>
-                        <div className="relative max-w-sm">
-                          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                            <svg
-                              className="h-4 w-4 text-gray-500 dark:text-gray-400"
-                              aria-hidden="true"
-                              xmlns="http://www.w3.org/2000/svg"
-                              fill="currentColor"
-                              viewBox="0 0 20 20"
-                            >
-                              <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z" />
-                            </svg>
-                          </div>
-                          <input
-                            type="date"
-                            id="resource-start-date"
-                            name="resource-start-date"
-                            className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 pl-10 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                            value={resource.startDate}
-                            onChange={(e) =>
-                              handleUpdateResourceChange(
-                                index,
-                                "startDate",
-                                e.target.value
-                              )
-                            }
-                          />
-                        </div>
-                      </div>
-
-                      <div className="mb-6">
-                        <label
-                          htmlFor="resource-end-date"
-                          className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                        >
-                          End Date
-                        </label>
-                        <div className="relative max-w-sm">
-                          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                            <svg
-                              className="h-4 w-4 text-gray-500 dark:text-gray-400"
-                              aria-hidden="true"
-                              xmlns="http://www.w3.org/2000/svg"
-                              fill="currentColor"
-                              viewBox="0 0 20 20"
-                            >
-                              <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z" />
-                            </svg>
-                          </div>
-                          <input
-                            type="date"
-                            id="resource-end-date"
-                            name="resource.end-date"
-                            className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 pl-10 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                            value={resource.endDate}
-                            onChange={(e) =>
-                              handleUpdateResourceChange(
-                                index,
-                                "endDate",
-                                e.target.value
-                              )
-                            }
-                          />
-                        </div>
-                      </div>
-
-                      <div className="mb-6">
-                        <label
-                          htmlFor="acquisitionPersonId"
-                          className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                        >
-                          <span className="text-lg text-red-500">*</span>
-                          Acquisition Person Id
-                        </label>
-                        <select
-                          id="acquisitionPersonId"
-                          name="acquisitionPersonId"
-                          className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                          value={resource.acquisitionPersonId}
-                          onChange={(e) =>
-                            handleResourceChange(
-                              index,
-                              "acquisitionPersonId",
-                              e.target.value
-                            )
-                          }
-                          required
-                        >
-                          <option value="">Choose an Acquisition Person</option>
-                          {acquisitionPeople.map((person) => (
-                            <option key={person.id} value={person.id}>
-                              {person.displayName}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div className="mx-auto mb-6">
-                        <label
-                          htmlFor="billability"
-                          className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                        >
-                          <span className="text-lg text-red-500">*</span>
-                          Billability
-                        </label>
-                        <select
-                          id="billability"
-                          name="billability"
-                          className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                          value={resource.billability}
-                          onChange={(e) =>
-                            handleUpdateResourceChange(
-                              index,
-                              "billability",
-                              e.target.value
-                            )
-                          }
-                          required
-                        >
-                          <option value="">Choose Billability</option>
-                          {["Billable", "Not Billable", "Shadow"].map(
-                            (value) => (
-                              <option key={value} value={value}>
-                                {value}
-                              </option>
-                            )
-                          )}
-                        </select>
-                      </div>
-
-                      {/* <div className="mb-6">
-                        <label
-                          htmlFor="shadowOf"
-                          className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                        >
-                          Shadow Of
-                        </label>
-                        <input
-                          type="text"
-                          id="shadowOf"
-                          name="shadowOf"
-                          className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                          placeholder="Shadow Of"
-                          value={resource.shadowOf}
-                          onChange={(e) =>
-                            handleResourceChange(
-                              index,
-                              "shadowOf",
-                              e.target.value
-                            )
-                          }
-                        />
-                      </div> */}
-
-                      <div className="mb-6">
-                        <label
-                          htmlFor="billingRate"
-                          className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                        >
-                          Billing Rate
-                        </label>
-                        <input
-                          type="number"
-                          id="billingRate"
-                          name="billingRate"
-                          className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                          placeholder="Billing Rate"
-                          value={
-                            resource.billingRate === null
-                              ? ""
-                              : resource.billingRate
-                          }
-                          onChange={(e) => {
-                            const newValue =
-                              e.target.value === ""
-                                ? null
-                                : Number(e.target.value);
-                            if (
-                              newValue === null ||
-                              !(
-                                resource.billability === "Billable" &&
-                                newValue <= 0
-                              )
-                            ) {
-                              handleUpdateResourceChange(
-                                index,
-                                "billingRate",
-                                newValue
-                              );
-                            } else {
-                              alert(
-                                "Billing rate must be a non-zero positive value if Billability is Billable"
-                              );
-                            }
-                          }}
-                        />
-                      </div>
-                    </div>
-                  ))}
-
-                  <button
-                    type="submit"
-                    onClick={(event) => sendUpdate(event)}
-                    className="mb-2 block w-full rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                  >
-                    Update
-                  </button>
-                </form>
-              </div>
-            )}
+            <UpdateDrawer
+              isUpdateDrawerOpen={isUpdateDrawerOpen}
+              updateRef={updateRef}
+              idData={idData}
+              handleUpdateDrawerToggle={handleUpdateDrawerToggle}
+              handleUpdateChange={handleUpdateChange}
+              handleResourceChange={handleResourceChange}
+              handleUpdateResourceChange={handleUpdateResourceChange}
+              sendUpdate={sendUpdate}
+              clients={clients}
+              managers={managers}
+              acquisitionPeople={acquisitionPeople}
+            />
             {/* Update Drawer ends */}
           </div>
           {/* Add New Person */}
@@ -1748,17 +494,6 @@ const ProjectTable = () => {
           <thead className="bg-gray-100 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400">
             <tr>
               <th scope="col" className="items-center p-4">
-                {/* <div className="flex items-center">
-                  <input
-                    id="checkbox-all-search"
-                    type="checkbox"
-                    className="h-4 w-4 rounded border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600 dark:focus:ring-offset-gray-800"
-                  />
-                  <label for="checkbox-all-search" 
-                  className="sr-only">
-                    checkbox
-                  </label>
-                </div> */}
                 S.No.
               </th>
               <th scope="col" className="px-6 py-3">
@@ -1798,17 +533,12 @@ const ProjectTable = () => {
                   className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600"
                 >
                   <td className="w-4 p-4">
-                    {/* <input
-                      type="checkbox"
-                      className="h-4 w-4 rounded border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:focus:ring-blue-600 dark:focus:ring-offset-gray-800"
-                    /> */}
                     {(newPage - 1) * itemsPerPage + index + 1}.
                   </td>
                   <th
                     scope="row"
                     className="whitespace-nowrap px-6 py-4 font-medium text-gray-900 dark:text-white"
                   >
-                    {/* {row.firstname+" "+row.lastname} */}
                     {row.name}
                   </th>
                   <td className="px-6 py-4">{row.status}</td>
@@ -1839,7 +569,6 @@ const ProjectTable = () => {
       </div>
 
       {spin && <Spinner />}
-
       {/* Pagination */}
       <div className="mr-6 mb-4 flex justify-end">
         <Pagination
