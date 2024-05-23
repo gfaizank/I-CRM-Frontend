@@ -566,8 +566,8 @@ const InvoiceTable = () => {
                 return (
                   invoice.clientId?.toLowerCase().includes(query) ||
                   invoice.projectId?.toLowerCase().includes(query) ||
-                  invoice.preparedBy?.toLowerCase().includes(query) ||
-                  invoice.reviewedBy?.toLowerCase().includes(query)
+                  invoice.serviceFromDate?.toLowerCase().includes(query) ||
+                  invoice.serviceToDate?.toLowerCase().includes(query)
                 );
               })
               ?.map((row, index) => {
