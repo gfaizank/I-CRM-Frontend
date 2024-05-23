@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Pagination from "./Pagination";
 import InvoiceDrawer from "./InvoiceDrawer";
 import { MdDelete } from "react-icons/md";
 import { useAuthContext } from "hooks/useAuthContext";
 import Spinner from "./Spinner";
 import DeleteInvoiceConfirm from "./DeleteInvoiceConfirm";
+import UpdateDrawer from "./UpdateDrawer";
 
 const InvoiceTable = () => {
   const [filter, setFilter] = useState("");
@@ -41,6 +42,8 @@ const InvoiceTable = () => {
   const [showModal, setShowModal] = useState(false);
 
   const { user } = useAuthContext();
+
+  const updateRef = useRef(null);
 
   const initialFormData = {
     clientId: "",
@@ -222,7 +225,7 @@ const InvoiceTable = () => {
       .catch((error) => {
         console.error("Failed to fetch invoices", error);
       });
-  }, [deleted, submitted]);
+  }, [deleted, submitted, updated]);
 
   useEffect(() => {
     fetch(`${process.env.REACT_APP_API_URL}/project/`, {
@@ -287,6 +290,15 @@ const InvoiceTable = () => {
     setIsUpdateDrawerOpen(!isUpdateDrawerOpen);
   };
 
+  const handleUpdateChange = (event) => {
+    const { name, value } = event.target;
+
+    setIdData((prevIdData) => ({
+      ...prevIdData,
+      [name]: value,
+    }));
+  };
+
   const [selectedId, setSelectedId] = useState(null);
 
   const [idData, setIdData] = useState({
@@ -297,7 +309,6 @@ const InvoiceTable = () => {
     date: "",
     serviceFromDate: "",
     serviceToDate: "",
-    // mileStones: "",
     dueDate: "",
     preparedBy: "",
     reviewedBy: "",
@@ -339,24 +350,27 @@ const InvoiceTable = () => {
 
   const handleUpdate = async (event, id) => {
     event.preventDefault();
+    console.log("Handle Update Called", idData);
     try {
-      const response = await fetch();
-      // `https://i-crm-backend-6fqp.onrender.com/invoices/${id}`
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/invoices/invoice/${id}`
+      );
+
       if (!response.ok) {
         throw new Error("Failed to fetch data");
       }
-      const data = await response.json();
+      const apiData = await response.json();
+      const data = apiData.data;
+      console.log(data);
       setIdData({
         clientId: data.clientId || "",
         projectId: data.projectId || "",
-        serialNumber: data.serialNumber || "",
         number: data.number || "",
         poNumber: data.poNumber || "",
         date: data.date || "",
         serviceFromDate: data.serviceFromDate || "",
         serviceToDate: data.serviceToDate || "",
         mileStones: data.mileStones || "",
-        serviceDays: data.serviceDays || "",
         dueDate: data.dueDate || "",
         preparedBy: data.preparedBy || "",
         reviewedBy: data.reviewedBy || "",
@@ -395,8 +409,8 @@ const InvoiceTable = () => {
         forgivenReason: data.forgivenReason || "",
         cancellationReason: data.cancellationReason || "",
       });
-
       setSelectedId(id);
+      console.log(idData);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -430,9 +444,45 @@ const InvoiceTable = () => {
     updatedIndexOfFirstItem,
     updatedIndexOfLastItem
   );
-  // console.log("Data left after filterations: ");
-  // console.log(updatedCurrentItems);
-  console.log("Test:", projects);
+
+  const sendUpdate = (event) => {
+    setSpin(true);
+    event.preventDefault();
+    console.log(idData);
+
+    fetch(`${process.env.REACT_APP_API_URL}/invoices/${selectedId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${user.token}`,
+      },
+      body: JSON.stringify(idData),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log("Success:", data);
+        setIsUpdateDrawerOpen(false);
+        setUpdated((prevUpdated) => !prevUpdated);
+        setSpin(false);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  };
+
+  const writeDate = (dateString) => {
+    if (!dateString) return null; // Return null if dateString is empty or null
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
 
   return (
     <div className="min-h-fit bg-white">
@@ -494,8 +544,8 @@ const InvoiceTable = () => {
                 id="table-search"
                 className="w-76 block rounded-lg border border-gray-300 bg-gray-50 p-2 pl-10 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                 placeholder="Search for invoices"
-                // value={searchQuery}
-                // onChange={(e) => setSearchQuery(e.target.value)}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
             <button
@@ -520,6 +570,21 @@ const InvoiceTable = () => {
               handleServiceChange={handleServiceChange}
               handleAdjustmentChange={handleAdjustmentChange}
               handleClientChange={handleClientChange}
+            />
+            {/* Update Drawer */}
+            <UpdateDrawer
+              isUpdateDrawerOpen={isUpdateDrawerOpen}
+              updateRef={updateRef}
+              idData={idData}
+              handleUpdateDrawerToggle={handleUpdateDrawerToggle}
+              handleUpdateChange={handleUpdateChange}
+              handleServiceChange={handleServiceChange}
+              handleAdjustmentChange={handleAdjustmentChange}
+              sendUpdate={sendUpdate}
+              clients={clients}
+              managers={managers}
+              projects={projects}
+              selectedId={selectedId}
             />
           </div>
         </div>
@@ -558,30 +623,31 @@ const InvoiceTable = () => {
             </tr>
           </thead>
           <tbody>
-            {updatedCurrentItems
-              ?.filter((invoice) => {
-                if (!searchQuery.trim()) return true;
-                const query = searchQuery.toLowerCase();
+            {updatedCurrentItems?.map((row, index) => {
+              const client = clients.find(
+                (client) => client._id === row.clientId
+              );
+              const primaryContactPerson = client
+                ? client.primaryContactPerson
+                : "Unknown";
 
-                return (
-                  invoice.clientId?.toLowerCase().includes(query) ||
-                  invoice.projectId?.toLowerCase().includes(query) ||
-                  invoice.preparedBy?.toLowerCase().includes(query) ||
-                  invoice.reviewedBy?.toLowerCase().includes(query)
-                );
-              })
-              ?.map((row, index) => {
-                const client = clients.find(
-                  (client) => client._id === row.clientId
-                );
-                const primaryContactPerson = client
-                  ? client.primaryContactPerson
-                  : "Unknown";
-
-                  const project = projects.find(
-                    (project) => project._id === row.projectId
-                  );
-                  const projectName = project ? project.name : "Unknown";
+              const project = projects.find(
+                (project) => project._id === row.projectId
+              );
+              const projectName = project ? project.name : "Unknown";
+              if (
+                !searchQuery.trim() ||
+                primaryContactPerson
+                  .toLowerCase()
+                  .includes(searchQuery.toLowerCase()) ||
+                projectName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                row.serviceFromDate
+                  ?.toLowerCase()
+                  .includes(searchQuery.toLowerCase()) ||
+                row.serviceToDate
+                  ?.toLowerCase()
+                  .includes(searchQuery.toLowerCase())
+              ) {
                 return (
                   <tr
                     key={row.id}
@@ -598,8 +664,12 @@ const InvoiceTable = () => {
                       {primaryContactPerson}
                     </th>
                     <td className="px-6 py-4">{projectName}</td>
-                    <td className="px-6 py-4">{row.serviceFromDate}</td>
-                    <td className="px-6 py-4">{row.serviceToDate}</td>
+                    <td className="px-6 py-4">
+                      {writeDate(row.serviceFromDate)}
+                    </td>
+                    <td className="px-6 py-4">
+                      {writeDate(row.serviceToDate)}
+                    </td>
                     {/* <td className="px-6 py-4">{row.workEmail}</td> */}
                     <td className="px-6 py-4">
                       <div className="flex flex-row items-center gap-3">
@@ -621,7 +691,8 @@ const InvoiceTable = () => {
                     </td>
                   </tr>
                 );
-              })}
+              }
+            })}
           </tbody>
         </table>
       </div>
