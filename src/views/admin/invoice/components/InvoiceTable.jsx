@@ -340,9 +340,8 @@ const InvoiceTable = () => {
   const handleUpdate = async (event, id) => {
     event.preventDefault();
     try {
-      const response = await fetch(
-        // `https://i-crm-backend-6fqp.onrender.com/invoices/${id}`
-      );
+      const response = await fetch();
+      // `https://i-crm-backend-6fqp.onrender.com/invoices/${id}`
       if (!response.ok) {
         throw new Error("Failed to fetch data");
       }
@@ -433,6 +432,7 @@ const InvoiceTable = () => {
   );
   // console.log("Data left after filterations: ");
   // console.log(updatedCurrentItems);
+  console.log("Test:", projects);
 
   return (
     <div className="min-h-fit bg-white">
@@ -570,45 +570,58 @@ const InvoiceTable = () => {
                   invoice.reviewedBy?.toLowerCase().includes(query)
                 );
               })
-              ?.map((row, index) => (
-                <tr
-                  key={row.id}
-                  className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600"
-                >
-                  <td className="w-4 p-4">
-                    {(newPage - 1) * itemsPerPage + index + 1}.
-                  </td>
-                  <th
-                    scope="row"
-                    className="whitespace-nowrap px-6 py-4 font-medium text-gray-900 dark:text-white"
+              ?.map((row, index) => {
+                const client = clients.find(
+                  (client) => client._id === row.clientId
+                );
+                const primaryContactPerson = client
+                  ? client.primaryContactPerson
+                  : "Unknown";
+
+                  const project = projects.find(
+                    (project) => project._id === row.projectId
+                  );
+                  const projectName = project ? project.name : "Unknown";
+                return (
+                  <tr
+                    key={row.id}
+                    className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600"
                   >
-                    {/* {row.firstname+" "+row.lastname} */}
-                    {row.clientID}
-                  </th>
-                  <td className="px-6 py-4">{row.projectId}</td>
-                  <td className="px-6 py-4">{row.serviceFromDate}</td>
-                  <td className="px-6 py-4">{row.serviceToDate}</td>
-                  {/* <td className="px-6 py-4">{row.workEmail}</td> */}
-                  <td className="px-6 py-4">
-                    <div className="flex flex-row items-center gap-3">
-                      <a
-                        href="#"
-                        className="font-medium text-blue-600 hover:underline dark:text-blue-500"
-                        onClick={(event) => {
-                          handleUpdate(event, row._id);
-                          handleUpdateDrawerToggle();
-                        }}
-                      >
-                        Edit
-                      </a>
-                      <MdDelete
-                        className="cursor-pointer text-lg text-red-500 hover:text-red-300"
-                        onClick={(event) => handleDeleteClick(event, row._id)}
-                      />
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                    <td className="w-4 p-4">
+                      {(newPage - 1) * itemsPerPage + index + 1}.
+                    </td>
+                    <th
+                      scope="row"
+                      className="whitespace-nowrap px-6 py-4 font-medium text-gray-900 dark:text-white"
+                    >
+                      {/* {row.firstname+" "+row.lastname} */}
+                      {primaryContactPerson}
+                    </th>
+                    <td className="px-6 py-4">{projectName}</td>
+                    <td className="px-6 py-4">{row.serviceFromDate}</td>
+                    <td className="px-6 py-4">{row.serviceToDate}</td>
+                    {/* <td className="px-6 py-4">{row.workEmail}</td> */}
+                    <td className="px-6 py-4">
+                      <div className="flex flex-row items-center gap-3">
+                        <a
+                          href="#"
+                          className="font-medium text-blue-600 hover:underline dark:text-blue-500"
+                          onClick={(event) => {
+                            handleUpdate(event, row._id);
+                            handleUpdateDrawerToggle();
+                          }}
+                        >
+                          Edit
+                        </a>
+                        <MdDelete
+                          className="cursor-pointer text-lg text-red-500 hover:text-red-300"
+                          onClick={(event) => handleDeleteClick(event, row._id)}
+                        />
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
           </tbody>
         </table>
       </div>
