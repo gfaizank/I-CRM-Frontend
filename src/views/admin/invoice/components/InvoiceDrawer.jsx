@@ -3,7 +3,6 @@ import { IoSearchSharp } from "react-icons/io5";
 import { RiArrowDropDownLine } from "react-icons/ri";
 
 const InvoiceDrawer = ({
-  isOpen,
   onClose,
   handleInputChange,
   formData,
@@ -13,9 +12,11 @@ const InvoiceDrawer = ({
   managers,
   handleServiceChange,
   handleAdjustmentChange,
-  handleClientChange
+  drawerRef,
+  isDrawerOpen,
+  handleDrawerToggle,
 }) => {
-  const drawerRef = useRef(null);
+  //
   const data = ["Apple", "Banana"];
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -46,15 +47,9 @@ const InvoiceDrawer = ({
     setShowDropdown(false);
   };
 
-  // useEffect(() => {
-  //   if (clientID) {
-  //     handleClientChange({ target: { name: "clientId", value: clientID } });
-  //   }
-  // }, [clientID, handleClientChange]);
-
   return (
     <div>
-      {isOpen && (
+      {isDrawerOpen && (
         <div
           ref={drawerRef}
           id="drawer-contact"
@@ -76,7 +71,7 @@ const InvoiceDrawer = ({
           </h5>
           <button
             type="button"
-            onClick={onClose}
+            onClick={handleDrawerToggle}
             className="bg-transparent absolute top-2.5 inline-flex h-8 w-8 items-center justify-center rounded-lg text-sm text-gray-400 end-2.5 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
           >
             <svg
@@ -99,17 +94,17 @@ const InvoiceDrawer = ({
           <form className="mb-6">
             <div className="mx-auto mb-6">
               <label
-                htmlFor="status"
-                className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                htmlFor="clientId"
+                className="mb-2 block text-sm font-medium text-gray-900"
               >
-                <span className="text-lg text-red-500">*</span>Client Name
+                <span className="text-lg text-red-500">*</span>Select a Client
               </label>
               <select
                 id="clientId"
                 name="clientId"
                 className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                 required
-                value={formData.clientID}
+                value={formData.clientId}
                 onChange={handleInputChange}
               >
                 <option value="" disabled>
@@ -147,24 +142,7 @@ const InvoiceDrawer = ({
                 ))}
               </select>
             </div>
-            {/* <div className="mb-6">
-              <label
-                htmlFor="projectName"
-                className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-              >
-                <span className="text-lg text-red-500">*</span>Serial Number
-              </label>
-              <input
-                type="number"
-                id="serialNumber"
-                name="serialNumber"
-                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                placeholder="Serial Number"
-                value={formData.serialNumber}
-                onChange={handleInputChange}
-                required
-              />
-            </div> */}
+
             <div className="mb-6">
               <label
                 htmlFor="Phone Number"
@@ -322,24 +300,7 @@ const InvoiceDrawer = ({
                 onChange={handleInputChange}
               />
             </div>
-            {/* <div className="mb-6">
-              <label
-                htmlFor="projectName"
-                className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-              >
-                <span className="text-lg text-red-500">*</span>Service Days
-              </label>
-              <input
-                type="number"
-                id="serviceDays"
-                name="serviceDays"
-                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-                placeholder="Service Days"
-                value={formData.serviceDays}
-                onChange={handleInputChange}
-                required
-              />
-            </div> */}
+
             <div className="mb-6">
               <label
                 htmlFor="Prepared By"

@@ -61,7 +61,7 @@ const UpdateDrawer = ({
         <form className="mb-6">
           <div className="mx-auto mb-6">
             <label
-              htmlFor="clientName"
+              htmlFor="status"
               className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
             >
               <span className="text-lg text-red-500">*</span>Client Name
@@ -70,9 +70,9 @@ const UpdateDrawer = ({
               id="clientId"
               name="clientId"
               className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-              value={idData.clientID}
-              onChange={handleUpdateChange}
               required
+              value={idData.clientId}
+              onChange={handleUpdateChange}
             >
               <option value="" disabled>
                 Choose Client

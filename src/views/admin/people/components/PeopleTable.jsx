@@ -205,7 +205,7 @@ const PeopleTable = () => {
     event.preventDefault();
     try {
       const response = await fetch(
-        `https://i-crm-backend-6fqp.onrender.com/people/${id}`
+        `${process.env.REACT_APP_API_URL}/people/${id}`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch data");

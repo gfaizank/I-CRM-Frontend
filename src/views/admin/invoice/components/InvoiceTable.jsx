@@ -144,6 +144,17 @@ const InvoiceTable = () => {
     setIsOpen(true);
   };
 
+  const handleUpdateDrawerToggle = () => {
+    setIsUpdateDrawerOpen(!isUpdateDrawerOpen);
+    setIsOpen(true);
+  };
+
+  const handleUpdateClickOutside = (event) => {
+    if (updateRef.current && !updateRef.current.contains(event.target)) {
+      setIsUpdateDrawerOpen(false);
+    }
+  };
+
   const handleDeleteClick = (event, id) => {
     event.preventDefault();
     setDeleteId(id);
@@ -191,6 +202,7 @@ const InvoiceTable = () => {
       })
       .then((data) => {
         console.log("Success:", data);
+
         setIsDrawerOpen(false);
         setSubmitted((prevSubmitted) => !prevSubmitted);
         setSpin(false);
@@ -205,7 +217,10 @@ const InvoiceTable = () => {
     fetch(`${process.env.REACT_APP_API_URL}/client/`)
       .then((response) => response.json())
       .then((data) => {
+        console.log("Data Before", data);
+
         setClients(data.data.clients);
+        console.log("ClientData", clients);
       })
       .catch((error) => {
         console.error("Failed to fetch clients", error);
@@ -286,10 +301,6 @@ const InvoiceTable = () => {
     }));
   };
 
-  const handleUpdateDrawerToggle = () => {
-    setIsUpdateDrawerOpen(!isUpdateDrawerOpen);
-  };
-
   const handleUpdateChange = (event) => {
     const { name, value } = event.target;
 
@@ -353,64 +364,68 @@ const InvoiceTable = () => {
     console.log("Handle Update Called", idData);
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/invoices/invoice/${id}`
+        `${process.env.REACT_APP_API_URL}/invoices/${id}`
       );
 
       if (!response.ok) {
         throw new Error("Failed to fetch data");
       }
-      const apiData = await response.json();
-      const data = apiData.data;
-      console.log(data);
+      const data = await response.json();
+      // const data = apiData.data;
+      console.log("handleUpdate Data:", data);
+      // console.log("api Data:", apiData);
+
       setIdData({
-        clientId: data.clientId || "",
-        projectId: data.projectId || "",
-        number: data.number || "",
-        poNumber: data.poNumber || "",
-        date: data.date || "",
-        serviceFromDate: data.serviceFromDate || "",
-        serviceToDate: data.serviceToDate || "",
-        mileStones: data.mileStones || "",
-        dueDate: data.dueDate || "",
-        preparedBy: data.preparedBy || "",
-        reviewedBy: data.reviewedBy || "",
+        clientId: data.data.invoice.clientId || "",
+        projectId: data.data.invoice.projectId || "",
+        number: data.data.invoice.number || "",
+        poNumber: data.data.invoice.poNumber || "",
+        date: data.data.invoice.date || "",
+        serviceFromDate: data.data.invoice.serviceFromDate || "",
+        serviceToDate: data.data.invoice.serviceToDate || "",
+        mileStones: data.data.invoice.mileStones || "",
+        dueDate: data.data.invoice.dueDate || "",
+        preparedBy: data.data.invoice.preparedBy || "",
+        reviewedBy: data.data.invoice.reviewedBy || "",
 
         services: [
           {
-            name: data.services?.[0]?.name || "",
-            description: data.services?.[0]?.description || "",
-            hours: data.services?.[0]?.hours || "",
-            rate: data.services?.[0]?.rate || "",
-            mileStone: data.services?.[0]?.mileStone || "",
-            discountPercent: data.services?.[0]?.discountPercent || "",
-            discountAmount: data.services?.[0]?.discountAmount || "",
-            SAC: data.services?.[0]?.SAC || "998311",
+            name: data.data.invoice.services?.[0]?.name || "",
+            description: data.data.invoice.services?.[0]?.description || "",
+            hours: data.data.invoice.services?.[0]?.hours || "",
+            rate: data.data.invoice.services?.[0]?.rate || "",
+            mileStone: data.data.invoice.services?.[0]?.mileStone || "",
+            discountPercent:
+              data.data.invoice.services?.[0]?.discountPercent || "",
+            discountAmount:
+              data.data.invoice.services?.[0]?.discountAmount || "",
+            SAC: data.data.invoice.services?.[0]?.SAC || "998311",
             timeTrackerReportUrl:
-              data.services?.[0]?.timeTrackerReportUrl || "",
-            taxableAmount: data.services?.[0]?.taxableAmount || "",
-            sgstRate: data.services?.[0]?.sgstRate || "Nil",
-            sgstAmount: data.services?.[0]?.sgstAmount || "",
-            cgstRate: data.services?.[0]?.cgstRate || "Nil",
-            cgstAmount: data.services?.[0]?.cgstAmount || "",
-            igstRate: data.services?.[0]?.igstRate || "Nil",
-            igstAmount: data.services?.[0]?.igstAmount || "",
+              data.data.invoice.services?.[0]?.timeTrackerReportUrl || "",
+            taxableAmount: data.data.invoice.services?.[0]?.taxableAmount || "",
+            sgstRate: data.data.invoice.services?.[0]?.sgstRate || "Nil",
+            sgstAmount: data.data.invoice.services?.[0]?.sgstAmount || "",
+            cgstRate: data.data.invoice.services?.[0]?.cgstRate || "Nil",
+            cgstAmount: data.data.invoice.services?.[0]?.cgstAmount || "",
+            igstRate: data.data.invoice.services?.[0]?.igstRate || "Nil",
+            igstAmount: data.data.invoice.services?.[0]?.igstAmount || "",
           },
         ],
         adjustments: data.adjustments || [
           {
-            name: data.adjustments?.[0]?.name || "",
-            amount: data.adjustments?.[0]?.amount || "",
+            name: data.data.invoice.adjustments?.[0]?.name || "",
+            amount: data.data.invoice.adjustments?.[0]?.amount || "",
           },
         ],
-        status: data.status || "DRAFT",
-        paidAmount: data.paidAmount || "",
-        forgivenAmount: data.forgivenAmount || "",
-        paidAmountINR: data.paidAmountINR || "",
-        forgivenReason: data.forgivenReason || "",
-        cancellationReason: data.cancellationReason || "",
+        status: data.data.invoice.status || "DRAFT",
+        paidAmount: data.data.invoice.paidAmount || "",
+        forgivenAmount: data.data.invoice.forgivenAmount || "",
+        paidAmountINR: data.data.invoice.paidAmountINR || "",
+        forgivenReason: data.data.invoice.forgivenReason || "",
+        cancellationReason: data.data.invoice.cancellationReason || "",
       });
       setSelectedId(id);
-      console.log(idData);
+      console.log("Afterupdate Called", idData);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -444,6 +459,32 @@ const InvoiceTable = () => {
     updatedIndexOfFirstItem,
     updatedIndexOfLastItem
   );
+
+  const drawerRef = useRef(null);
+
+  const handleClickOutside = (event) => {
+    if (drawerRef.current && !drawerRef.current.contains(event.target)) {
+      setIsDrawerOpen(false);
+      setIsUpdateDrawerOpen(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isDrawerOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isDrawerOpen]);
+  useEffect(() => {
+    if (isUpdateDrawerOpen) {
+      document.addEventListener("mousedown", handleUpdateClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleUpdateClickOutside);
+    };
+  }, [isUpdateDrawerOpen]);
 
   const sendUpdate = (event) => {
     setSpin(true);
@@ -557,8 +598,6 @@ const InvoiceTable = () => {
               ADD NEW INVOICE
             </button>
             <InvoiceDrawer
-              isOpen={isOpen}
-              onClose={closeModal}
               handleInputChange={handleInputChange}
               handleDrawerToggle={handleDrawerToggle}
               formData={formData}
@@ -570,6 +609,8 @@ const InvoiceTable = () => {
               handleServiceChange={handleServiceChange}
               handleAdjustmentChange={handleAdjustmentChange}
               handleClientChange={handleClientChange}
+              drawerRef={drawerRef}
+              isDrawerOpen={isDrawerOpen}
             />
             {/* Update Drawer */}
             <UpdateDrawer
@@ -631,7 +672,6 @@ const InvoiceTable = () => {
                 ? client.primaryContactPerson
                 : "Unknown";
 
-
               const project = projects.find(
                 (project) => project._id === row.projectId
               );
@@ -649,7 +689,6 @@ const InvoiceTable = () => {
                   ?.toLowerCase()
                   .includes(searchQuery.toLowerCase())
               ) {
-
                 return (
                   <tr
                     key={row.id}
@@ -705,7 +744,7 @@ const InvoiceTable = () => {
       <div className="mr-6 mb-4 flex justify-end">
         <Pagination
           itemsPerPage={itemsPerPage}
-          //   totalItems={projectData.length}
+          totalItems={invoices.length}
           currentPage={currentPage}
           setCurrentPage={setCurrentPage}
         />
