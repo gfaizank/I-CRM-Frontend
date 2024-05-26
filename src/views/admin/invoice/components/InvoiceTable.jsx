@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import Pagination from "./Pagination";
 import InvoiceDrawer from "./InvoiceDrawer";
-import { MdDelete } from "react-icons/md";
+import { MdDelete, MdDownload } from "react-icons/md";
 import { useAuthContext } from "hooks/useAuthContext";
 import Spinner from "./Spinner";
 import DeleteInvoiceConfirm from "./DeleteInvoiceConfirm";
 import UpdateDrawer from "./UpdateDrawer";
+import DownloadInvoiceConfirm from "./DownloadInvoiceConfirm";
 
 const InvoiceTable = () => {
   const [filter, setFilter] = useState("");
@@ -40,6 +41,8 @@ const InvoiceTable = () => {
   const [updated, setUpdated] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [downloadId, setDownloadId] = useState(null);
+  const [downloadModal, setDownloadModal] = useState(false);
 
   const { user } = useAuthContext();
 
@@ -168,9 +171,26 @@ const InvoiceTable = () => {
     setDeleteId(null);
   };
 
+  const handleDownloadClick = (event, id) => {
+    event.preventDefault();
+    setDownloadId(id);
+    setDownloadModal(true);
+  };
+
+  const handleConfirmDownload = () => {
+    if (!downloadId) return;
+    // handleDownloadRow(downloadId);
+    setDownloadModal(false);
+    setDownloadId(null);
+  };
+
   const handleCloseModal = () => {
     setShowModal(false);
   };
+
+  const handleCloseDownloadModal = () => {
+    setDownloadModal(false);
+  }
 
   const handleDropdownToggle = () => {
     setShowDropdown(!showDropdown);
@@ -640,6 +660,17 @@ const InvoiceTable = () => {
             </div>
           </div>
         )}
+        {downloadModal && (
+          <div className="fixed top-0 left-0 flex h-full w-full items-center justify-center">
+            <div className="absolute top-0 h-full w-full bg-gray-900 opacity-50"></div>
+            <div className="z-50 rounded-lg bg-white p-6 shadow-lg dark:bg-gray-800">
+              <DownloadInvoiceConfirm
+                onClose={handleCloseDownloadModal}
+                onConfirm={handleConfirmDownload}
+              />
+            </div>
+          </div>
+        )}
         <table className="z-[-1]x w-full text-left text-sm text-gray-500 dark:text-gray-400">
           <thead className="bg-gray-100 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400">
             <tr>
@@ -659,7 +690,7 @@ const InvoiceTable = () => {
                 End Date
               </th>
               <th scope="col" className="px-6 py-3">
-                Due Date
+                Actions
               </th>
             </tr>
           </thead>
@@ -727,6 +758,10 @@ const InvoiceTable = () => {
                         <MdDelete
                           className="cursor-pointer text-lg text-red-500 hover:text-red-300"
                           onClick={(event) => handleDeleteClick(event, row._id)}
+                        />
+                        <MdDownload
+                          className="cursor-pointer mt-1 text-xl text-green-400 hover:text-green-300"
+                          onClick={(event) => handleDownloadClick(event, row._id)}
                         />
                       </div>
                     </td>
