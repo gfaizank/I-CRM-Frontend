@@ -7,6 +7,7 @@ import Spinner from "./Spinner";
 import DeleteInvoiceConfirm from "./DeleteInvoiceConfirm";
 import UpdateDrawer from "./UpdateDrawer";
 import DownloadInvoiceConfirm from "./DownloadInvoiceConfirm";
+import PdfSkeleton from "./PdfSkeleton";
 
 const InvoiceTable = () => {
   const [filter, setFilter] = useState("");
@@ -43,7 +44,15 @@ const InvoiceTable = () => {
   const [showModal, setShowModal] = useState(false);
   const [downloadId, setDownloadId] = useState(null);
   const [downloadModal, setDownloadModal] = useState(false);
+  const [downloadPdf, setDownloadPdf] = useState(false);
+  const [isPrinted, setIsPrinted] = useState(false);
 
+  const handlePrintStatus = (status) => {
+    setIsPrinted(status);
+    if (status) {
+      setDownloadPdf(false); 
+    }
+  };
   const { user } = useAuthContext();
 
   const updateRef = useRef(null);
@@ -180,6 +189,7 @@ const InvoiceTable = () => {
   const handleConfirmDownload = () => {
     if (!downloadId) return;
     // handleDownloadRow(downloadId);
+    setDownloadPdf(true);
     setDownloadModal(false);
     setDownloadId(null);
   };
@@ -669,6 +679,16 @@ const InvoiceTable = () => {
                 onConfirm={handleConfirmDownload}
               />
             </div>
+          </div>
+        )}
+        {downloadPdf && (
+          <div className="top-0 left-0 flex h-full w-full items-center justify-center">
+          <div className="absolute top-0 h-full w-full bg-gray-900 opacity-50"></div>
+          <div className="z-50 rounded-lg bg-white p-6 shadow-lg dark:bg-gray-800">
+            <div className="my-16">
+            <PdfSkeleton onPrintComplete={handlePrintStatus} />
+            </div>
+          </div>
           </div>
         )}
         <table className="z-[-1]x w-full text-left text-sm text-gray-500 dark:text-gray-400">
