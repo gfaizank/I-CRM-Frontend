@@ -1,16 +1,36 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useReactToPrint } from "react-to-print";
 import { MdOutlineQrCode2 } from "react-icons/md";
+import Spinner from "./Spinner";
 
-export default function PdfSkeleton({ onPrintComplete }) {
+export default function PdfSkeleton({ onPrintComplete, data }) {
   const componentRef = useRef();
-  const [isPrinted, setIsPrinted] = useState(false);
+  const [readyToPrint, setReadyToPrint] = useState(false);
+
+  useEffect(() => {
+    if (data) {
+      setReadyToPrint(true);
+    }
+  }, [data]);
   const handlePrint = useReactToPrint({
     content: () => componentRef.current,
     onAfterPrint: () => {
-        onPrintComplete(true); 
+        if (onPrintComplete) {
+            onPrintComplete(true); 
+          }
+          setReadyToPrint(false);
       },
   });
+
+//   useEffect(() => {
+//     if (data) {
+//       handlePrint();
+//     }
+//   }, [data]);
+
+  if (!data) {
+    return <Spinner />
+  }
 
   return (
     <>
@@ -27,7 +47,7 @@ export default function PdfSkeleton({ onPrintComplete }) {
               {/* First Row */}
               <tr className="border-b border-gray-200 ">
                 <td className="p-4 text-left text-sm font-normal text-gray-700">
-                  <h1 className="font-bold text-3xl">INZINT</h1>
+                  <h1 className="font-bold text-3xl">{data.companyName}</h1>
                   <p className="text-gray-500">
                     Inzint Private Limited
                     <br />
@@ -332,12 +352,14 @@ export default function PdfSkeleton({ onPrintComplete }) {
           </div>
         </div>
       </div>
+      {readyToPrint && (
       <button
         onClick={handlePrint}
         className="mb-2 block w-auto mx-auto rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
       >
         Print Invoice
       </button>
+      )}
     </>
   );
 }

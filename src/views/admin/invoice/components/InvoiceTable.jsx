@@ -46,6 +46,7 @@ const InvoiceTable = () => {
   const [downloadModal, setDownloadModal] = useState(false);
   const [downloadPdf, setDownloadPdf] = useState(false);
   const [isPrinted, setIsPrinted] = useState(false);
+  const [downloadData, setDownloadData] = useState(null);
 
   const handlePrintStatus = (status) => {
     setIsPrinted(status);
@@ -188,7 +189,7 @@ const InvoiceTable = () => {
 
   const handleConfirmDownload = () => {
     if (!downloadId) return;
-    // handleDownloadRow(downloadId);
+    handleDownloadRow(downloadId);
     setDownloadPdf(true);
     setDownloadModal(false);
     setDownloadId(null);
@@ -317,6 +318,16 @@ const InvoiceTable = () => {
         setSpin(false);
       })
       .catch((error) => console.error("Error deleting row:", error));
+  };
+
+  const handleDownloadRow = async (id) => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/invoices/pdf/${id}`);
+      const result = await response.json();
+      setDownloadData(result.data); 
+    } catch (error) {
+      console.error("Error fetching download data:", error);
+    }
   };
 
   const handleClientSelect = (clientID) => {
@@ -684,9 +695,9 @@ const InvoiceTable = () => {
         {downloadPdf && (
           <div className="top-0 left-0 flex h-full w-full items-center justify-center">
           <div className="absolute top-0 h-full w-full bg-gray-900 opacity-50"></div>
-          <div className="z-50 rounded-lg bg-white p-6 shadow-lg dark:bg-gray-800">
+          <div className="z-30 rounded-lg bg-white p-6 shadow-lg dark:bg-gray-800">
             <div className="my-16">
-            <PdfSkeleton onPrintComplete={handlePrintStatus} />
+            <PdfSkeleton onPrintComplete={handlePrintStatus} data={downloadData} />
             </div>
           </div>
           </div>
