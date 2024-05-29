@@ -3,43 +3,49 @@ import { useReactToPrint } from "react-to-print";
 import { MdOutlineQrCode2 } from "react-icons/md";
 import Spinner from "./Spinner";
 
-export default function PdfSkeleton({ onPrintComplete, data }) {
+export default function PdfSkeleton({ onPrintComplete, data, updateRef }) {
   const componentRef = useRef();
   const [readyToPrint, setReadyToPrint] = useState(false);
 
   useEffect(() => {
     if (data) {
+      console.log("Pdf Skeleton", data);
       setReadyToPrint(true);
     }
   }, [data]);
+
   const handlePrint = useReactToPrint({
     content: () => componentRef.current,
     onAfterPrint: () => {
-        if (onPrintComplete) {
-            onPrintComplete(true); 
-          }
-          setReadyToPrint(false);
-      },
+      if (onPrintComplete) {
+        onPrintComplete(true);
+      }
+      setReadyToPrint(false);
+    },
   });
 
-//   useEffect(() => {
-//     if (data) {
-//       handlePrint();
-//     }
-//   }, [data]);
-
   if (!data) {
-    return <Spinner />
+    return <Spinner />;
   }
+
+  const writeDate = (dateString) => {
+    if (!dateString) return null; // Return null if dateString is empty or null
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
 
   return (
     <>
       <div
         ref={componentRef}
-        className="max-w-3xl mx-auto p-6 bg-white rounded shadow-sm my-6"
+        className="mx-auto my-6 max-w-3xl rounded bg-white p-6 shadow-sm"
         id="invoice"
       >
         <h1 className="flex justify-center text-xl font-bold">Tax Invoice</h1>
+
         {/* Client info */}
         <div className="mt-8">
           <table className="min-w-full ">
@@ -47,25 +53,29 @@ export default function PdfSkeleton({ onPrintComplete, data }) {
               {/* First Row */}
               <tr className="border-b border-gray-200 ">
                 <td className="p-4 text-left text-sm font-normal text-gray-700">
-                  <h1 className="font-bold text-3xl">{data.companyName}</h1>
+                  <h1 className="text-3xl font-bold">{data.companyName}</h1>
                   <p className="text-gray-500">
-                    Inzint Private Limited
+                    {data.companyAddress}
                     <br />
-                    B-111, Sector 65, Noida, India, 201301
+                    {/* B-111, Sector 65, Noida, India, 201301 */}
                   </p>
-                  <p className="text-gray-500">GSTIN: 09AAFCI7567Q1ZK</p>
+                  <p className="text-gray-500">{data.companyGSTIN}</p>
                 </td>
-                <td className="p-4 text-right text-sm font-normal text-gray-700 border-l border-gray-200">
+                <td className="border-l border-gray-200 p-4 text-right text-sm font-normal text-gray-700">
                   <p>
                     Invoice number:
-                    <span className="text-gray-500"> INV-2023786123</span>
+                    <span className="px-2 text-gray-500">
+                      {data.invoiceNumber}
+                    </span>
                   </p>
                   <p>
                     Invoice date:
-                    <span className="text-gray-500"> 03/07/2023</span>
+                    <span className="px-2 text-gray-500">
+                      {data.invoiceDate}
+                    </span>
                     <br />
                     Due date:
-                    <span className="text-gray-500"> 31/07/2023</span>
+                    <span className="px-2 text-gray-500">{data.dueDate}</span>
                   </p>
                 </td>
               </tr>
@@ -73,32 +83,31 @@ export default function PdfSkeleton({ onPrintComplete, data }) {
               <tr className="border-b border-gray-200">
                 <td className="p-4 text-left text-sm font-normal text-gray-700">
                   <p className="text-gray-500">
-                    Some Other LLC.
-                    <br />
-                    203, New York, NY, USA
+                    <div>{data.billedTo.businessName}</div>
+
+                    {data.billedTo.placeOfSupply}
                   </p>
-                  <p className="text-gray-500">contact@someother.com</p>
+                  <p className="text-gray-500">{data.billedTo.email}</p>
                 </td>
-                <td className="p-4 text-right text-sm font-normal text-gray-700 border-l border-gray-200">
-                  <MdOutlineQrCode2 className="text-6xl ml-60" />
+                <td className="border-l border-gray-200 p-4 text-right text-sm font-normal text-gray-700">
+                  <MdOutlineQrCode2 className="ml-60 text-6xl" />
                 </td>
               </tr>
               {/* Third Row */}
               <tr>
                 <td className="p-4 text-left text-sm font-normal text-gray-700">
                   <p className="text-gray-500">
-                    Project: Inzint CRM
+                    Project: {data.projectName}
                     <br />
-                    Service Period: 18/05/2024 - 25/06/2024
+                    Service Period: {data.servicePeriod}
                   </p>
-                  <p className="text-gray-500">Milestones: Inzint</p>
-                  <p className="text-gray-400 text-sm">
+                  <p className="text-gray-500">Milestones: {data.milestones}</p>
+                  <p className="text-sm text-gray-400">
                     (whichever of the above is applicable)
                   </p>
                 </td>
-                <td className="p-4 text-right text-sm font-normal text-gray-700 border-l border-gray-200">
-                  <p>Doc #: INV-2023786125</p>
-                  <p>PO# : INV-2023786125</p>
+                <td className="border-l border-gray-200 p-4 text-right text-sm font-normal text-gray-700">
+                  <p>PO# : {data.poNumber}</p>
                 </td>
               </tr>
             </tbody>
@@ -107,243 +116,210 @@ export default function PdfSkeleton({ onPrintComplete, data }) {
 
         {/* Invoice Items */}
         <div className="flow-root">
-          <div className="flex flex-col mt-2">
-            <table className="min-w-full divide-y divide-slate-200 border border-gray-200">
+          <div className="mt-2 flex flex-col">
+            <table className="divide-slate-200 min-w-full divide-y border border-gray-200">
               <thead>
                 <tr>
                   <th
                     scope="col"
-                    className="py-3.5 pl-6 pr-3 text-left text-sm font-normal text-slate-700 border-r border-gray-200"
+                    className="text-slate-700 border-r border-gray-200 py-3.5 pl-6 pr-3 text-left text-sm font-normal"
                   >
                     Services
                   </th>
                   <th
                     scope="col"
-                    className="hidden py-3.5 px-3 text-right text-sm font-normal text-slate-700 sm:table-cell border-r border-gray-200"
+                    className="text-slate-700 hidden border-r border-gray-200 py-3.5 px-3 text-right text-sm font-normal sm:table-cell"
                   >
                     SAC
                   </th>
                   <th
                     scope="col"
-                    className="hidden py-3.5 px-3 text-right text-sm font-normal text-slate-700 sm:table-cell border-r border-gray-200"
+                    className="text-slate-700 hidden border-r border-gray-200 py-3.5 px-3 text-right text-sm font-normal sm:table-cell"
                   >
                     Hrs
                   </th>
                   <th
                     scope="col"
-                    className="py-3.5 px-3 text-right text-sm font-normal text-slate-700 border-r border-gray-200"
+                    className="text-slate-700 border-r border-gray-200 py-3.5 px-3 text-right text-sm font-normal"
                   >
                     Rate
                   </th>
                   <th
                     scope="col"
-                    className="py-3.5 px-3 text-right text-sm font-normal text-slate-700 border-r border-gray-200"
+                    className="text-slate-700 border-r border-gray-200 py-3.5 px-3 text-right text-sm font-normal"
                   >
                     Dis.
                   </th>
                   <th
                     scope="col"
-                    className="py-1 px-3 text-center text-sm font-normal text-slate-700 border-r border-gray-200"
+                    className="text-slate-700 border-r border-gray-200 py-1 px-2 text-center text-sm font-normal"
                   >
-                    Taxable Value
+                    Taxable
+                    <br /> Value
                   </th>
                   <th
                     scope="col"
-                    className="py-3.5 px-3 text-right text-sm font-normal text-slate-700 border-r border-gray-200"
+                    className="text-slate-700 border-r border-gray-200 py-3.5 px-3 text-right text-sm font-normal"
                   >
                     SGST
                   </th>
                   <th
                     scope="col"
-                    className="py-3.5 px-3 text-right text-sm font-normal text-slate-700 border-r border-gray-200"
+                    className="text-slate-700 border-r border-gray-200 py-3.5 px-3 text-right text-sm font-normal"
                   >
                     CGST
                   </th>
                   <th
                     scope="col"
-                    className="py-3.5 px-3 text-right text-sm font-normal text-slate-700 border-r border-gray-200"
+                    className="text-slate-700 border-r border-gray-200 py-3.5 px-3 text-right text-sm font-normal"
                   >
                     IGST
                   </th>
                   <th
                     scope="col"
-                    className="py-3.5 px-3 text-right text-sm font-normal text-slate-700"
+                    className="text-slate-700 py-3.5 px-3 text-right text-sm font-normal"
                   >
                     Amount
                   </th>
                 </tr>
               </thead>
               <tbody>
-                {/* Item Row 1 */}
-                <tr className="border-b border-slate-200">
-                  <td className="py-4 pl-6 pr-3 text-sm border-r border-gray-200">
-                    <div className="font-medium text-slate-700">VidyChat</div>
-                    <div className="mt-0.5 text-slate-500 sm:hidden">
-                      1 unit at $0.00
-                    </div>
-                  </td>
-                  <td className="hidden px-3 py-4 text-sm text-right text-slate-500 sm:table-cell border-r border-gray-200">
-                    48
-                  </td>
-                  <td className="hidden px-3 py-4 text-sm text-right text-slate-500 sm:table-cell border-r border-gray-200">
-                    $0.00
-                  </td>
-                  <td className="py-4 px-3 text-sm text-right text-slate-500 border-r border-gray-200">
-                    $0.00
-                  </td>
-                  <td className="py-4 px-3 text-sm text-right text-slate-500 border-r border-gray-200">
-                    $0.00
-                  </td>
-                  <td className="py-4 px-3 text-sm text-right text-slate-500 border-r border-gray-200">
-                    $0.00
-                  </td>
-                  <td className="py-4 px-3 text-sm text-right text-slate-500 border-r border-gray-200">
-                    $0.00
-                  </td>
-                  <td className="py-4 px-3 text-sm text-right text-slate-500 border-r border-gray-200">
-                    $0.00
-                  </td>
-                  <td className="py-4 px-3 text-sm text-right text-slate-500 border-r border-gray-200">
-                    $0.00
-                  </td>
-                  <td className="py-4 px-3 text-sm text-right text-slate-500">
-                    $0.00
-                  </td>
-                </tr>
-                {/* Item Row 2 */}
-                <tr className="border-b border-slate-200">
-                  <td className="py-4 pl-6 pr-3 text-sm border-r border-gray-200">
-                    <div className="font-medium text-slate-700">
-                      Seo Workflow
-                    </div>
-                    <div className="mt-0.5 text-slate-500 sm:hidden">
-                      1 unit at $0.00
-                    </div>
-                  </td>
-                  <td className="hidden px-3 py-4 text-sm text-right text-slate-500 sm:table-cell border-r border-gray-200">
-                    4
-                  </td>
-                  <td className="hidden px-3 py-4 text-sm text-right text-slate-500 sm:table-cell border-r border-gray-200">
-                    $0.00
-                  </td>
-                  <td className="py-4 px-3 text-sm text-right text-slate-500 border-r border-gray-200">
-                    $0.00
-                  </td>
-                  <td className="py-4 px-3 text-sm text-right text-slate-500 border-r border-gray-200">
-                    $0.00
-                  </td>
-                  <td className="py-4 px-3 text-sm text-right text-slate-500 border-r border-gray-200">
-                    $0.00
-                  </td>
-                  <td className="py-4 px-3 text-sm text-right text-slate-500 border-r border-gray-200">
-                    $0.00
-                  </td>
-                  <td className="py-4 px-3 text-sm text-right text-slate-500 border-r border-gray-200">
-                    $0.00
-                  </td>
-                  <td className="py-4 px-3 text-sm text-right text-slate-500 border-r border-gray-200">
-                    $0.00
-                  </td>
-                  <td className="py-4 px-3 text-sm text-right text-slate-500">
-                    $0.00
-                  </td>
-                </tr>
+                {data.services.map((service, index) => (
+                  <tr key={index} className="border-slate-200 border-b">
+                    <td className="border-r border-gray-200 py-4 pl-6 pr-3 text-sm">
+                      <div className="text-slate-700 font-medium">
+                        {service.name}
+                      </div>
+                      <div className="text-slate-500 mt-0.5 sm:hidden">
+                        1 unit at ${service.rate}
+                      </div>
+                    </td>
+                    <td className="text-slate-500 hidden border-r border-gray-200 px-3 py-4 text-right text-sm sm:table-cell">
+                      {service.SAC}
+                    </td>
+                    <td className="text-slate-500 hidden border-r border-gray-200 px-3 py-4 text-right text-sm sm:table-cell">
+                      {service.hours}
+                    </td>
+                    <td className="text-slate-500 hidden border-r border-gray-200 px-3 py-4 text-right text-sm sm:table-cell">
+                      ${service.rate}
+                    </td>
+                    <td className="text-slate-500 border-r border-gray-200 py-4 px-3 text-right text-sm">
+                      ${service.discount}
+                    </td>
+                    <td className="text-slate-500 border-r border-gray-200 py-4 px-3 text-right text-sm">
+                      ${service.taxableValue}
+                    </td>
+                    <td className="text-slate-500 border-r border-gray-200 py-4 px-3 text-right text-sm">
+                      ${service.sgst}
+                    </td>
+                    <td className="text-slate-500 border-r border-gray-200 py-4 px-3 text-right text-sm">
+                      ${service.cgst}
+                    </td>
+                    <td className="text-slate-500 border-r border-gray-200 py-4 px-3 text-right text-sm">
+                      ${service.igst}
+                    </td>
+                    <td className="text-slate-500 border-r border-gray-200 py-4 px-3 text-right text-sm">
+                      ${service.amount}
+                    </td>
+                  </tr>
+                ))}
               </tbody>
+
               {/* Invoice Total */}
               <tfoot>
-                <tr className="border-b border-slate-200">
+                <tr className="border-slate-200 border-b">
                   <td
-                    colSpan="7"
-                    className="py-2 px-6 font-semibold text-gray-800 text-right border-r border-gray-200"
+                    colSpan="8"
+                    className="border-r border-gray-200 py-2 px-6 text-right font-semibold text-gray-800"
                   >
                     Subtotal:
                   </td>
                   <td
-                    colSpan="3"
-                    className="py-2 px-6 text-gray-500 text-right"
+                    colSpan="4"
+                    className="py-2 px-6 text-right text-gray-500"
                   >
-                    $2750.00
+                    ${data.totalAmountDueUSD.toFixed(2)}
                   </td>
                 </tr>
-
-                <tr className="border-b border-slate-200">
+                <tr className="border-slate-200 border-b">
                   <td
                     colSpan="1"
-                    className="py-2 border-r  text-gray-500 text-center"
+                    className="border-r py-2 text-center text-gray-500"
                   >
                     Prepared By
                   </td>
                   <td
                     colSpan="4"
-                    className="py-2 border-r text-gray-500 text-center"
+                    className="border-r py-2 text-center text-gray-500"
                   >
-                    Imtiyaz on 2024-04-28
+                    {data.preparedBy} on
+                    <br /> {writeDate(data.preparedByDate)}
                   </td>
                   <td
-                    colSpan="2"
-                    className="py-2 px-6 font-semibold text-gray-800 text-right border-r border-gray-200"
+                    colSpan="3"
+                    className="border-r border-gray-200 py-2 px-6 text-right font-semibold text-gray-800"
                   >
                     Tax:
                   </td>
                   <td
                     colSpan="4"
-                    className="py-2 px-6 text-gray-500 text-right"
+                    className="py-2 px-6 text-right text-gray-500"
                   >
-                    $39.00
+                    ${data.totalAmountDueUSD.toFixed(2)}
                   </td>
                 </tr>
-                <tr className="border-b border-slate-200">
+                <tr className="border-slate-200 border-b">
                   <td
                     colSpan="1"
-                    className="py-2 border-r  text-gray-500 text-center"
+                    className="border-r py-2 px-1 text-center text-gray-500"
                   >
-                    Reviewed By
+                    Reviewed&nbsp;By
                   </td>
                   <td
                     colSpan="4"
-                    className="py-2 border-r  text-gray-500 text-center"
+                    className="border-r py-2 text-center text-gray-500"
                   >
-                    Vikas, Jagdish
+                    {data.reviewedBy}
                   </td>
                   <td
-                    colSpan="2"
-                    className="py-2 px-6 font-semibold text-gray-800 text-right border-r border-gray-200"
+                    colSpan="3"
+                    className="border-r border-gray-200 py-2 px-6 text-right font-semibold text-gray-800"
                   >
                     Tax:
                   </td>
                   <td
                     colSpan="4"
-                    className="py-2 px-6 text-gray-500 text-right"
+                    className="py-2 px-6 text-right text-gray-500"
                   >
-                    $39.00
+                    ${data.totalAmountDueUSD.toFixed(2)}
                   </td>
                 </tr>
-                <tr className="border-b border-slate-200">
+                <tr className="border-slate-200 border-b">
                   <td
-                    colSpan="7"
-                    className="py-2 px-6 font-semibold text-gray-800 text-right border-r border-gray-200"
+                    colSpan="8"
+                    className="border-r border-gray-200 py-2 px-6 text-right font-semibold text-gray-800"
                   >
                     Total:
                   </td>
                   <td
-                    colSpan="3"
-                    className="py-2 px-6 text-gray-500 text-right"
+                    colSpan="4"
+                    className="py-2 px-6 text-right text-gray-500"
                   >
-                    $2750.00
+                    ${data.totalAmountDueUSD.toFixed(2)}
                   </td>
                 </tr>
                 <tr>
                   <td
-                    colSpan="7"
-                    className="py-2 px-6 font-semibold text-gray-800 text-right border-r border-gray-200"
+                    colSpan="8"
+                    className="border-r border-gray-200 py-2 px-6 text-right font-semibold text-gray-800"
                   >
                     Due balance:
                   </td>
                   <td
-                    colSpan="3"
-                    className="py-4 px-6 text-gray-500 text-right"
+                    colSpan="4"
+                    className="py-4 px-6 text-right text-gray-500"
                   >
-                    $0.00
+                    ${data.totalAmountDueUSD.toFixed(2)}
                   </td>
                 </tr>
               </tfoot>
@@ -353,12 +329,12 @@ export default function PdfSkeleton({ onPrintComplete, data }) {
         </div>
       </div>
       {readyToPrint && (
-      <button
-        onClick={handlePrint}
-        className="mb-2 block w-auto mx-auto rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-      >
-        Print Invoice
-      </button>
+        <button
+          onClick={handlePrint}
+          className="mx-auto mb-2 block w-auto rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+        >
+          Print Invoice
+        </button>
       )}
     </>
   );

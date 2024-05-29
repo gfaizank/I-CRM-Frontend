@@ -51,7 +51,7 @@ const InvoiceTable = () => {
   const handlePrintStatus = (status) => {
     setIsPrinted(status);
     if (status) {
-      setDownloadPdf(false); 
+      setDownloadPdf(false);
     }
   };
   const { user } = useAuthContext();
@@ -201,7 +201,7 @@ const InvoiceTable = () => {
 
   const handleCloseDownloadModal = () => {
     setDownloadModal(false);
-  }
+  };
 
   const handleDropdownToggle = () => {
     setShowDropdown(!showDropdown);
@@ -249,7 +249,6 @@ const InvoiceTable = () => {
       .then((response) => response.json())
       .then((data) => {
         console.log("Data Before", data);
-
         setClients(data.data.clients);
         console.log("ClientData", clients);
       })
@@ -322,9 +321,12 @@ const InvoiceTable = () => {
 
   const handleDownloadRow = async (id) => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/invoices/pdf/${id}`);
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/invoices/pdf/${id}`
+      );
       const result = await response.json();
-      setDownloadData(result.data); 
+      setDownloadData(result.data);
+      console.log("Result Data", result);
     } catch (error) {
       console.error("Error fetching download data:", error);
     }
@@ -694,12 +696,15 @@ const InvoiceTable = () => {
         )}
         {downloadPdf && (
           <div className="top-0 left-0 flex h-full w-full items-center justify-center">
-          <div className="absolute top-0 h-full w-full bg-gray-900 opacity-50"></div>
-          <div className="z-30 rounded-lg bg-white p-6 shadow-lg dark:bg-gray-800">
-            <div className="my-16">
-            <PdfSkeleton onPrintComplete={handlePrintStatus} data={downloadData} />
+            <div className="absolute top-0 h-full w-full bg-gray-900 opacity-50"></div>
+            <div className="z-30 rounded-lg bg-white p-6 shadow-lg dark:bg-gray-800">
+              <div className="my-16">
+                <PdfSkeleton
+                  onPrintComplete={handlePrintStatus}
+                  data={downloadData}
+                />
+              </div>
             </div>
-          </div>
           </div>
         )}
         <table className="z-[-1]x w-full text-left text-sm text-gray-500 dark:text-gray-400">
@@ -791,8 +796,10 @@ const InvoiceTable = () => {
                           onClick={(event) => handleDeleteClick(event, row._id)}
                         />
                         <MdDownload
-                          className="cursor-pointer mt-1 text-xl text-green-400 hover:text-green-300"
-                          onClick={(event) => handleDownloadClick(event, row._id)}
+                          className="mt-1 cursor-pointer text-xl text-green-400 hover:text-green-300"
+                          onClick={(event) =>
+                            handleDownloadClick(event, row._id)
+                          }
                         />
                       </div>
                     </td>
