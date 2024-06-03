@@ -59,7 +59,7 @@ const UpdateDrawer = ({
           <span className="sr-only">Close menu</span>
         </button>
         <form className="mb-6">
-          <div className="mx-auto mb-6">
+          {/* <div className="mx-auto mb-6">
             <label
               htmlFor="status"
               className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
@@ -83,7 +83,7 @@ const UpdateDrawer = ({
                 </option>
               ))}
             </select>
-          </div>
+          </div> */}
           <div className="mx-auto mb-6">
             <label
               htmlFor="status"
@@ -110,7 +110,7 @@ const UpdateDrawer = ({
             </select>
           </div>
 
-          <div className="mb-6">
+          {/* <div className="mb-6">
             <label
               htmlFor="Phone Number"
               className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
@@ -127,7 +127,7 @@ const UpdateDrawer = ({
               onChange={handleUpdateChange}
               required
             />
-          </div>
+          </div> */}
           <div className="mb-6">
             <label
               htmlFor="Po Number"
@@ -267,7 +267,7 @@ const UpdateDrawer = ({
               onChange={handleUpdateChange}
             />
           </div>
-          <div className="mb-6">
+          {/* <div className="mb-6">
             <label
               htmlFor="Prepared By"
               className="mb-2 block text-sm font-medium text-gray-900"
@@ -291,8 +291,8 @@ const UpdateDrawer = ({
                 </option>
               ))}
             </select>
-          </div>
-          <div className="mb-6">
+          </div> */}
+          {/* <div className="mb-6">
             <label
               htmlFor="Reviewed By"
               className="mb-2 block text-sm font-medium text-gray-900"
@@ -316,7 +316,7 @@ const UpdateDrawer = ({
                 </option>
               ))}
             </select>
-          </div>
+          </div> */}
           <h5 className="mb-6 inline-flex items-center text-base font-semibold uppercase text-gray-500 dark:text-gray-400">
             <svg
               className="h-4 w-4 me-2.5"
@@ -497,13 +497,21 @@ const UpdateDrawer = ({
                   required
                 >
                   <option value="">Choose a SAC</option>
-                  {["998311", "998312", "998313", "998314", "9983"].map(
-                    (value) => (
-                      <option key={value} value={value}>
-                        {value}
-                      </option>
-                    )
-                  )}
+                  <option key="998311" value="998311">
+                    Management Consulting
+                  </option>
+                  <option key="998312" value="998312">
+                    Business Consulting
+                  </option>
+                  <option key="998313" value="998313">
+                    IT Consulting
+                  </option>
+                  <option key="998314" value="998314">
+                    IT Design & Development
+                  </option>
+                  <option key="9983" value="9983">
+                    Other Professional, Technical & Business Services
+                  </option>
                 </select>
               </div>
               <div className="mb-6">

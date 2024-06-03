@@ -219,7 +219,7 @@ const AddDrawer = ({
                 htmlFor="start-date"
                 className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
               >
-                <span className="text-lg text-red-500">*</span>Service from Date
+                <span className="text-lg text-red-500">*</span>Service From Date
               </label>
               <div className="relative max-w-sm">
                 <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
@@ -250,7 +250,7 @@ const AddDrawer = ({
                 htmlFor="start-date"
                 className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
               >
-                <span className="text-lg text-red-500">*</span> Service End Date
+                <span className="text-lg text-red-500">*</span> Service To Date
               </label>
               <div className="relative max-w-sm">
                 <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
