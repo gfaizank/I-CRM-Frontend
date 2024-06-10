@@ -322,7 +322,13 @@ const InvoiceTable = () => {
   const handleDownloadRow = async (id) => {
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/invoices/pdf/${id}`
+        `${process.env.REACT_APP_API_URL}/invoices/pdf/${id}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${user.token}`,
+            'Content-Type': 'application/json',
+          },
+        }
       );
       const result = await response.json();
       setDownloadData(result.data);
