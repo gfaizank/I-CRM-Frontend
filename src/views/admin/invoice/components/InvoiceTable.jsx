@@ -325,7 +325,7 @@ const InvoiceTable = () => {
         `${process.env.REACT_APP_API_URL}/invoices/pdf/${id}`,
         {
           headers: {
-            'Authorization': `Bearer ${user.token}`,
+            'email': `${user.user.email}`,
             'Content-Type': 'application/json',
           },
         }
