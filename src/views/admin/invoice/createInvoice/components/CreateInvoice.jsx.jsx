@@ -3,13 +3,15 @@ import { FaBuilding, FaUser } from "react-icons/fa";
 import { GrGallery } from "react-icons/gr";
 import { FaPlus, FaMinus } from "react-icons/fa";
 import Spinner from "../../components/Spinner";
+import PropTypes from 'prop-types';
 
-const AddInvoice = ({
+const CreateInvoice = ({
   onClose,
   handleInputChange,
   formData,
   handleSubmit,
   clients,
+  projects,
   managers,
   handleServiceChange,
   handleAdjustmentChange,
@@ -28,7 +30,7 @@ const AddInvoice = ({
 
   useEffect(() => {
     console.log("Projects Create invoice", projects);
-  });
+  }, [projects]);
 
   // Invoice Drawer
   const data = ["Apple", "Banana"];
@@ -36,7 +38,7 @@ const AddInvoice = ({
   const [searchTerm, setSearchTerm] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
   const [filteredData, setFilteredData] = useState(data);
-  const [projects, setProjects] = useState([]);
+  // const [projects, setProjects] = useState([]);
 
   const inputRef = useRef(null);
 
@@ -85,23 +87,28 @@ const AddInvoice = ({
     };
   }, []);
 
-  useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        setSpin(true);
-        const response = await fetch(
-          `${process.env.REACT_APP_API_URL}/project/`,
-          { method: "GET" }
-        );
-        const data = await response.json();
-        setProjects(data.data.projects);
-        setSpin(false);
-      } catch (error) {
-        console.error("Failed to fetch projects", error);
-      }
-    };
-    fetchProjects();
-  }, []);
+  // useEffect(() => {
+  //   const fetchProjects = async () => {
+  //     try {
+  //       setSpin(true);
+  //       const response = await fetch(
+  //         `${process.env.REACT_APP_API_URL}/project/`,
+  //         { method: "GET" }
+  //       );
+  //       const data = await response.json();
+  //       setProjects(data.data.projects);
+  //       setSpin(false);
+  //     } catch (error) {
+  //       console.error("Failed to fetch projects", error);
+  //     }
+  //   };
+  //   fetchProjects();
+  // }, []);
+
+
+  if (!projects || projects.length === 0) {
+    return <div>Loading projects...</div>;
+  }
 
   return (
     <div
@@ -592,4 +599,20 @@ const AddInvoice = ({
   );
 };
 
-export default AddInvoice;
+CreateInvoice.propTypes = {
+  handleInputChange: PropTypes.func.isRequired,
+  handleDrawerToggle: PropTypes.func.isRequired,
+  formData: PropTypes.object.isRequired,
+  handleSubmit: PropTypes.func.isRequired,
+  clients: PropTypes.array.isRequired,
+  projects: PropTypes.array.isRequired,
+  managers: PropTypes.array.isRequired,
+  peoples: PropTypes.array.isRequired,
+  handleServiceChange: PropTypes.func.isRequired,
+  handleAdjustmentChange: PropTypes.func.isRequired,
+  handleClientChange: PropTypes.func.isRequired,
+  drawerRef: PropTypes.object,
+  isDrawerOpen: PropTypes.bool.isRequired
+};
+
+export default CreateInvoice;

@@ -312,6 +312,7 @@ const InvoiceTable = () => {
           { method: "GET" }
         );
         const data = await response.json();
+        console.log("project data recieved" ,data.data.projects);
         setProjects(data.data.projects);
       } catch (error) {
         console.error("Failed to fetch projects", error);
@@ -319,6 +320,12 @@ const InvoiceTable = () => {
     };
     fetchProjects();
   }, []);
+
+  useEffect(() => {
+    console.log("Projects updated", projects);
+  }, [projects])
+  
+
 
   useEffect(() => {
     fetch(`${process.env.REACT_APP_API_URL}/people/`)
@@ -707,7 +714,7 @@ const InvoiceTable = () => {
                 formData={formData}
                 handleSubmit={handleSubmit}
                 clients={clients}
-                // projects={projects}
+                projects={projects}
                 managers={managers}
                 peoples={people}
                 handleServiceChange={handleServiceChange}
