@@ -8,28 +8,10 @@ import DeleteInvoiceConfirm from "./DeleteInvoiceConfirm";
 import UpdateDrawer from "./UpdateDrawer";
 import DownloadInvoiceConfirm from "./DownloadInvoiceConfirm";
 import PdfSkeleton from "./PdfSkeleton";
-import { useNavigate } from "react-router-dom";
-import { FaPlus, FaMinus } from "react-icons/fa";
-import CreateInvoice from "../createInvoice/components/CreateInvoice.jsx";
 
 const InvoiceTable = () => {
   const [filter, setFilter] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
-
-  const [isOpencreate, setIsOpencreate] = useState(false);
-
-  const [showComponent, setShowComponent] = useState(false);
-
-  const navigate = useNavigate();
-
-  const toggleAccordion = () => {
-    setIsOpencreate(!isOpencreate);
-    setShowComponent(true);
-  };
-
-  const handleAddNewInvoice = () => {
-    navigate("/admin/createinvoice");
-  };
 
   const [data, setData] = useState([
     { id: 1, task: "Task 1", completed: false },
@@ -290,34 +272,18 @@ const InvoiceTable = () => {
       });
   }, [deleted, submitted, updated]);
 
-  // useEffect(() => {
-  //   fetch(`${process.env.REACT_APP_API_URL}/project/`, {
-  //     method: "GET",
-  //   })
-  //     .then((response) => response.json())
-  //     .then((data) => {
-  //       setProjects(data.data.projects);
-  //       console.log("Invoice Table projects", projects);
-  //     })
-  //     .catch((error) => {
-  //       console.error("Failed to fetch projects", error);
-  //     });
-  // }, []);
-
   useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        const response = await fetch(
-          `${process.env.REACT_APP_API_URL}/project/`,
-          { method: "GET" }
-        );
-        const data = await response.json();
+    fetch(`${process.env.REACT_APP_API_URL}/project/`, {
+      method: "GET",
+    })
+      .then((response) => response.json())
+      .then((data) => {
         setProjects(data.data.projects);
-      } catch (error) {
+        console.log(projects);
+      })
+      .catch((error) => {
         console.error("Failed to fetch projects", error);
-      }
-    };
-    fetchProjects();
+      });
   }, []);
 
   useEffect(() => {
@@ -359,8 +325,8 @@ const InvoiceTable = () => {
         `${process.env.REACT_APP_API_URL}/invoices/pdf/${id}`,
         {
           headers: {
-            email: `${user.user.email}`,
-            "Content-Type": "application/json",
+            'email': `${user.user.email}`,
+            'Content-Type': 'application/json',
           },
         }
       );
@@ -672,51 +638,29 @@ const InvoiceTable = () => {
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
-            {/* add invoice */}
-            <div className="mx-auto  w-full max-w-4xl">
-              <button
-                id="dropdownRadioButton"
-                onClick={handleAddNewInvoice}
-                className="inline-flex items-center rounded-lg border border-gray-300 bg-blue-700 py-2 px-3 text-sm font-medium text-white hover:bg-blue-900 focus:outline-none focus:ring-4 focus:ring-gray-100 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:hover:border-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-700"
-                type="button"
-              >
-                ADD NEW INVOICE
-              </button>
-            </div>
-            {showComponent && (
-              <InvoiceDrawer
-                handleInputChange={handleInputChange}
-                handleDrawerToggle={handleDrawerToggle}
-                formData={formData}
-                handleSubmit={handleSubmit}
-                clients={clients}
-                projects={projects}
-                managers={managers}
-                peoples={people}
-                handleServiceChange={handleServiceChange}
-                handleAdjustmentChange={handleAdjustmentChange}
-                handleClientChange={handleClientChange}
-                drawerRef={drawerRef}
-                isDrawerOpen={isDrawerOpen}
-              />
-            )}
-            {showComponent && (
-              <CreateInvoice
-                handleInputChange={handleInputChange}
-                handleDrawerToggle={handleDrawerToggle}
-                formData={formData}
-                handleSubmit={handleSubmit}
-                clients={clients}
-                // projects={projects}
-                managers={managers}
-                peoples={people}
-                handleServiceChange={handleServiceChange}
-                handleAdjustmentChange={handleAdjustmentChange}
-                handleClientChange={handleClientChange}
-                drawerRef={drawerRef}
-                isDrawerOpen={isDrawerOpen}
-              />
-            )}
+            <button
+              id="dropdownRadioButton"
+              onClick={handleDrawerToggle}
+              className="inline-flex items-center rounded-lg border border-gray-300 bg-blue-700 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-900 focus:outline-none focus:ring-4 focus:ring-gray-100 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:hover:border-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-700"
+              type="button"
+            >
+              ADD NEW INVOICE
+            </button>
+            <InvoiceDrawer
+              handleInputChange={handleInputChange}
+              handleDrawerToggle={handleDrawerToggle}
+              formData={formData}
+              handleSubmit={handleSubmit}
+              clients={clients}
+              projects={projects}
+              managers={managers}
+              peoples={people}
+              handleServiceChange={handleServiceChange}
+              handleAdjustmentChange={handleAdjustmentChange}
+              handleClientChange={handleClientChange}
+              drawerRef={drawerRef}
+              isDrawerOpen={isDrawerOpen}
+            />
             {/* Update Drawer */}
             <UpdateDrawer
               isUpdateDrawerOpen={isUpdateDrawerOpen}
@@ -872,8 +816,6 @@ const InvoiceTable = () => {
           </tbody>
         </table>
       </div>
-
-      {/* <Componenttest hello="hello" /> */}
 
       {spin && <Spinner />}
 

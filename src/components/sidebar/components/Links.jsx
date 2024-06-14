@@ -43,13 +43,9 @@ export function SidebarLinks(props) {
                     activeRoute(route.path) === true
                       ? "font-bold text-navy-700 dark:text-white"
                       : "font-medium text-gray-600"
-                  } ${
-                    route.name === "invoice"
-                      ? "pointer-events-none hover:text-gray-600 dark:hover:text-gray-600"
-                      : "hover:text-navy-700 dark:hover:text-white"
                   }`}
                 >
-                  {route.name !== "invoice" && route.name}
+                  {route.name}
                 </p>
               </li>
               {activeRoute(route.path) ? (

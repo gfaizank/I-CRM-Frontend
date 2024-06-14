@@ -11,7 +11,6 @@ import Client from "views/admin/client";
 import Invoice from "views/admin/invoice";
 import Project from "views/admin/project";
 import Settings from "views/admin/settings";
-import InvoiceDrawer from "./views/admin/invoice/components/InvoiceDrawer";
 // Auth Imports
 import SignIn from "views/auth/SignIn";
 
@@ -23,11 +22,8 @@ import {
   MdPerson,
   MdPeople,
   MdLock,
-  MdAssignment,
+  MdAssignment
 } from "react-icons/md";
-import CreateInvoice from "views/admin/invoice/createInvoice";
-// import InvoiceDrawer from "views/admin/invoice/components/InvoiceDrawer";
-import { comment } from "postcss";
 
 const routes = [
   {
@@ -49,7 +45,7 @@ const routes = [
     layout: "/admin",
     path: "people",
     icon: <MdPeople className="h-6 w-6" />,
-    component: <People />,
+    component: <People />
     // component: <NFTMarketplace />,
     // secondary: true,
   },
@@ -60,6 +56,7 @@ const routes = [
     icon: <MdBarChart className="h-6 w-6" />,
     component: <Project />,
   },
+
   {
     name: "Invoice",
     layout: "/admin",
@@ -78,15 +75,8 @@ const routes = [
     // name: "Sign in",
     layout: "/auth",
     path: "sign-in",
-    icon: <MdLock className="pointer-events-none h-6 w-6  text-white" />,
-    component: <SignIn />,
-  },
-  {
-    name: "invoice",
-    layout: "/admin",
-    path: "createinvoice",
-    icon: <MdLock className="pointer-events-none h-6 w-6 text-white" />,
-    component: <CreateInvoice />,
-  },
+    icon: <MdLock className="h-6 w-6 text-white" />,
+    component: <SignIn />
+  }
 ];
 export default routes;
