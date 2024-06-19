@@ -683,7 +683,7 @@ const InvoiceTable = () => {
                 ADD NEW INVOICE
               </button>
             </div>
-            {/* {showComponent && (
+            {showComponent && (
               <InvoiceDrawer
                 handleInputChange={handleInputChange}
                 handleDrawerToggle={handleDrawerToggle}
@@ -699,9 +699,9 @@ const InvoiceTable = () => {
                 drawerRef={drawerRef}
                 isDrawerOpen={isDrawerOpen}
               />
-            )} */}
+            )}
 
-            <CreateInvoice
+            {/* <CreateInvoice
               handleInputChange={handleInputChange}
               handleDrawerToggle={handleDrawerToggle}
               formData={formData}
@@ -715,7 +715,7 @@ const InvoiceTable = () => {
               handleClientChange={handleClientChange}
               drawerRef={drawerRef}
               isDrawerOpen={isDrawerOpen}
-            />
+            /> */}
 
             {/* Update Drawer */}
             <UpdateDrawer
