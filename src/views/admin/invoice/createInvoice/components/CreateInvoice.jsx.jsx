@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { FaBuilding, FaUser } from "react-icons/fa";
 import { GrGallery } from "react-icons/gr";
 import { FaPlus, FaMinus } from "react-icons/fa";
-import Spinner from "../../components/Spinner";
+import { useLocation } from "react-router-dom";
 
 const AddInvoice = ({
   onClose,
@@ -10,6 +10,7 @@ const AddInvoice = ({
   formData,
   handleSubmit,
   clients,
+  projects,
   managers,
   handleServiceChange,
   handleAdjustmentChange,
@@ -20,7 +21,6 @@ const AddInvoice = ({
   const [isOpen, setIsOpen] = useState(false);
   const [showmodalsender, setshowmodalsender] = useState(false);
   const [showmodalrecipeint, setshowmodalrecipent] = useState(false);
-  const [spin, setSpin] = useState(false);
 
   const dropdownRef = useRef(null);
 
@@ -36,7 +36,6 @@ const AddInvoice = ({
   const [searchTerm, setSearchTerm] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
   const [filteredData, setFilteredData] = useState(data);
-  const [projects, setProjects] = useState([]);
 
   const inputRef = useRef(null);
 
@@ -85,24 +84,6 @@ const AddInvoice = ({
     };
   }, []);
 
-  useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        setSpin(true);
-        const response = await fetch(
-          `${process.env.REACT_APP_API_URL}/project/`,
-          { method: "GET" }
-        );
-        const data = await response.json();
-        setProjects(data.data.projects);
-        setSpin(false);
-      } catch (error) {
-        console.error("Failed to fetch projects", error);
-      }
-    };
-    fetchProjects();
-  }, []);
-
   return (
     <div
       className={`relative mx-auto mt-4 h-auto w-[70%] bg-white px-4 py-8 pb-16 ${
@@ -148,7 +129,7 @@ const AddInvoice = ({
                 aria-haspopup="true"
                 onClick={toggleDropdown}
               >
-                {spin ? <Spinner /> : "Projects"}
+                Options
                 <svg
                   className="-mr-1 ml-8 h-5 w-5"
                   xmlns="http://www.w3.org/2000/svg"
