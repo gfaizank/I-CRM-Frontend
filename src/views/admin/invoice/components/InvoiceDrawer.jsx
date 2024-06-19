@@ -6,9 +6,7 @@ const InvoiceDrawer = ({
   handleInputChange,
   formData,
   handleSubmit,
-
   projects,
-
   handleServiceChange,
   handleAdjustmentChange,
   drawerRef,

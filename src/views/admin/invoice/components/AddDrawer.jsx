@@ -122,7 +122,7 @@ const AddDrawer = ({
                 <option value="" disabled>
                   Choose Project
                 </option>
-                {projects.map((client) => (
+                {pro.map((client) => (
                   <option key={client.id} value={client.id}>
                     {client.primaryContactPerson}
                   </option>

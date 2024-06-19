@@ -683,7 +683,7 @@ const InvoiceTable = () => {
                 ADD NEW INVOICE
               </button>
             </div>
-            {showComponent && (
+            {/* {showComponent && (
               <InvoiceDrawer
                 handleInputChange={handleInputChange}
                 handleDrawerToggle={handleDrawerToggle}
@@ -699,24 +699,24 @@ const InvoiceTable = () => {
                 drawerRef={drawerRef}
                 isDrawerOpen={isDrawerOpen}
               />
+            )} */}
+            {showComponent && (
+              <CreateInvoice
+                handleInputChange={handleInputChange}
+                handleDrawerToggle={handleDrawerToggle}
+                formData={formData}
+                handleSubmit={handleSubmit}
+                clients={clients}
+                projects={projects}
+                managers={managers}
+                peoples={people}
+                handleServiceChange={handleServiceChange}
+                handleAdjustmentChange={handleAdjustmentChange}
+                handleClientChange={handleClientChange}
+                drawerRef={drawerRef}
+                isDrawerOpen={isDrawerOpen}
+              />
             )}
-
-            {/* <CreateInvoice
-              handleInputChange={handleInputChange}
-              handleDrawerToggle={handleDrawerToggle}
-              formData={formData}
-              handleSubmit={handleSubmit}
-              clients={clients}
-              projects={projects}
-              managers={managers}
-              peoples={people}
-              handleServiceChange={handleServiceChange}
-              handleAdjustmentChange={handleAdjustmentChange}
-              handleClientChange={handleClientChange}
-              drawerRef={drawerRef}
-              isDrawerOpen={isDrawerOpen}
-            /> */}
-
             {/* Update Drawer */}
             <UpdateDrawer
               isUpdateDrawerOpen={isUpdateDrawerOpen}
