@@ -3,13 +3,10 @@ import { IoSearchSharp } from "react-icons/io5";
 import { RiArrowDropDownLine } from "react-icons/ri";
 
 const InvoiceDrawer = ({
-  onClose,
   handleInputChange,
   formData,
   handleSubmit,
-  clients,
   projects,
-  managers,
   handleServiceChange,
   handleAdjustmentChange,
   drawerRef,
