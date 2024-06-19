@@ -2,29 +2,100 @@ import React, { useState, useRef, useEffect } from "react";
 import { FaBuilding, FaUser } from "react-icons/fa";
 import { GrGallery } from "react-icons/gr";
 import { FaPlus, FaMinus } from "react-icons/fa";
-import { useLocation } from "react-router-dom";
+import { useProjects } from "hooks/useProjects";
 
-const AddInvoice = ({
-  onClose,
-  handleInputChange,
-  formData,
-  handleSubmit,
-  clients,
-  projects,
-  managers,
-  handleServiceChange,
-  handleAdjustmentChange,
-  drawerRef,
-  isDrawerOpen,
-  handleDrawerToggle,
-}) => {
+const AddInvoice = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showmodalsender, setshowmodalsender] = useState(false);
   const [showmodalrecipeint, setshowmodalrecipent] = useState(false);
 
+  const { projects, loading, error } = useProjects();
+
   const dropdownRef = useRef(null);
 
   const [isOpenaccor, setIsOpenaccor] = useState(false);
+
+  const initialFormData = {
+    clientId: "",
+    projectId: "",
+    number: "",
+    poNumber: "",
+    date: "",
+    serviceFromDate: "",
+    serviceToDate: "",
+    mileStones: [],
+    dueDate: "",
+    preparedBy: "",
+    reviewedBy: [],
+
+    services: [
+      {
+        name: "",
+        description: "",
+        // fromDate: "",
+        // toDate: "",
+        mileStone: "",
+        hours: "",
+        rate: "",
+        discountPercent: "",
+        discountAmount: "",
+        SAC: "998311",
+        timeTrackerReportUrl: "",
+        taxableAmount: "",
+        sgstRate: "Nil",
+        sgstAmount: "",
+        cgstRate: "Nil",
+        cgstAmount: "",
+        igstRate: "Nil",
+        igstAmount: "",
+      },
+    ],
+    adjustments: [
+      {
+        name: "",
+        amount: "",
+      },
+    ],
+    status: "DRAFT",
+    paidAmount: "",
+    forgivenAmount: "",
+    paidAmountINR: "",
+    forgivenReason: "",
+    cancellationReason: "",
+    paymentChannel: "WISE",
+    lostAmountINR: 0,
+  };
+
+  const [formData, setFormData] = useState(initialFormData);
+
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [name]: value,
+    }));
+  };
+
+  const handleServiceChange = (index, field, value) => {
+    const updatedServices = formData.services.map((service, i) => {
+      if (i === index) {
+        return { ...service, [field]: value };
+      }
+      return service;
+    });
+    setFormData({ ...formData, services: updatedServices });
+  };
+
+  const handleAdjustmentChange = (index, field, value) => {
+    const updatedAdjustements = formData.adjustments.map((adjustment, i) => {
+      if (i === index) {
+        return { ...adjustment, [field]: value };
+      }
+      return adjustment;
+    });
+    setFormData({ ...formData, adjustments: updatedAdjustements });
+  };
 
   useEffect(() => {
     console.log("Projects Create invoice", projects);
@@ -83,6 +154,39 @@ const AddInvoice = ({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  const handleSubmit = (event) => {
+    setSpin(true);
+    event.preventDefault();
+    console.log(formData);
+
+    // Send data to the API endpoint
+    fetch(`${process.env.REACT_APP_API_URL}/invoices`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${user.token}`,
+      },
+      body: JSON.stringify(formData),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log("Success:", data);
+
+        setIsDrawerOpen(false);
+        setSubmitted((prevSubmitted) => !prevSubmitted);
+        setSpin(false);
+        setFormData(initialFormData);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  };
 
   return (
     <div

@@ -290,20 +290,6 @@ const InvoiceTable = () => {
       });
   }, [deleted, submitted, updated]);
 
-  // useEffect(() => {
-  //   fetch(`${process.env.REACT_APP_API_URL}/project/`, {
-  //     method: "GET",
-  //   })
-  //     .then((response) => response.json())
-  //     .then((data) => {
-  //       setProjects(data.data.projects);
-  //       console.log("Invoice Table projects", projects);
-  //     })
-  //     .catch((error) => {
-  //       console.error("Failed to fetch projects", error);
-  //     });
-  // }, []);
-
   useEffect(() => {
 
     const fetchProjects = async () => {
@@ -380,17 +366,17 @@ const InvoiceTable = () => {
     }
   };
 
-  const handleClientSelect = (clientID) => {
-    setSelectedClientID(clientID);
-  };
+  // const handleClientSelect = (clientID) => {
+  //   setSelectedClientID(clientID);
+  // };
 
-  const handleClientChange = (event) => {
-    const { name, value } = event.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value, // This sets the clientId to the selected option's value, which is the ObjectId
-    }));
-  };
+  // const handleClientChange = (event) => {
+  //   const { name, value } = event.target;
+  //   setFormData((prevData) => ({
+  //     ...prevData,
+  //     [name]: value, // This sets the clientId to the selected option's value, which is the ObjectId
+  //   }));
+  // };
 
   const handleUpdateChange = (event) => {
     const { name, value } = event.target;
@@ -692,39 +678,9 @@ const InvoiceTable = () => {
                 ADD NEW INVOICE
               </button>
             </div>
-            {/* {showComponent && (
-              <InvoiceDrawer
-                handleInputChange={handleInputChange}
-                handleDrawerToggle={handleDrawerToggle}
-                formData={formData}
-                handleSubmit={handleSubmit}
-                clients={clients}
-                projects={projects}
-                managers={managers}
-                peoples={people}
-                handleServiceChange={handleServiceChange}
-                handleAdjustmentChange={handleAdjustmentChange}
-                handleClientChange={handleClientChange}
-                drawerRef={drawerRef}
-                isDrawerOpen={isDrawerOpen}
-              />
-            )} */}
+    
             {showComponent && (
-              <CreateInvoice
-                handleInputChange={handleInputChange}
-                handleDrawerToggle={handleDrawerToggle}
-                formData={formData}
-                handleSubmit={handleSubmit}
-                clients={clients}
-                projects={projects}
-                managers={managers}
-                peoples={people}
-                handleServiceChange={handleServiceChange}
-                handleAdjustmentChange={handleAdjustmentChange}
-                handleClientChange={handleClientChange}
-                drawerRef={drawerRef}
-                isDrawerOpen={isDrawerOpen}
-              />
+              <CreateInvoice />
             )}
 
             {/* Update Drawer */}
@@ -882,8 +838,6 @@ const InvoiceTable = () => {
           </tbody>
         </table>
       </div>
-
-      {/* <Componenttest hello="hello" /> */}
 
       {spin && <Spinner />}
 
