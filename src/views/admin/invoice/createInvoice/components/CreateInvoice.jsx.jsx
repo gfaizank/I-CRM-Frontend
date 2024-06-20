@@ -16,7 +16,6 @@ const AddInvoice = () => {
   const [isOpenaccor, setIsOpenaccor] = useState(false);
 
   const initialFormData = {
-    clientId: "",
     projectId: "",
     number: "",
     poNumber: "",
@@ -227,7 +226,7 @@ const AddInvoice = () => {
             <div>
               <button
                 type="button"
-                className="inline-flex  w-[136px] rounded-md border border-gray-300 px-4   py-2  text-sm font-medium text-gray-700"
+                className="inline-flex w-[136px] rounded-md border border-gray-300 px-4   py-2  text-sm font-medium text-gray-700"
                 id="menu-button"
                 aria-expanded="true"
                 aria-haspopup="true"
