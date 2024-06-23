@@ -19,6 +19,7 @@ const InvoiceTable = () => {
   const [isOpencreate, setIsOpencreate] = useState(false);
 
   const [showComponent, setShowComponent] = useState(false);
+  const [showUpdateComponent, setshowUpdateComponent] = useState(false);
 
   const navigate = useNavigate();
 
@@ -178,6 +179,7 @@ const InvoiceTable = () => {
   const handleUpdateDrawerToggle = () => {
     setIsUpdateDrawerOpen(!isUpdateDrawerOpen);
     setIsOpen(true);
+    navigate("/admin/updateinvoice");
   };
 
   const handleUpdateClickOutside = (event) => {
@@ -291,7 +293,6 @@ const InvoiceTable = () => {
   }, [deleted, submitted, updated]);
 
   useEffect(() => {
-
     const fetchProjects = async () => {
       try {
         const response = await fetch(
@@ -310,9 +311,7 @@ const InvoiceTable = () => {
 
   useEffect(() => {
     console.log("Projects updated", projects);
-  }, [projects])
-  
-
+  }, [projects]);
 
   useEffect(() => {
     fetch(`${process.env.REACT_APP_API_URL}/people/`)
@@ -678,13 +677,11 @@ const InvoiceTable = () => {
                 ADD NEW INVOICE
               </button>
             </div>
-    
-            {showComponent && (
-              <CreateInvoice />
-            )}
+
+            {showComponent && <CreateInvoice />}
 
             {/* Update Drawer */}
-            <UpdateDrawer
+            {/* <UpdateDrawer
               isUpdateDrawerOpen={isUpdateDrawerOpen}
               updateRef={updateRef}
               idData={idData}
@@ -697,7 +694,7 @@ const InvoiceTable = () => {
               managers={managers}
               projects={projects}
               selectedId={selectedId}
-            />
+            /> */}
           </div>
         </div>
         {showModal && (
