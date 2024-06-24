@@ -8,12 +8,8 @@ const UpdateDrawer = ({
   handleUpdateChange,
   handleAdjustmentChange,
   sendUpdate,
-  clients,
   projects,
-  managers,
   handleServiceChange,
-  handleSubmit,
-  selectedId,
 }) => {
   return (
     isUpdateDrawerOpen && (
