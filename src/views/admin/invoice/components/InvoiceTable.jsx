@@ -360,6 +360,7 @@ const InvoiceTable = () => {
       const result = await response.json();
       setDownloadData(result.data);
       console.log("Result Data", result);
+      console.log(user.user.email);
     } catch (error) {
       console.error("Error fetching download data:", error);
     }
