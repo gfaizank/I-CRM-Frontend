@@ -1,7 +1,6 @@
 import React from "react";
 import { useAuthContext } from "hooks/useAuthContext";
 import InvoiceTable from "./components/InvoiceTable";
-import InvoiceDrawer from "./components/InvoiceDrawer";
 import { useInvoiceContext } from "context/InvoiceContext";
 import CreateInvoice from "./components/CreateInvoice";
 import UpdateInvoice from "./components/UpdateInvoice";

@@ -1,11 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import Pagination from "./Pagination";
-import InvoiceDrawer from "./InvoiceDrawer";
 import { MdDelete, MdDownload } from "react-icons/md";
 import { useAuthContext } from "hooks/useAuthContext";
-import Spinner from "./Spinner";
+import Spinner from "views/admin/client/components/Spinner";
 import DeleteInvoiceConfirm from "./DeleteInvoiceConfirm";
-import UpdateDrawer from "./UpdateDrawer";
 import DownloadInvoiceConfirm from "./DownloadInvoiceConfirm";
 import PdfSkeleton from "./PdfSkeleton";
 import { useNavigate } from "react-router-dom";

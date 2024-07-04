@@ -5,7 +5,7 @@ import { FaPlus, FaMinus } from "react-icons/fa";
 import { useProjects } from "hooks/useProjects";
 import { useAuthContext } from "hooks/useAuthContext";
 
-const UpdateInvoice = ({ idData }) => {
+const UpdateInvoice = ( { invoiceData } ) => {
   const [isOpen, setIsOpen] = useState(false);
   const [showmodalsender, setshowmodalsender] = useState(false);
   const [showmodalrecipeint, setshowmodalrecipent] = useState(false);
@@ -163,38 +163,7 @@ const UpdateInvoice = ({ idData }) => {
     };
   }, []);
 
-  const handleSubmit = (event) => {
-    setSpin(true);
-    event.preventDefault();
-    console.log(formData);
-
-    // Send data to the API endpoint
-    fetch(`${process.env.REACT_APP_API_URL}/invoices`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${user.token}`,
-      },
-      body: JSON.stringify(formData),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        console.log("Success: submit", data);
-
-        setIsDrawerOpen(false);
-        setSubmitted((prevSubmitted) => !prevSubmitted);
-        setSpin(false);
-        setFormData(initialFormData);
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-      });
-  };
+  
 
   const handleUpdateChange = (event) => {
     const { name, value } = event.target;
@@ -207,52 +176,58 @@ const UpdateInvoice = ({ idData }) => {
 
   const [selectedId, setSelectedId] = useState(null);
 
-  // const [idData, setIdData] = useState({
-  //   clientId: "",
-  //   projectId: "",
-  //   number: "",
-  //   poNumber: "",
-  //   date: "",
-  //   serviceFromDate: "",
-  //   serviceToDate: "",
-  //   dueDate: "",
-  //   preparedBy: "",
-  //   reviewedBy: "",
+  const [idData, setIdData] = useState({
+    clientId: "",
+    projectId: "",
+    number: "",
+    poNumber: "",
+    date: "",
+    serviceFromDate: "",
+    serviceToDate: "",
+    dueDate: "",
+    preparedBy: "",
+    reviewedBy: "",
 
-  //   services: [
-  //     {
-  //       name: "",
-  //       description: "",
-  //       hours: "",
-  //       rate: "",
-  //       mileStone: "",
-  //       discountPercent: "",
-  //       discountAmount: "",
-  //       SAC: "998311",
-  //       timeTrackerReportUrl: "",
-  //       taxableAmount: "",
-  //       sgstRate: "Nil",
-  //       sgstAmount: "",
-  //       cgstRate: "Nil",
-  //       cgstAmount: "",
-  //       igstRate: "Nil",
-  //       igstAmount: "",
-  //     },
-  //   ],
-  //   adjustments: [
-  //     {
-  //       name: "",
-  //       amount: "",
-  //     },
-  //   ],
-  //   status: "DRAFT",
-  //   paidAmount: "",
-  //   forgivenAmount: "",
-  //   paidAmountINR: "",
-  //   forgivenReason: "",
-  //   cancellationReason: "",
-  //   paymentChannel: "WISE",
-  // });
+    services: [
+      {
+        name: "",
+        description: "",
+        hours: "",
+        rate: "",
+        mileStone: "",
+        discountPercent: "",
+        discountAmount: "",
+        SAC: "998311",
+        timeTrackerReportUrl: "",
+        taxableAmount: "",
+        sgstRate: "Nil",
+        sgstAmount: "",
+        cgstRate: "Nil",
+        cgstAmount: "",
+        igstRate: "Nil",
+        igstAmount: "",
+      },
+    ],
+    adjustments: [
+      {
+        name: "",
+        amount: "",
+      },
+    ],
+    status: "DRAFT",
+    paidAmount: "",
+    forgivenAmount: "",
+    paidAmountINR: "",
+    forgivenReason: "",
+    cancellationReason: "",
+    paymentChannel: "WISE",
+  });
+
+  useEffect(() => {
+    if (invoiceData) {
+      setIdData(invoiceData);
+    }
+  }, [invoiceData]);
 
   const sendUpdate = (event) => {
     setSpin(true);
@@ -1106,7 +1081,7 @@ const UpdateInvoice = ({ idData }) => {
       </div>
       <button
         type="submit"
-        onClick={handleSubmit}
+        onClick={sendUpdate}
         className="mx-80 mt-6 block w-[120px] items-center justify-center rounded-lg bg-blue-700 px-8 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
       >
         Submit

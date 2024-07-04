@@ -12,7 +12,7 @@ import Invoice from "views/admin/invoice";
 import Project from "views/admin/project";
 import Settings from "views/admin/settings";
 import Purchaseitem from "views/admin/purchaseitems";
-import InvoiceDrawer from "./views/admin/invoice/components/InvoiceDrawer";
+
 // Auth Imports
 import SignIn from "views/auth/SignIn";
 
