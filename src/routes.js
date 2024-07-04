@@ -11,6 +11,7 @@ import Client from "views/admin/client";
 import Invoice from "views/admin/invoice";
 import Project from "views/admin/project";
 import Settings from "views/admin/settings";
+import Purchaseitem from "views/admin/purchaseitems";
 import InvoiceDrawer from "./views/admin/invoice/components/InvoiceDrawer";
 // Auth Imports
 import SignIn from "views/auth/SignIn";
@@ -54,6 +55,7 @@ const routes = [
     // component: <NFTMarketplace />,
     // secondary: true,
   },
+ 
   {
     name: "Project",
     layout: "/admin",
@@ -69,6 +71,13 @@ const routes = [
     component: <Invoice />,
   },
   {
+    name: "Purchase Items",
+    layout: "/admin",
+    path: "purchaseitem",
+    icon: <MdAssignment className="h-6 w-6" />,
+    component: <Purchaseitem />,
+  },
+  {
     name: "Settings",
     layout: "/admin",
     path: "settings",
@@ -82,19 +91,19 @@ const routes = [
     icon: <MdLock className="pointer-events-none h-6 w-6  text-white" />,
     component: <SignIn />,
   },
-  {
-    name: "invoice",
-    layout: "/admin",
-    path: "createinvoice",
-    icon: <MdLock className="pointer-events-none h-6 w-6 text-white" />,
-    component: <CreateInvoice />,
-  },
-  {
-    name: "invoice",
-    layout: "/admin",
-    path: "updateinvoice",
-    icon: <MdLock className="pointer-events-none h-6 w-6 text-white" />,
-    component: <UpdateInvoice />,
-  },
+  // {
+  //   name: "invoice",
+  //   layout: "/admin",
+  //   path: "createinvoice",
+  //   icon: <MdLock className="pointer-events-none h-6 w-6 text-white" />,
+  //   component: <CreateInvoice />,
+  // },
+  // {
+  //   name: "invoice",
+  //   layout: "/admin",
+  //   path: "updateinvoice",
+  //   icon: <MdLock className="pointer-events-none h-6 w-6 text-white" />,
+  //   component: <UpdateInvoice />,
+  // },
 ];
 export default routes;

@@ -48,12 +48,14 @@ const InvoiceTable = () => {
   const [submitted, setSubmitted] = useState(false);
   const [deleted, setDeleted] = useState(false);
   const [clients, setClients] = useState([]);
+  console.log("clientdev",clients )
   const [projects, setProjects] = useState([]);
   const [people, setPeople] = useState([]);
   const [managers, setManagers] = useState([]);
   const [clientIds, setClientIds] = useState([]);
   const [selectedClientID, setSelectedClientID] = useState(null);
   const [invoices, setInvoices] = useState([]);
+
   const [invoiceData, setInvoiceData] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isUpdateDrawerOpen, setIsUpdateDrawerOpen] = useState(false);
@@ -258,11 +260,16 @@ const InvoiceTable = () => {
         setSubmitted((prevSubmitted) => !prevSubmitted);
         setSpin(false);
         setFormData(initialFormData);
+        console.log();
       })
       .catch((error) => {
         console.error("Error:", error);
       });
   };
+
+  useEffect(() => {
+    console.log("Heyy", formData);
+  });
 
   useEffect(() => {
     fetch(`${process.env.REACT_APP_API_URL}/client/`)
@@ -277,6 +284,8 @@ const InvoiceTable = () => {
       });
   }, []);
 
+  console.log("client ==>",clients)
+
   useEffect(() => {
     setSpin(true);
     fetch(`${process.env.REACT_APP_API_URL}/invoices`, {
@@ -285,6 +294,7 @@ const InvoiceTable = () => {
       .then((response) => response.json())
       .then((data) => {
         setInvoices(data.data.invoices);
+        console.log("dev. resp",data.data)
         setSpin(false); // Assuming the API returns invoices in data.data.invoices
       })
       .catch((error) => {
@@ -537,6 +547,8 @@ const InvoiceTable = () => {
     updatedIndexOfLastItem
   );
 
+
+
   const drawerRef = useRef(null);
 
   const handleClickOutside = (event) => {
@@ -601,6 +613,10 @@ const InvoiceTable = () => {
     const day = String(date.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
   };
+
+  useEffect(() => {
+    console.log("Heyy Priyanshu", formData,formData.clientName);
+  }, [formData]);
 
   return (
     <div className="min-h-fit bg-white">
@@ -683,7 +699,7 @@ const InvoiceTable = () => {
 
             {/* Update Drawer */}
             {/* <UpdateDrawer
-              isUpdateDrawerOpen={isUpdateDrawerOpen}
+              isUpdateDrawerOpen={isUpdateDrawerOpen}onDataChange={handleDataChange}
               updateRef={updateRef}
               idData={idData}
               handleUpdateDrawerToggle={handleUpdateDrawerToggle}
@@ -758,17 +774,27 @@ const InvoiceTable = () => {
           </thead>
           <tbody>
             {updatedCurrentItems?.map((row, index) => {
-              const client = clients.find(
-                (client) => client._id === row.clientId
+              {console.log("updatedCurrentItems",updatedCurrentItems)}
+              const client = clients?.find(
+                (client) => client?._id === row?.clientId
               );
+
+              console.log("client.primaryContactPerson",client)
               const primaryContactPerson = client
-                ? client.primaryContactPerson
+                ? client?.primaryContactPerson
                 : "Unknown";
 
               const project = projects.find(
                 (project) => project._id === row.projectId
               );
-              const projectName = project ? project.name : "Unknown";
+              const projectName = project ? project?.name : "Unknown";
+
+              console.log("project.name is",project?.name)
+
+              // Use clientName from formData
+              const clientName = formData.clientName || primaryContactPerson;
+              console.log("clientName is",primaryContactPerson)
+
               if (
                 !searchQuery.trim() ||
                 primaryContactPerson
@@ -794,8 +820,7 @@ const InvoiceTable = () => {
                       scope="row"
                       className="whitespace-nowrap px-6 py-4 font-medium text-gray-900 dark:text-white"
                     >
-                      {/* {row.firstname+" "+row.lastname} */}
-                      {primaryContactPerson}
+                   {clientName}
                     </th>
                     <td className="px-6 py-4">{projectName}</td>
                     <td className="px-6 py-4">
@@ -804,7 +829,6 @@ const InvoiceTable = () => {
                     <td className="px-6 py-4">
                       {writeDate(row.serviceToDate)}
                     </td>
-                    {/* <td className="px-6 py-4">{row.workEmail}</td> */}
                     <td className="px-6 py-4">
                       <div className="flex flex-row items-center gap-3">
                         <a
