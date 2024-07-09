@@ -12,7 +12,7 @@ import Invoice from "views/admin/invoice";
 import Project from "views/admin/project";
 import Settings from "views/admin/settings";
 import Purchaseitem from "views/admin/purchaseitems";
-import InvoiceDrawer from "./views/admin/invoice/components/InvoiceDrawer";
+
 // Auth Imports
 import SignIn from "views/auth/SignIn";
 
@@ -26,10 +26,8 @@ import {
   MdLock,
   MdAssignment,
 } from "react-icons/md";
-import CreateInvoice from "views/admin/invoice/createInvoice";
-// import InvoiceDrawer from "views/admin/invoice/components/InvoiceDrawer";
 import { comment } from "postcss";
-import UpdateInvoice from "views/admin/invoice/createInvoice/components/UpdateInvoice";
+
 
 const routes = [
   {
@@ -91,19 +89,6 @@ const routes = [
     icon: <MdLock className="pointer-events-none h-6 w-6  text-white" />,
     component: <SignIn />,
   },
-  // {
-  //   name: "invoice",
-  //   layout: "/admin",
-  //   path: "createinvoice",
-  //   icon: <MdLock className="pointer-events-none h-6 w-6 text-white" />,
-  //   component: <CreateInvoice />,
-  // },
-  // {
-  //   name: "invoice",
-  //   layout: "/admin",
-  //   path: "updateinvoice",
-  //   icon: <MdLock className="pointer-events-none h-6 w-6 text-white" />,
-  //   component: <UpdateInvoice />,
-  // },
 ];
 export default routes;
+

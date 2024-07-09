@@ -6,7 +6,7 @@ import { useProjects } from "hooks/useProjects";
 import { useAuthContext } from "hooks/useAuthContext";
 import { useNavigate } from "react-router-dom";
 
-const AddInvoice = () => {
+const CreateInvoice = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showmodalsender, setshowmodalsender] = useState(false);
   const [showmodalrecipeint, setshowmodalrecipent] = useState(false);
@@ -1050,4 +1050,4 @@ const AddInvoice = () => {
     </div>
   );
 };
-export default AddInvoice;
+export default CreateInvoice;
