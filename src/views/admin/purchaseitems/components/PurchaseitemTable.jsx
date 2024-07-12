@@ -1,5 +1,14 @@
 import React, { useState } from 'react';
 
+const unitTypes = [
+  "Hours", "Kilos", "Grams", "Meters", "Feets", "Bags", "Rolls", "Sheets", "Visits", "Sessions", "Deliveries"
+];
+
+const taxTypes = [
+  "None", "Exempt-IGST-0", "IGST-0", "IGST-0.25", "IGST-3", "IGST-5", "IGST-6", "IGST-12", "IGST-18", "IGST-28", 
+  "Exempt-GST-0", "GST-0", "GST-0.25", "GST-3", "GST-5", "GST-6", "GST-12", "GST-18", "GST-28"
+];
+
 const PurchaseitemTable = () => {
   const [formData, setFormData] = useState({
     itemName: '',
@@ -10,12 +19,11 @@ const PurchaseitemTable = () => {
     description: '',
     salesAccount: '',
     tax: '',
-    account: ''
   });
 
   const [file, setFile] = useState(null); 
   const [preview, setPreview] = useState(''); 
-  // console.log("preview is",preview)
+  const [errors, setErrors] = useState({});
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -37,9 +45,25 @@ const PurchaseitemTable = () => {
     }
   };
 
+  const validate = () => {
+    let tempErrors = {};
+
+    if (!formData.itemName) tempErrors.itemName = "Item name cannot be empty";
+    if (!unitTypes.includes(formData.unitType)) tempErrors.unitType = "Unit must be a valid value  Hours, Kilos, Grams, Meters, Feets, Bags";
+    if (!taxTypes.includes(formData.tax)) tempErrors.tax = "Tax must be a valid value like None,IGST-0, IGST-0.25";
+
+    setErrors(tempErrors);
+
+    return Object.keys(tempErrors).length === 0;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!validate()) {
+      return;
+    }
+
     console.log('Form submitted with data:', formData);
     
     try {
@@ -52,31 +76,25 @@ const PurchaseitemTable = () => {
         body: JSON.stringify({ ...formData, image: preview }), 
       });
 
-      // if (!response.ok) {
-      //   throw new Error('Network response was not ok');
-      // }
-
       const responseData = await response.json();
       console.log('POST request succeeded with JSON response:', responseData);
 
-      // setFormData({
-      //   itemName: '',
-      //   purpose: '',
-      //   type: '',
-      //   unitType: '',
-      //   rate: '',
-      //   description: '',
-      //   salesAccount: '',
-      //   tax: '',
-      //   purchaseAccount: ''
-      // });
-      // setFile(null);
-      // setPreview('');
+      setFormData({
+        itemName: '',
+        purpose: '',
+        type: '',
+        unitType: '',
+        rate: '',
+        description: '',
+        salesAccount: '',
+        tax: '',
+      });
+      setFile(null);
+      setPreview('');
     } catch (error) {
       console.error('Error while sending POST request:', error);
     }
   };
-
 
   return (
     <div className="min-h-fit bg-white">
@@ -89,20 +107,7 @@ const PurchaseitemTable = () => {
         </div>
 
         <form onSubmit={handleSubmit}>
-          {/* <div className="bg-white shadow rounded-md p-4">
-            <div className="flex gap-4">
-              <div className="w-1/2">
-                <div className="mb-4 flex justify-start">
-                  <label htmlFor="image-upload">
-                    <div className="w-32 h-32 border border-dashed border-gray-300 rounded flex justify-center items-center text-2xl cursor-pointer">
-                      <i className="fas fa-camera text-gray-300"></i>
-                    </div>
-                  </label>
-                  <input type="file" id="image-upload" accept="image/*" hidden />
-                </div>
-              </div> */}
-
-           <div className="bg-white shadow rounded-md p-4">
+          <div className="bg-white shadow rounded-md p-4">
             <div className="flex gap-4">
               <div className="w-1/2">
                 <div className="mb-4 flex justify-start">
@@ -139,7 +144,8 @@ const PurchaseitemTable = () => {
                   onChange={handleInputChange}
                   required
                 />
-
+                {errors.itemName && <p className="text-red-500 text-xs mt-1">{errors.itemName}</p>}
+                
                 <div className="w-full mt-4">
                   <label htmlFor="purpose" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                     Purpose
@@ -206,6 +212,7 @@ const PurchaseitemTable = () => {
                   value={formData.unitType}
                   onChange={handleInputChange}
                 />
+                {errors.unitType && <p className="text-red-500 text-xs mt-1">{errors.unitType}</p>}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700" htmlFor="rate">
@@ -296,6 +303,7 @@ const PurchaseitemTable = () => {
                         />
                       </svg>
                     </div>
+                    {errors.tax && <p className="text-red-500 text-xs mt-1">{errors.tax}</p>}
                   </div>
                 </div>
                 <div>

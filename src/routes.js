@@ -12,6 +12,9 @@ import Invoice from "views/admin/invoice";
 import Project from "views/admin/project";
 import Settings from "views/admin/settings";
 import Purchaseitem from "views/admin/purchaseitems";
+import Item from "views/admin/item";
+
+
 
 // Auth Imports
 import SignIn from "views/auth/SignIn";
@@ -74,6 +77,13 @@ const routes = [
     path: "purchaseitem",
     icon: <MdAssignment className="h-6 w-6" />,
     component: <Purchaseitem />,
+  },
+  {
+    name: "Items",
+    layout: "/admin",
+    path: "list",
+    icon: <MdAssignment className="h-6 w-6" />,
+    component: <Item />,
   },
   {
     name: "Settings",
