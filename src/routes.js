@@ -30,6 +30,7 @@ import {
   MdAssignment,
 } from "react-icons/md";
 import { comment } from "postcss";
+import PurchaseInvoice from "views/admin/purchaseinvoice";
 
 
 const routes = [
@@ -70,6 +71,13 @@ const routes = [
     path: "invoice",
     icon: <MdAssignment className="h-6 w-6" />,
     component: <Invoice />,
+  },
+  {
+    name: "Purchase Invoice",
+    layout: "/admin",
+    path: "purchase",
+    icon: <MdAssignment className="h-6 w-6" />,
+    component: <PurchaseInvoice />,
   },
   {
     name: "Purchase Items",
