@@ -75,7 +75,7 @@ const routes = [
   {
     name: "Purchase Invoice",
     layout: "/admin",
-    path: "purchase",
+    path: "detail",
     icon: <MdAssignment className="h-6 w-6" />,
     component: <PurchaseInvoice />,
   },
